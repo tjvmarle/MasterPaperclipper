@@ -30,10 +30,6 @@ class PageInfo():
             self.state[field] = self.driver.find_element(
                 By.ID, pageIds[field]).text
 
-        # Debugging
-        # for entry in self.state:
-        #     print(f"[{entry}] has value [{self.state[entry]}]")
-
     def get(self, attribute) -> str:
         return self.state[attribute]
 

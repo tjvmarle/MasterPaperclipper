@@ -7,7 +7,7 @@ from multiprocessing.dummy import Process
 from Webpage.PageActions import PageActions
 from Webpage.PageInfo import PageInfo
 import time
-from Util.Timestamp import Timestamp
+from Util.Timestamp import Timestamp as TS
 
 MakeClips = True
 Alive = True
@@ -23,13 +23,12 @@ class Phase1Step1():
     def createPaperclips(self, dummy: str):
         while MakeClips:
             self.actions.makeClip()
-        print("Thread createPaperclips() killed")
 
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
         self.info = pageInfo
         self.actions = pageActions
         self.highestWireCost = 27
-        self.lastPriceAdjustment = Timestamp.now()
+        self.lastPriceAdjustment = TS.now()
 
         # Temporary, should be replaced by something more long-term
         self.projects = ["Creativity", "Limerick", "Lexical Processing", "Combinatory Harmonics",
@@ -51,8 +50,7 @@ class Phase1Step1():
 
         # Either buy when low or cheap
         if wire < 200 and enoughMoney or wire < 1500 and enoughMoney and wireCost <= 17:
-            ts = Timestamp.now().strftime("%H:%M:%S")
-            print(f"{ts}: Buy wire")
+            TS.print("Buy wire")
             self.actions.pressButton("BuyWire")
 
     def __spendTrust(self):
@@ -82,22 +80,18 @@ class Phase1Step1():
         if self.projects:
             projectBttn = self.projects[0]
             if self.actions.isEnabled(projectBttn):
-                print(f"Buying {projectBttn}")
+                TS.print(f"Buying {projectBttn}")
                 time.sleep(0.5)  # The buttons 'blink' in
                 self.actions.pressButton(projectBttn)
                 self.projects.pop(0)
         else:
-            print("End goal reached!")  # End the current run
+            TS.print("End goal reached!")  # End the current run
             time.sleep(3)
             self.__kill()
 
     def __buyClippers(self):
-        # if not self.actions.isEnabled("BuyAutoclipper"):
-        #     return
-
         autoCost = self.info.get("AutoCost")
         if not autoCost:
-            print(f"Autopclipper cost niet kunnen bepalen: {autoCost}")
             return
         else:
             autoCost = float(autoCost)
@@ -107,12 +101,12 @@ class Phase1Step1():
         if enoughMoney and int(self.info.get("AutoCount")) < 75:
             self.actions.pressButton("BuyAutoclipper")
             self.info.update("Funds")
-            # TODO: delegate buying / spending resources to seperate interface to keep pageInfo up to date
+            # TODO: delegate buying / spending resources to seperate class to keep pageInfo up to date, and also to keep priorities centralized
 
     def __adjustPrice(self):
 
         # Only adjust price once every 5 sec.
-        if Timestamp.delta(self.lastPriceAdjustment) < 5.0:
+        if TS.delta(self.lastPriceAdjustment) < 5.0:
             return
 
         rate, unsold = [int(self.info.get(field).replace(",", ""))
@@ -127,7 +121,7 @@ class Phase1Step1():
         elif unsold < 3 * rate:
             self.actions.pressButton("RaisePrice")
 
-        self.lastPriceAdjustment = Timestamp.now()
+        self.lastPriceAdjustment = TS.now()
 
     def execute(self):
         self.__updateWire()

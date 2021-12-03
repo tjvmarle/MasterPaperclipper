@@ -12,3 +12,7 @@ class Timestamp():
     def delta(timestamp: datetime) -> float:
         tijdsverschil = Timestamp.now() - timestamp
         return float(tijdsverschil.seconds) + float(tijdsverschil.microseconds) / 1000000.0
+
+    def print(text: str) -> None:
+        now = Timestamp.now().strftime("%H:%M:%S")
+        print(f"{now}: {text}")
