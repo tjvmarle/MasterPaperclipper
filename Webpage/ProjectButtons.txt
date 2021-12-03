@@ -1,0 +1,13 @@
+# ProjectButtons
+# Overview of available Projects to buy
+
+Improved Wire Extrusion     ; projectButton7    # @ 2000 clips
+RevTracker                  ; projectButton42   # @ 2000 clips
+Creativity                  ; projectButton3    # @ 1000 operations
+Improved AutoClippers       ; projectButton1    # @ 1st AutoClippers
+Limerick                    ; projectButton6    # @ Buying first Project
+Lexical Processing          ; projectButton13   # @ 50 Creativity
+Combinatory Harmonics       ; projectButton14   # @ 100 Creativity
+The Hadwiger Problem        ; projectButton15   # @ 150 Creativity
+The Toth Sausage Conjecture ; projectButton17   # @ 200 Creativity
+Donkey Space                ; projectButton19   # @ 250 Creativity

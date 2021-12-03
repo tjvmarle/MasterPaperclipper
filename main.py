@@ -1,31 +1,41 @@
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.common.by import By
 import time
+from Util.GameLoop.Strategizer import Strategizer
+from Webpage.PageInfo import PageInfo
+from Webpage.PageActions import PageActions
+
+from multiprocessing.dummy import Pool as ThreadPool
+
+config = dict(line.split("=")
+              for line in open("Private/Config.txt").read().splitlines())
 
 # Browser setup
 s = Service(ChromeDriverManager().install())
-driver = webdriver.Chrome(service=s)
-# driver.maximize_window()
 
-driver.get("https://www.decisionproblem.com/paperclips/index2.html")
 
-elem = driver.find_element(By.ID,"btnMakePaperclip")
+options = webdriver.ChromeOptions()
+options.add_argument(f'--user-data-dir={config["profilePath"]}')
+options.add_argument(f'--profile-directory={config["profileDir"]}')
 
-# FIXME: The site doesn't contain the progress from a previous or manual session. It's completely clean.
-for x in range(10):
-    elem.click()
+driver = webdriver.Chrome(service=s, chrome_options=options)
+driver.get(config["webPage"])
 
-time.sleep(1)
+driver.execute_script("reset()")  # Fresh start
+driver.execute_script("save()")  # Page only saves periodically
+
+print("\n\n\n**************************************************")
+
+pInfo = PageInfo(driver)
+pActions = PageActions(driver)
+strat = Strategizer(pInfo, pActions)
+
+running = True
+while running:
+    running = strat.tick()
+print("Main loop aborted")
+
+time.sleep(1)  # Watch in awe at your creation
+
 driver.close()
-
-
-# TODO
-# Done: Launch a browser to correct web page
-# Setup basic loop
-# Read contents
-# Parse contents
-
-
