@@ -10,6 +10,8 @@ class Timestamp():
         return datetime.now()
 
     def delta(timestamp: datetime) -> float:
+        """ Returns the time difference in seconds, including microseconds"""
+
         tijdsverschil = Timestamp.now() - timestamp
         return float(tijdsverschil.seconds) + float(tijdsverschil.microseconds) / 1000000.0
 

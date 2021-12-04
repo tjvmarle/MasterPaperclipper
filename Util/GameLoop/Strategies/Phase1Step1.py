@@ -41,14 +41,15 @@ class Phase1Step1():
             self.actions.pressButton("LowerPrice")
 
     def __updateWire(self):
-        wireCost = self.info.get("WireCost")
+        wireCost = self.info.getInt("WireCost")
         self.highestWireCost = max(wireCost, self.highestWireCost)
 
-        enoughMoney = self.info.getFl("Funds") > wireCost
-        wire = self.info.getInt("Wire")
+        if self.info.getFl("Funds") < wireCost:
+            return
 
+        wire = self.info.getInt("Wire")
         # Either buy when low or cheap
-        if wire < 200 and enoughMoney or wire < 1500 and enoughMoney and wireCost <= 17:
+        if wire < 200 or (wire < 1500 and wireCost <= 17):
             self.actions.pressButton("BuyWire")
 
     def __spendTrust(self):
@@ -102,8 +103,7 @@ class Phase1Step1():
         if TS.delta(self.lastPriceAdjustment) < 5.0:
             return
 
-        rate, unsold = [self.info.getInt(field).replace(",", "")
-                        for field in ("ClipsPerSec", "Unsold")]
+        rate, unsold = [self.info.getInt(field) for field in ("ClipsPerSec", "Unsold")]
 
         if rate < 40:
             # Prevents stuttering at low rates

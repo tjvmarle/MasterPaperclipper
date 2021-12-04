@@ -9,34 +9,38 @@ from selenium.webdriver.common.by import By
 # Tracking/determing the state could be done in seperate class.
 
 # TODO: Perhaps dump this in an external config file
-pageIds = {"TotalClips": "clips", "Funds": "funds", "Unsold": "unsoldClips", "ClipPrice": "margin", "Demand": "demand", "MarketingLevel": "marketingLvl", "MarketingCost": "adCost", "ClipsPerSec": "clipmakerRate", "Wire": "wire",
-           "WireCost": "wireCost", "AutoCount": "clipmakerLevel2", "AutoCost": "clipperCost", "MegaCount": "megaClipperLevel", "MegaCost": "megaClipperCost", "Trust": "trust", "Processors": "processors", "Memory": "memory", "Creativity": "creativity"}
-
-# TODO: Perhaps map de Ids to specific types and return values converted to those types
+pageIds = {
+    "TotalClips": "clips", "Funds": "funds", "Unsold": "unsoldClips", "ClipPrice": "margin", "Demand": "demand",
+    "MarketingLevel": "marketingLvl", "MarketingCost": "adCost", "ClipsPerSec": "clipmakerRate", "Wire": "wire",
+    "WireCost": "wireCost", "AutoCount": "clipmakerLevel2", "AutoCost": "clipperCost", "MegaCount": "megaClipperLevel",
+    "MegaCost": "megaClipperCost", "Trust": "trust", "Processors": "processors", "Memory": "memory",
+    "Creativity": "creativity"}
 
 
 class PageInfo():
     def __init__(self, webdriver: webdriver.Chrome) -> None:
         self.driver = webdriver
-        self.state = {}
-        self.update()
 
-    def update(self, field=None) -> None:
-        if not field:
-            self.state = {key: self.driver.find_element(
-                By.ID, pageIds[key]).text for key in pageIds}
-        else:
-            self.state[field] = self.driver.find_element(
-                By.ID, pageIds[field]).text
+        # TODO: These dicts could be fused into one
+        self.state = {}
+        self.stateCurrent = {}
+
+    def update(self, field) -> None:
+        self.state[field] = self.driver.find_element(By.ID, pageIds[field]).text
+        self.stateCurrent[field] = True
 
     def get(self, attribute) -> str:
+        if attribute not in self.stateCurrent or not self.stateCurrent[attribute]:
+            self.update(attribute)
+
         return self.state[attribute]
 
     def getInt(self, attribute) -> int:
-        return int(self.state[attribute].replace(",", "").replace(".", ""))
+        return int(self.get(attribute).replace(",", "").replace(".", ""))
 
     def getFl(self, attribute) -> float:
-        return float(self.state[attribute])
+        return float(self.get(attribute))
 
     def tick(self) -> None:
-        self.update()
+        # Mark all data as deprecated
+        self.stateCurrent = dict.fromkeys(self.stateCurrent, False)
