@@ -3,11 +3,9 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 from Util.GameLoop.Strategizer import Strategizer
-from Webpage.PageInfo import PageInfo
-from Webpage.PageActions import PageActions
+from Webpage.PageState.PageInfo import PageInfo
+from Webpage.PageState.PageActions import PageActions
 from Util.Timestamp import Timestamp as TS
-
-from multiprocessing.dummy import Pool as ThreadPool
 
 config = dict(line.split("=")
               for line in open("Private/Config.txt").read().splitlines())
@@ -36,37 +34,6 @@ startTime = TS.now()
 while strat.tick():
     pass
 
-totalTime = TS.delta(startTime)
-
-# TODO: Make this a function in TimeStamp. Can be useful to monitor other parts of the code.
-timeString = ""
-if totalTime > 3600:
-    hours = int(totalTime / 3600)
-    totalTime = totalTime - hours * 3600
-    timeString += f"{hours} hour"
-    if hours > 1:
-        timeString += "s"
-
-if totalTime > 60:
-    if timeString:
-        timeString += ", "
-
-    minutes = int(totalTime / 60)
-    totalTime = totalTime - minutes * 60
-    timeString += f"{minutes} minute"
-
-    if minutes > 1:
-        timeString += "s"
-
-if totalTime >= 1:
-    if timeString:
-        timeString += ", "
-
-    timeString += f"{int(totalTime)} second"
-
-    if totalTime > 1:
-        timeString += "s"
-
-TS.print(f"Finished in {timeString}.")
+TS.print(f"Finished in {TS.deltaStr(startTime)}.")
 time.sleep(1)  # Watch in awe at your creation
 driver.close()

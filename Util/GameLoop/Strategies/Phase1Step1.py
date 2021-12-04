@@ -4,24 +4,23 @@
 # Making paperclips can be done from a seperate thread
 
 from multiprocessing.dummy import Process
-from Webpage.PageActions import PageActions
-from Webpage.PageInfo import PageInfo
+from Webpage.PageState.PageActions import PageActions
+from Webpage.PageState.PageInfo import PageInfo
 import time
 from Util.Timestamp import Timestamp as TS
 
-MakeClips = True
 Alive = True
 
 # TODO: Implement a class to prioritize buying projects. Also load them from a config file.
 # Available resources can be determined from page info, but should be balanced against cost of non-project actions
 # This is probably going to require some kind of balancer-class then.
 # TODO: Implement a class to spend trust. Load the strategy from a file.
-# Perhaps we need some kind of allocater class that determines available funds for specific
+# Perhaps we need some kind of allocater class that determines available funds for different targets/priorities.
 
 
 class Phase1Step1():
     def createPaperclips(self, dummy: str):
-        while MakeClips:
+        while Alive:
             self.actions.makeClip()
 
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
@@ -42,36 +41,30 @@ class Phase1Step1():
             self.actions.pressButton("LowerPrice")
 
     def __updateWire(self):
-        wireCost = int(self.info.get("WireCost"))
+        wireCost = self.info.get("WireCost")
         self.highestWireCost = max(wireCost, self.highestWireCost)
 
-        enoughMoney = float(self.info.get("Funds")) > wireCost
-        wire = int(self.info.get("Wire").replace(",", ""))
+        enoughMoney = self.info.getFl("Funds") > wireCost
+        wire = self.info.getInt("Wire")
 
         # Either buy when low or cheap
         if wire < 200 and enoughMoney or wire < 1500 and enoughMoney and wireCost <= 17:
-            TS.print("Buy wire")
             self.actions.pressButton("BuyWire")
 
     def __spendTrust(self):
         if not self.actions.isEnabled("BuyProcessor"):
             return
 
-        trust = int(self.info.get("Trust"))
-        procs = int(self.info.get("Processors"))
-        mem = int(self.info.get("Memory"))
-
-        # trust, procs, mem = [self.info.get(x) for x in ("Trust", "Processors", "Memory")]
+        procs = self.info.getInt("Processors")
 
         if procs < 10:
             self.actions.pressButton("BuyProcessor")
-        else:
+        elif not self.projects:
+            # Don't buy Memory while Donkey Space is still available
             self.actions.pressButton("BuyMemory")
 
     def __kill(self):
         # Temporary killswitch
-        global MakeClips
-        MakeClips = False
         global Alive
         Alive = False
 
@@ -96,9 +89,9 @@ class Phase1Step1():
         else:
             autoCost = float(autoCost)
 
-        enoughMoney = (float(self.info.get("Funds")) -
+        enoughMoney = (self.info.getFl("Funds") -
                        self.highestWireCost) > autoCost
-        if enoughMoney and int(self.info.get("AutoCount")) < 75:
+        if enoughMoney and self.info.getInt("AutoCount") < 75:
             self.actions.pressButton("BuyAutoclipper")
             self.info.update("Funds")
             # TODO: delegate buying / spending resources to seperate class to keep pageInfo up to date, and also to keep priorities centralized
@@ -109,7 +102,7 @@ class Phase1Step1():
         if TS.delta(self.lastPriceAdjustment) < 5.0:
             return
 
-        rate, unsold = [int(self.info.get(field).replace(",", ""))
+        rate, unsold = [self.info.getInt(field).replace(",", "")
                         for field in ("ClipsPerSec", "Unsold")]
 
         if rate < 40:

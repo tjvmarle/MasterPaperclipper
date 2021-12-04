@@ -2,10 +2,8 @@
 from enum import Enum
 
 from Util.GameLoop.Strategies.Phase1Step1 import Phase1Step1
-from Webpage.PageActions import PageActions
-from Webpage.PageInfo import PageInfo
-
-import time
+from Webpage.PageState.PageActions import PageActions
+from Webpage.PageState.PageInfo import PageInfo
 
 
 class Phases(Enum):

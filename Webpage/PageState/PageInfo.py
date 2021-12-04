@@ -21,11 +21,10 @@ class PageInfo():
         self.state = {}
         self.update()
 
-    def update(self, field=None):
+    def update(self, field=None) -> None:
         if not field:
-            for webId in pageIds:
-                self.state[webId] = self.driver.find_element(
-                    By.ID, pageIds[webId]).text
+            self.state = {key: self.driver.find_element(
+                By.ID, pageIds[key]).text for key in pageIds}
         else:
             self.state[field] = self.driver.find_element(
                 By.ID, pageIds[field]).text
@@ -33,5 +32,11 @@ class PageInfo():
     def get(self, attribute) -> str:
         return self.state[attribute]
 
-    def tick(self):
+    def getInt(self, attribute) -> int:
+        return int(self.state[attribute].replace(",", "").replace(".", ""))
+
+    def getFl(self, attribute) -> float:
+        return float(self.state[attribute])
+
+    def tick(self) -> None:
         self.update()
