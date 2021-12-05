@@ -1,5 +1,8 @@
 # Main module to guide the actions on the webpage. The exact actions are dependent on the current active strategy, which is determined from the current phase and state of the game.
 from enum import Enum
+from selenium import webdriver
+
+from webdriver_manager import driver
 
 from Util.GameLoop.Strategies.Phase1Step1 import Phase1Step1
 from Webpage.PageState.PageActions import PageActions
@@ -12,10 +15,10 @@ class Phases(Enum):
 
 
 class Strategizer():
-    def __init__(self, info: PageInfo, actions: PageActions) -> None:
-        self.info = info
-        self.actions = actions
-        self.strats = [Phase1Step1(info, actions)]
+    def __init__(self, driver: webdriver.Chrome) -> None:
+        self.info = PageInfo(driver)
+        self.actions = PageActions(driver)
+        self.strats = [Phase1Step1(self.info, self.actions)]
         pass
 
     def tick(self) -> bool:

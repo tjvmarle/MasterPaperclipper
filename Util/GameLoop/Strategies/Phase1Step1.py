@@ -99,8 +99,8 @@ class Phase1Step1():
 
     def __adjustPrice(self):
 
-        # Only adjust price once every 5 sec.
-        if TS.delta(self.lastPriceAdjustment) < 5.0:
+        # Only adjust price once every x sec.
+        if TS.delta(self.lastPriceAdjustment) < 7.5:
             return
 
         rate, unsold = [self.info.getInt(field) for field in ("ClipsPerSec", "Unsold")]
