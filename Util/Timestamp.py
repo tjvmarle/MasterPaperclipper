@@ -1,38 +1,39 @@
 from typing import List
-from datetime import datetime
-
-from selenium.webdriver.common import touch_actions
+from datetime import date, datetime
 
 
 class Timestamp():
     def __init__(self) -> None:
-        pass
+        """This class is primarly to be used as static"""
+        raise NotImplementedError("Class Timestamp is not suppossed to be instantiated.")
 
     def now() -> datetime:
+        """Return current time"""
         return datetime.now()
 
-    def delta(timestamp: datetime) -> float:
+    def delta(pastTime: datetime, futureTime: datetime = None) -> float:
         """ Returns the time difference in seconds, including microseconds"""
 
-        tijdsverschil = Timestamp.now() - timestamp
-        return float(tijdsverschil.seconds) + float(tijdsverschil.microseconds) / 1000000.0
+        refTime = futureTime if futureTime else Timestamp.now()
+        timeDiff = refTime - pastTime
+        return float(timeDiff.seconds) + float(timeDiff.microseconds) / 1000000.0
 
-    def __breakDownTime(timeval: int, unitsize: int, unitname: str, strList: List[str]) -> int:
+    def __breakDownTime(timeVal: int, unitSize: int, unitName: str, strList: List[str]) -> int:
         """Helper method to break down the timeval into its parts"""
 
-        if timeval < unitsize:
-            return timeval
+        if timeVal < unitSize:
+            return timeVal
 
         if strList:
             strList.append(", ")
 
-        count = int(timeval / unitsize)
-        timeval -= count * unitsize
-        strList.append(f"{count} {unitname}")
+        count = int(timeVal / unitSize)
+        timeVal -= count * unitSize
+        strList.append(f"{count} {unitName}")
         if count > 1:
             strList.append("s")
 
-        return timeval
+        return timeVal
 
     def deltaStr(timestamp: datetime) -> str:
         """Gives back a string representation of the elapsed time since timestamp"""

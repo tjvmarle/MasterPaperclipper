@@ -25,23 +25,23 @@ class PageInfo():
         self.state = {}
         self.stateCurrent = {}
 
-    def update(self, field) -> None:
+    def update(self, field: str) -> None:
         """Forces the object to update an entry."""
 
         self.state[field] = self.driver.find_element(By.ID, pageIds[field]).text
         self.stateCurrent[field] = True
 
-    def get(self, attribute) -> str:
+    def get(self, attribute: str) -> str:
         # Lazy lookup
-        if attribute not in self.stateCurrent or not self.stateCurrent[attribute]:
+        if not self.stateCurrent.get(attribute, False):
             self.update(attribute)
 
         return self.state[attribute]
 
-    def getInt(self, attribute) -> int:
+    def getInt(self, attribute: str) -> int:
         return int(self.get(attribute).replace(",", "").replace(".", ""))
 
-    def getFl(self, attribute) -> float:
+    def getFl(self, attribute: str) -> float:
         return float(self.get(attribute))
 
     def tick(self) -> None:

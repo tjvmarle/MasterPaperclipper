@@ -100,6 +100,7 @@ class Phase1Step1():
     def __adjustPrice(self):
 
         # Only adjust price once every x sec.
+        # TODO: Improve balancing. Still has an issue to swing a bit too much.
         if TS.delta(self.lastPriceAdjustment) < 7.5:
             return
 
