@@ -1,5 +1,7 @@
-import time
+from typing import List
 from datetime import datetime
+
+from selenium.webdriver.common import touch_actions
 
 
 class Timestamp():
@@ -15,37 +17,35 @@ class Timestamp():
         tijdsverschil = Timestamp.now() - timestamp
         return float(tijdsverschil.seconds) + float(tijdsverschil.microseconds) / 1000000.0
 
+    def __breakDownTime(timeval: int, unitsize: int, unitname: str, strList: List[str]) -> int:
+        """Helper method to break down the timeval into its parts"""
+
+        if timeval < unitsize:
+            return timeval
+
+        if strList:
+            strList.append(", ")
+
+        count = int(timeval / unitsize)
+        timeval -= count * unitsize
+        strList.append(f"{count} {unitname}")
+        if count > 1:
+            strList.append("s")
+
+        return timeval
+
     def deltaStr(timestamp: datetime) -> str:
-        totalTime = Timestamp.delta(timestamp)
-        timeString = ""
-        if totalTime > 3600:
-            hours = int(totalTime / 3600)
-            totalTime = totalTime - hours * 3600
-            timeString += f"{hours} hour"
-            if hours > 1:
-                timeString += "s"
+        """Gives back a string representation of the elapsed time since timestamp"""
 
-        if totalTime > 60:
-            if timeString:
-                timeString += ", "
+        totalTime = int(Timestamp.delta(timestamp))
+        timeString = []
+        for secondsPerUnit, unitName in ((60*60*24, "day"), (3600, "hour"), (60, "minute"), (1, "second")):
+            totalTime = Timestamp.__breakDownTime(totalTime, secondsPerUnit, unitName, timeString)
 
-            minutes = int(totalTime / 60)
-            totalTime = totalTime - minutes * 60
-            timeString += f"{minutes} minute"
-
-            if minutes > 1:
-                timeString += "s"
-
-        if totalTime >= 1:
-            if timeString:
-                timeString += ", "
-
-            timeString += f"{int(totalTime)} second"
-
-            if totalTime > 1:
-                timeString += "s"
-        return timeString
+        return "".join(timeString)
 
     def print(text: str) -> None:
+        """Print the given text with a timestamp"""
+
         now = Timestamp.now().strftime("%H:%M:%S")
         print(f"{now}: {text}")
