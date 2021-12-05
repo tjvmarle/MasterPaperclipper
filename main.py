@@ -1,9 +1,17 @@
 import time
 from Util.GameLoop.Strategizer import Strategizer
+from Util.Gamesave import Gamesave
 from Webpage.Initialization.Startpage import Startpage
 from Util.Timestamp import Timestamp as TS
 
+# Launch the webpage and load/save options
 webPage = Startpage()
+game = Gamesave(webPage.getDriver())
+
+# Load game
+saveFile = "./Private/Saves/FirstPhase.txt"
+game.load(saveFile)
+
 strat = Strategizer(webPage.getDriver())
 
 startTime = TS.now()
@@ -28,6 +36,8 @@ while strat.tick():
 
 TS.print(f"Finished in {TS.deltaStr(startTime)}.")
 TS.print(f"Averaged {totalFrames / totalTicks:.2f} fps.")
-time.sleep(1)  # Watch in awe at your creation
 
-strat.actions.driver.close()  # Ugly, but fine for now.
+game.save(saveFile)
+
+time.sleep(2)  # Watch in awe at your creation
+webPage.getDriver().close()  # Bit ugly, but fine for now.
