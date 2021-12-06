@@ -20,14 +20,14 @@ class Config():
 
             if "=[" in line and line.endswith("]"):  # Single line list propery
                 keyName, listString = line.replace("[", "").replace("]", "").split("=")
-                Config.__config[keyName] = [listEntry.strip() for listEntry in listString.split(",")]
+                Config.__config[keyName.strip()] = [listEntry.strip() for listEntry in listString.split(",")]
 
             elif line.endswith("=["):  # Start of multiline list property
                 accumulating = True
-                accumulator.append(line.replace("=[", ""))
+                accumulator.append(line.replace("=[", "").strip())
 
             elif line == "]":  # End of multiline list property
-                Config.__config[accumulator.pop(0)] = accumulator[:]
+                Config.__config[accumulator[0]] = accumulator[1:]
                 accumulating = False
                 accumulator.clear()
 

@@ -1,0 +1,30 @@
+# Test data for the Config.py module
+
+# Regular properties
+stuffingIt=closeTogether
+aGoodLasagna=hasLayers(andLayers(andLayers(andLayers(andLayers))))
+             answer         =               42                  
+
+# Single line lists
+nrList=[ 1,2,3,4,5, 6]
+    midlifeDwarves     =[flabby,    baldy    ,alkie,divorcy, sleepy,moresleepy    ,  moody     ]
+
+# Multi line list
+          Mojito    =[    
+    
+    # Bacardi is actually really good for this
+    white rum,
+    
+    # Please use syrup and not plain sugar
+    simple syrup
+            fresh lime juice,
+        fresh mint leaves,,,,,,,,,,,,
+        
+        sparkling water
+
+    # Bruise the mint with the rum, juice and syrup
+    # Gently top up with soda water
+    # And serve with 
+    plenty of ice
+
+]
