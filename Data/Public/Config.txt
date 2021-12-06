@@ -1,0 +1,14 @@
+# Various properties to configure the entire project
+
+# Prioritizes the order in which Processors and Memory need to be bought
+trustSpendingStrategy=[
+    # First build to 10:1 to quickly buy the creativity projects
+    10:1
+    
+    # Temporarily block spending trust until Donkey Space is acquired
+    block1
+
+    # Semi random residual values. These can be finetuned to improve playtime
+    10:20
+    30:70
+]

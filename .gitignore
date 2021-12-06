@@ -1,8 +1,11 @@
 # Project specific stuff
 Profile/
-Private/
+Data/Private/
 .vscode/
 sandbox.py
+
+# Plugin stuff
+.VSCodeCounter/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
