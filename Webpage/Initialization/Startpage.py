@@ -5,7 +5,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 class Startpage():
     def __init__(self) -> None:
-        config = dict(line.split("=") for line in open("Private/Config.txt").read().splitlines())
+        config = dict(line.split("=") for line in open("Data/Private/Config.txt").read().splitlines())
         s = Service(ChromeDriverManager().install())
         options = webdriver.ChromeOptions()
         options.add_argument(f'--user-data-dir={config["profilePath"]}')

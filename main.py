@@ -9,7 +9,8 @@ webPage = Startpage()
 game = Gamesave(webPage.getDriver())
 
 # Load game
-saveFile = "./Private/Saves/FirstPhase.txt"
+# TODO: Implement config as Singleton and get the path from there
+saveFile = "./Data/Private/Saves/FirstPhase.txt"
 game.load(saveFile)
 
 strat = Strategizer(webPage.getDriver())
@@ -37,7 +38,7 @@ while strat.tick():
 TS.print(f"Finished in {TS.deltaStr(startTime)}.")
 TS.print(f"Averaged {totalFrames / totalTicks:.2f} fps.")
 
-game.save(saveFile)
+# game.save(saveFile)
 
-time.sleep(2)  # Watch in awe at your creation
+time.sleep(3)  # Watch in awe at your creation
 webPage.getDriver().close()  # Bit ugly, but fine for now.

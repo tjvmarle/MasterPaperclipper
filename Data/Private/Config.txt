@@ -1,0 +1,4 @@
+profilePath=<Path to local Chrome profiles>
+profileDir=<Name of profile directory>
+webPage=<The webpage in question>
+
