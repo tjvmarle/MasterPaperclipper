@@ -2,8 +2,6 @@
 from enum import Enum
 from selenium import webdriver
 
-from webdriver_manager import driver
-
 from Util.GameLoop.Strategies.Phase1Step1 import Phase1Step1
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo

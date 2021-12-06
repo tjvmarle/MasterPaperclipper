@@ -20,6 +20,6 @@ class Gamesave():
 
     def load(self, path: str) -> None:
         with open(path, "r") as file:
-            file.readline()
+            file.readline()  # Ignore first line
             self.driver.execute_script("".join(file.readlines()))
             self.driver.refresh()

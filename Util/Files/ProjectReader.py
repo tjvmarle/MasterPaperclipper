@@ -4,9 +4,10 @@ import csv
 
 # Overview of every resource that could be spent
 class Cost(Enum):
-    Ops = 1
-    Dollars = 2
-    Creativity = 3
+    ops = 1
+    dollars = 2
+    creativity = 3
+    yomi = 4
 
 
 # Small abstraction for a project
