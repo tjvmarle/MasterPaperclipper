@@ -8,10 +8,15 @@ from Util.Timestamp import Timestamp as TS
 webPage = Startpage()
 game = Gamesave(webPage.getDriver())
 
+# Rough overview of next actions:
+# TODO: Clean up other TODO's, including code refactoring
+# TODO: Write some more UTs
+# TODO: Write a controller for the photonic chips
+
 # Load game
 # TODO: Implement config as Singleton and get the path from there
-saveFile = "./Data/Private/Saves/FirstPhase.txt"
-game.load(saveFile)
+# saveFile = "./Data/Private/Saves/FirstPhase.txt"
+# game.load(saveFile)
 
 strat = Strategizer(webPage.getDriver())
 
@@ -27,7 +32,7 @@ while strat.tick():
     runtime = TS.delta(frameStamp)
     if runtime > 5.0:  # Average fps per 5 seconds
         fps = frames / runtime
-        TS.print(f"fps: {fps:.2f}")
+        # TS.print(f"fps: {fps:.2f}")
 
         totalFrames += fps
         totalTicks += 1

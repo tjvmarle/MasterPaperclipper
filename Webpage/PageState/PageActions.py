@@ -5,11 +5,17 @@ from selenium.common.exceptions import NoSuchElementException
 
 # Class with all actionable items of the entire page
 
-buttonIds = {"MakePaperclip": "btnMakePaperclip", "LowerPrice": "btnLowerPrice", "RaisePrice": "btnRaisePrice", "LevelUpMarketing": "btnExpandMarketing",
-             "BuyWire": "btnBuyWire", "BuyAutoclipper": "btnMakeClipper", "BuyMegaClipper": "btnMakeMegaClipper", "BuyProcessor": "btnAddProc", "BuyMemory": "btnAddMem"}
+buttonIds = {"MakePaperclip": "btnMakePaperclip", "LowerPrice": "btnLowerPrice", "RaisePrice": "btnRaisePrice",
+             "LevelUpMarketing": "btnExpandMarketing", "BuyWire": "btnBuyWire", "BuyAutoclipper": "btnMakeClipper",
+             "BuyMegaClipper": "btnMakeMegaClipper", "BuyProcessor": "btnAddProc", "BuyMemory": "btnAddMem"}
 
-projectsIds = {"Creativity": "projectButton3", "Limerick": "projectButton6",
-               "Lexical Processing": "projectButton13", "Combinatory Harmonics": "projectButton14", "The Hadwiger Problem": "projectButton15", "The Toth Sausage Conjecture": "projectButton17", "Donkey Space": "projectButton19"}
+# TODO: Load these from PhaseOneProjects.csv
+projectsIds = {
+    "Creativity": "projectButton3", "Limerick": "projectButton6", "Lexical Processing": "projectButton13",
+    "Combinatory Harmonics": "projectButton14", "The Hadwiger Problem": "projectButton15",
+    "The Toth Sausage Conjecture": "projectButton17", "Donkey Space": "projectButton19",
+    "New Slogan": "projectButton11", "Catchy Jingle": "projectButton12", "Quantum Computing": "projectButton50",
+    "Photonic Chip": "projectButton51"}
 
 
 class PageActions():

@@ -31,7 +31,7 @@ class ProjectReader():
             csvInput = csv.reader(file, delimiter=",")
 
             for name, id, cost, info in csvInput:
-                if name == "Name":
+                if name == "Name" or name == "" or name == "Important":
                     continue
 
                 if "Unimportant" in name:
