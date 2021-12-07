@@ -1,14 +1,41 @@
 # Various properties to configure the entire project
 
 # Prioritizes the order in which Processors and Memory need to be bought
+# Syntax = Processors : Memory
 trustSpendingStrategy=[
-    # First build to 10:1 to quickly buy the creativity projects
-    10:1
+    # Early processors are required for some quick creativity generation
+    5:1
     
-    # Temporarily block spending trust until Donkey Space is acquired
+    # Temporarily block spending trust until Donkey Space is acquired and an additional 70 creativity is made
     block1
 
+    # Next, 10 memory is required to buy the first quantum upgrades
+    5:10
+
     # Semi random residual values. These can be finetuned to improve playtime
-    10:20
+    10:10
     30:70
+]
+
+# Priority of buying the projects
+phaseOneProjects=[
+    
+    # First Exhaust the creativity projects
+    Creativity
+    Limerick
+    Lexical Processing
+    Combinatory Harmonics
+    The Hadwiger Problem
+    The Toth Sausage Conjecture
+    Donkey Space
+
+    # Next some upgrades to marketing - requires an additional 70 creativity!
+    # OPT: Ensure no more creativity is generated while we move to Photonic Chips after these, otherwise we might be able to lower te limit of 70 creativity.
+    New Slogan
+    Catchy Jingle
+
+    # Next go for the photonic chips
+    # OPT: Eventually this will be priority #1 to reach ASAP. Is going to require balancing of spending trust and buying the righ projects
+    Quantum Computing
+    Photonic Chip
 ]
