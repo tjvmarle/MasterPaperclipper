@@ -48,11 +48,9 @@ class Config():
             projectList = []
             for line in csvInput:
                 if not line or line[0].strip().startswith("#"):
-                    print(f"Skipped [{line}]")
                     continue
 
                 projectList.append(line)
-                print(f"Appended: {projectList[-1]}")
 
         Config.__config["AllProjects"] = projectList
 

@@ -6,7 +6,6 @@ from Util.Files.Config import Config
 
 class Startpage():
     def __init__(self) -> None:
-        # config = dict(line.split("=") for line in open("Data/Private/Config.txt").read().splitlines())
 
         Config.load("Data/Private/Config.txt")
         Config.load("Data/Public/Config.txt")

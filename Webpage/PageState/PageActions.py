@@ -6,10 +6,6 @@ from Util.Files.Config import Config
 
 # Class with all actionable items of the entire page
 
-buttonIds = {"MakePaperclip": "btnMakePaperclip", "LowerPrice": "btnLowerPrice", "RaisePrice": "btnRaisePrice",
-             "LevelUpMarketing": "btnExpandMarketing", "BuyWire": "btnBuyWire", "BuyAutoclipper": "btnMakeClipper",
-             "BuyMegaClipper": "btnMakeMegaClipper", "BuyProcessor": "btnAddProc", "BuyMemory": "btnAddMem"}
-
 
 class PageActions():
     def __get(self, button: str) -> WebElement:
@@ -21,7 +17,9 @@ class PageActions():
 
     def __init__(self, webdriver: webdriver.Chrome) -> None:
         self.driver = webdriver
-        self.buttons = {**buttonIds, **{name: id for name, id, *_ in Config.get("AllProjects")}}
+        self.buttons = {  # Combine multiple sources
+            **{name: id for name, id in [listEntry.split(":") for listEntry in Config.get("actionFields")]},
+            **{name: id for name, id, *_ in Config.get("AllProjects")}}
         self.clipper = self.__get("MakePaperclip")
 
     def tick(self):

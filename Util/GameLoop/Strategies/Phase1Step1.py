@@ -67,13 +67,13 @@ class Phase1Step1():
             self.actions.pressButton("BuyWire")
 
     def __isBlockActive(self) -> bool:
-        if self.nextStrat == "block1" and "Donkey Space" not in self.projects and self.info.getInt("Creativity") > 70:
+        if self.nextStrat == "block1" and "Donkey Space" not in self.projects:
             self.__getNextStrat()
             return False
         return True
 
     def __buyFromRatio(self) -> None:
-        """ Calculate how far we are from our targetProc/Mem values. Compare this ratio from the initial ratio when we chose our current trustStrategy. If our current ratio is higher (or equal), it means we have a higher delta in Processors than our initial value and are thus behind in acquiring them. Else, we need more Memory. This allows both to progress in a relative way towards their next targets. E.g. going from 10:10 to 12:90 should buy 1 proc, 40 mem, 1 proc, 40 mem."""
+        """ Calculate how far we are from our targetProc/Mem values. Compare this ratio to the initial ratio when we chose our current trustStrategy. If our current ratio is higher (or equal), it means we have a higher delta in Processors than our initial value and are thus behind in acquiring them. Else, we need more Memory. This allows both to progress in a relative way towards their next targets. E.g. going from 10:10 to 12:90 should buy 1 proc, 40 mem, 1 proc, 40 mem."""
 
         currProc, currMem = [self.info.getInt(val) for val in ("Processors", "Memory")]
 
@@ -110,10 +110,11 @@ class Phase1Step1():
             self.__buyFromRatio()
 
     def __kill(self):
-        # Temporary killswitch
+        """Temporary switch to end the entire session."""
         TS.print("End goal reached!")
         global Alive
         Alive = False
+        time.sleep(0.5)  # Allow the thread to terminate
 
     def __buyProjects(self):
         if not self.projects:
@@ -146,8 +147,6 @@ class Phase1Step1():
 
     def __adjustPrice(self):
         # Only adjust price once every x sec.
-        # OPT: Improve balancing. Still has an issue to swing a bit too much. This could be its own class
-        # OPT: Optimize to lose a bit less money on the lower side, this slows down buying early clippers
         if TS.delta(self.lastPriceAdjustment) < self.priceAdjustmentTime:
             return
 
@@ -157,19 +156,19 @@ class Phase1Step1():
             # Prevents stuttering at low rates
             return
 
+        # OPT: Optimize to lose a bit less money on the lower side, this slows down buying early clippers
+        # OPT: Maybe couple Market Demand with production speed instead
         if unsold > 8 * rate:
             self.actions.pressButton("LowerPrice")
-            self.priceAdjustmentTime -= 0.5
+            self.priceAdjustmentTime += 0.5
         elif unsold < 4 * rate:
             self.actions.pressButton("RaisePrice")
-            self.priceAdjustmentTime -= 0.5
+            self.priceAdjustmentTime += 0.5
         else:
             self.priceAdjustmentTime = 5.0
 
-        self.priceAdjustmentTime = max(self.priceAdjustmentTime, 2.0)
         self.lastPriceAdjustment = TS.now()
 
-    # TODO: Perhaps buy Marketing a couple of times.
     def execute(self):
         self.__updateWire()
         self.__buyClippers()  # Buying wire is more important than clippers

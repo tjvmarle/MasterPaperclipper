@@ -1,5 +1,57 @@
 # Various properties to configure the entire project
 
+# Fields used on the webpage containing data
+infoFields=[
+    # Syntax = InternalName:WebPageId
+    TotalClips:clips
+    Funds:funds
+    Unsold:unsoldClips
+    ClipPrice:margin
+    Demand:demand
+    MarketingLevel:marketingLvl
+    MarketingCost:adCost
+    ClipsPerSec:clipmakerRate
+    Wire:wire
+    WireCost:wireCost
+    AutoCount:clipmakerLevel2
+    AutoCost:clipperCost
+    MegaCount:megaClipperLevel
+    MegaCost:megaClipperCost
+    Trust:trust
+    Processors:processors
+    Memory:memory
+    Creativity:creativity
+]
+
+# Fields used on the webpage containing actionable elements
+actionFields=[
+    # Syntax = InternalName:WebPageId
+    MakePaperclip:btnMakePaperclip
+    LowerPrice:btnLowerPrice
+    RaisePrice:btnRaisePrice
+    LevelUpMarketing:btnExpandMarketing
+    BuyWire:btnBuyWire
+    BuyAutoclipper:btnMakeClipper
+    BuyMegaClipper:btnMakeMegaClipper
+    BuyProcessor:btnAddProc
+    BuyMemory:btnAddMem
+]
+
+# Parameters to log progress for. These can be toggled on and off before starting the game
+progressFields=[
+    # Syntax = InternalName from infoFields
+    # Funds
+    # Unsold
+    # ClipPrice
+    MarketingLevel
+    ClipsPerSec
+    AutoCount
+    MegaCount
+    Trust
+    Processors
+    Memory
+]
+
 # Prioritizes the order in which Processors and Memory need to be bought
 # Syntax = Processors : Memory
 trustSpendingStrategy=[
@@ -29,13 +81,13 @@ phaseOneProjects=[
     The Toth Sausage Conjecture
     Donkey Space
 
-    # Next some upgrades to marketing - requires an additional 70 creativity!
-    # OPT: Ensure no more creativity is generated while we move to Photonic Chips after these, otherwise we might be able to lower te limit of 70 creativity.
-    New Slogan
-    Catchy Jingle
-
     # Next go for the photonic chips
     # OPT: Eventually this will be priority #1 to reach ASAP. Is going to require balancing of spending trust and buying the righ projects
     Quantum Computing
     Photonic Chip
+
+    # Next some upgrades to marketing - requires an additional 70 creativity!
+    # OPT: Ensure no more creativity is generated while we move to Photonic Chips after these, otherwise we might be able to lower te limit of 70 creativity.
+    New Slogan
+    Catchy Jingle
 ]
