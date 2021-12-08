@@ -26,7 +26,6 @@ class Phase1Step1():
 
         nextEntry = self.trustStrategies.pop(0)  # Either <nr>:<nr> or block<nr>
         self.nextStrat = [int(entry) for entry in nextEntry.split(":")] if ":" in nextEntry else nextEntry
-        TS.print(f"Next trustStrategy acquired: {self.nextStrat}")
 
         if "block" in self.nextStrat:
             return
@@ -44,8 +43,9 @@ class Phase1Step1():
         self.nextStrat = None
 
         self.highestWireCost = 27
+        self.priceAdjustmentTime = 5.0
         self.lastPriceAdjustment = TS.now()
-        self.start = TS.now()  # TODO: acquire from Config.
+        self.start = Config.get("Gamestart")
 
         # Immediately start creating paperclips
         p = Process(target=self.createPaperclips, args=["1"])
@@ -87,7 +87,6 @@ class Phase1Step1():
         else:
             self.actions.pressButton("BuyMemory")
 
-    # TODO: Managing trust/resources should probably be in its own class
     def __spendTrust(self):
 
         while self.actions.isEnabled("BuyProcessor"):
@@ -117,19 +116,21 @@ class Phase1Step1():
         Alive = False
 
     def __buyProjects(self):
-        if self.projects:
-            projectBttn = self.projects[0]
-            if self.actions.isEnabled(projectBttn):
-                TS.print(f"Buying {projectBttn}")
-                time.sleep(0.5)  # The buttons 'blink' in
-                self.actions.pressButton(projectBttn)
+        if not self.projects:
+            return
 
-                if projectBttn == "Photonic Chip":
-                    # Current kill point, takes about 16 minutes for now.
-                    TS.print(f"Reached Photonic Chips in {TS.deltaStr(self.start)}")
-                    self.__kill()
+        projectBttn = self.projects[0]
+        if self.actions.isEnabled(projectBttn):
+            time.sleep(0.5)  # The buttons 'blink' in
+            TS.print(f"Buying {projectBttn}")
+            self.actions.pressButton(projectBttn)
 
-                self.projects.pop(0)
+            if projectBttn == "Photonic Chip":
+                # Current kill point, takes about 16 minutes for now.
+                TS.print(f"Reached Photonic Chips in {TS.deltaStr(self.start)}")
+                self.__kill()
+
+            self.projects.pop(0)
 
     def __buyClippers(self):
         autoCost = self.info.get("AutoCost")
@@ -142,13 +143,12 @@ class Phase1Step1():
         if enoughMoney and self.info.getInt("AutoCount") < 75:
             self.actions.pressButton("BuyAutoclipper")
             self.info.update("Funds")
-            # TODO: delegate buying / spending resources to seperate class to keep pageInfo up to date, and also to keep priorities centralized
 
     def __adjustPrice(self):
         # Only adjust price once every x sec.
-        # TODO: Improve balancing. Still has an issue to swing a bit too much.
+        # OPT: Improve balancing. Still has an issue to swing a bit too much. This could be its own class
         # OPT: Optimize to lose a bit less money on the lower side, this slows down buying early clippers
-        if TS.delta(self.lastPriceAdjustment) < 7.5:
+        if TS.delta(self.lastPriceAdjustment) < self.priceAdjustmentTime:
             return
 
         rate, unsold = [self.info.getInt(field) for field in ("ClipsPerSec", "Unsold")]
@@ -157,11 +157,16 @@ class Phase1Step1():
             # Prevents stuttering at low rates
             return
 
-        if unsold > 6 * rate:
+        if unsold > 8 * rate:
             self.actions.pressButton("LowerPrice")
-        elif unsold < 3 * rate:
+            self.priceAdjustmentTime -= 0.5
+        elif unsold < 4 * rate:
             self.actions.pressButton("RaisePrice")
+            self.priceAdjustmentTime -= 0.5
+        else:
+            self.priceAdjustmentTime = 5.0
 
+        self.priceAdjustmentTime = max(self.priceAdjustmentTime, 2.0)
         self.lastPriceAdjustment = TS.now()
 
     # TODO: Perhaps buy Marketing a couple of times.
