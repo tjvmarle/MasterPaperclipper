@@ -9,7 +9,7 @@ trustSpendingStrategy=[
     # Temporarily block spending trust until Donkey Space is acquired and an additional 70 creativity is made
     block1
 
-    # Next, 10 memory is required to buy the first quantum upgrades
+    # Next, 10 memory is required to buy the first quantum upgrades, 15 trust requires 55.000 clips
     5:10
 
     # Semi random residual values. These can be finetuned to improve playtime

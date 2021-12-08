@@ -1,0 +1,38 @@
+# Important projects
+# Name, Id, Cost, Comment
+Creativity,projectButton3,ops=1000,
+Limerick,projectButton6,creat=10,
+Lexical Processing,projectButton13,creat=50,
+Combinatory Harmonics,projectButton14,creat=100,
+The Hadwiger Problem,projectButton15,creat=150,
+The Toth Sausage Conjecture,projectButton17,creat=200,
+Donkey Space,projectButton19,creat=250,
+
+# Free ops
+Quantum Computing,projectButton50,ops=10000,base module
+Photonic Chip,projectButton51,ops=10000,free ops
+
+# More wire
+Improved Wire Extrusion,projectButton7,ops=1750,500 additional wire
+Optimized Wire Extrusion,projectButton8,ops=3500,1125 additional wire
+Microlattice Shapecasting,projectButton9,ops=7500,2625 additional wire
+
+# Clipper improvements
+Improved AutoClippers,projectButton1,ops=750,+25%
+Even Better AutoClippers,projectButton4,ops=2500,+75%,boost is cumulative
+Optimized AutoClippers,projectButton5,ops=5000,
+Hadwiger Clip Diagrams,projectButton16,ops=6000,
+
+# Marketing improvements
+New Slogan,projectButton11,creat=25;ops=2500,
+Catchy Jingle,projectButton12,creat=45;ops=4500,marketing x5
+Hypno Harmonics,projectButton34,ops=7500;trust=1,marketing x5; theres no need to save up for the trust
+Hypnodrones,projectButton70,ops=70000,
+
+# Additional modules
+Algorithmic Trading,projectButton21,ops=10000,
+Strategic Modeling,projectButton20,ops=12000,
+
+# Unimportant projects
+RevTracker,projectButton42,ops=500,
+WireBuyer,projectButton26,ops=7000,

@@ -2,20 +2,13 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.common.exceptions import NoSuchElementException
+from Util.Files.Config import Config
 
 # Class with all actionable items of the entire page
 
 buttonIds = {"MakePaperclip": "btnMakePaperclip", "LowerPrice": "btnLowerPrice", "RaisePrice": "btnRaisePrice",
              "LevelUpMarketing": "btnExpandMarketing", "BuyWire": "btnBuyWire", "BuyAutoclipper": "btnMakeClipper",
              "BuyMegaClipper": "btnMakeMegaClipper", "BuyProcessor": "btnAddProc", "BuyMemory": "btnAddMem"}
-
-# TODO: Load these from PhaseOneProjects.csv
-projectsIds = {
-    "Creativity": "projectButton3", "Limerick": "projectButton6", "Lexical Processing": "projectButton13",
-    "Combinatory Harmonics": "projectButton14", "The Hadwiger Problem": "projectButton15",
-    "The Toth Sausage Conjecture": "projectButton17", "Donkey Space": "projectButton19",
-    "New Slogan": "projectButton11", "Catchy Jingle": "projectButton12", "Quantum Computing": "projectButton50",
-    "Photonic Chip": "projectButton51"}
 
 
 class PageActions():
@@ -28,7 +21,7 @@ class PageActions():
 
     def __init__(self, webdriver: webdriver.Chrome) -> None:
         self.driver = webdriver
-        self.buttons = {**buttonIds, **projectsIds}
+        self.buttons = {**buttonIds, **{name: id for name, id, *_ in Config.get("AllProjects")}}
         self.clipper = self.__get("MakePaperclip")
 
     def tick(self):

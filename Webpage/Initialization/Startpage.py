@@ -1,7 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-
 from Util.Files.Config import Config
 
 
@@ -11,6 +10,7 @@ class Startpage():
 
         Config.load("Data/Private/Config.txt")
         Config.load("Data/Public/Config.txt")
+        Config.loadProjects("Data/Public/PhaseOneProjects.csv")
 
         # Update the driver
         s = Service(ChromeDriverManager().install())

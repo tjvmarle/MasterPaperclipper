@@ -1,4 +1,5 @@
 import time
+from Util.Files.Config import Config
 from Util.GameLoop.Strategizer import Strategizer
 from Util.Gamesave import Gamesave
 from Webpage.Initialization.Startpage import Startpage
@@ -18,10 +19,11 @@ game = Gamesave(webPage.getDriver())
 # saveFile = "./Data/Private/Saves/FirstPhase.txt"
 # game.load(saveFile)
 
+Config.set("Gamestart", TS.now())
 strat = Strategizer(webPage.getDriver())
 
-startTime = TS.now()
-frameStamp = TS.now()
+startTime = Config.get("Gamestart")
+frameStamp = Config.get("Gamestart")
 frames = 0
 totalFrames = 0
 totalTicks = 0

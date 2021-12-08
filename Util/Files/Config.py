@@ -1,7 +1,10 @@
 # Class to load in configuration properties and make them globally available
+import csv
+
 
 class Config():
     __config = {}
+    __projects = []
 
     def __init__(self) -> None:
         raise NotImplementedError("We don't do that here.")
@@ -38,5 +41,23 @@ class Config():
             else:  # Inside property list
                 accumulator.append(line.replace(",", ""))
 
+    def loadProjects(path: str):
+        with open(path, "r") as file:
+            csvInput = csv.reader(file, delimiter=",")
+
+            projectList = []
+            for line in csvInput:
+                if not line or line[0].strip().startswith("#"):
+                    print(f"Skipped [{line}]")
+                    continue
+
+                projectList.append(line)
+                print(f"Appended: {projectList[-1]}")
+
+        Config.__config["AllProjects"] = projectList
+
     def get(param: str) -> str:
         return Config.__config.get(param, "")
+
+    def set(key: str, val) -> None:  # Value may be of any type
+        Config.__config[key] = val
