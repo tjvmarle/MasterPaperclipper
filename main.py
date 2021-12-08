@@ -10,14 +10,11 @@ webPage = Startpage()
 game = Gamesave(webPage.getDriver())
 
 # Rough overview of next actions:
-# TODO: Clean up other TODO's, including code refactoring
 # TODO: Write some more UTs
 # TODO: Write a controller for the photonic chips
 
 # Load game
-# TODO: Implement config as Singleton and get the path from there
-# saveFile = "./Data/Private/Saves/FirstPhase.txt"
-# game.load(saveFile)
+# game.load(Config.get("savePathFirstPhase"))
 
 Config.set("Gamestart", TS.now())
 strat = Strategizer(webPage.getDriver())
@@ -45,7 +42,7 @@ while strat.tick():
 TS.print(f"Finished in {TS.deltaStr(startTime)}.")
 TS.print(f"Averaged {totalFrames / totalTicks:.2f} fps.")
 
-# game.save(saveFile)
+# game.save(Config.get("savePathFirstPhase"))
 
 time.sleep(3)  # Watch in awe at your creation
 webPage.getDriver().close()  # Bit ugly, but fine for now.

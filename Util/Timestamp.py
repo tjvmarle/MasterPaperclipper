@@ -45,8 +45,8 @@ class Timestamp():
 
         return "".join(timeString)
 
-    def print(text: str) -> None:
+    def print(*text: str) -> None:
         """Print the given text with a timestamp"""
 
         now = Timestamp.now().strftime("%H:%M:%S")
-        print(f"{now}: {text}")
+        print(f"{now}:", *text)
