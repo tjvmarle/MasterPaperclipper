@@ -11,10 +11,9 @@ game = Gamesave(webPage.getDriver())
 
 # Rough overview of next actions:
 # TODO: Write some more UTs
-# TODO: Write a controller for the photonic chips
 
 # Load game
-# game.load(Config.get("savePathFirstPhase"))
+# game.load(Config.get("savePathPhotonicPhase"))
 
 Config.set("Gamestart", TS.now())
 strat = Strategizer(webPage.getDriver())
@@ -42,7 +41,7 @@ while strat.tick():
 TS.print(f"Finished in {TS.deltaStr(startTime)}.")
 TS.print(f"Averaged {totalFrames / totalTicks:.2f} fps.")
 
-# game.save(Config.get("savePathFirstPhase"))
+# game.save(Config.get("savePathPhotonicPhase"))
 
 time.sleep(3)  # Watch in awe at your creation
 webPage.getDriver().close()  # Bit ugly, but fine for now.

@@ -21,6 +21,16 @@ infoFields=[
     Processors:processors
     Memory:memory
     Creativity:creativity
+    QuantumChip0:qChip0
+    QuantumChip1:qChip1
+    QuantumChip2:qChip2
+    QuantumChip3:qChip3
+    QuantumChip4:qChip4
+    QuantumChip5:qChip5
+    QuantumChip6:qChip6
+    QuantumChip7:qChip7
+    QuantumChip8:qChip8
+    QuantumChip9:qChip9
 ]
 
 # Fields used on the webpage containing actionable elements
@@ -35,6 +45,7 @@ actionFields=[
     BuyMegaClipper:btnMakeMegaClipper
     BuyProcessor:btnAddProc
     BuyMemory:btnAddMem
+    QuantumCompute:btnQcompute
 ]
 
 # Parameters to log progress for. These can be toggled on and off before starting the game
@@ -85,9 +96,17 @@ phaseOneProjects=[
     # OPT: Eventually this will be priority #1 to reach ASAP. Is going to require balancing of spending trust and buying the righ projects
     Quantum Computing
     Photonic Chip
+]
 
-    # Next some upgrades to marketing - requires an additional 70 creativity!
-    # OPT: Ensure no more creativity is generated while we move to Photonic Chips after these, otherwise we might be able to lower te limit of 70 creativity.
+phaseTwoProjects=[
+    Hadwiger Clip Diagrams
+    Improved AutoClippers
+    Even Better AutoClippers
+    Optimized AutoClippers
+    Algorithmic Trading
+    Strategic Modeling
+    
+    # Creativity should be less of a problem with ops pushed over max
     New Slogan
     Catchy Jingle
 ]

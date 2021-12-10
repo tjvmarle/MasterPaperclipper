@@ -2,7 +2,7 @@
 Profile/
 Data/Private/
 .vscode/
-sandbox.py
+sandbox*.py
 
 # Plugin stuff
 .VSCodeCounter/
