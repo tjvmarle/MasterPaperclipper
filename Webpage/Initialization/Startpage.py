@@ -5,7 +5,7 @@ from Util.Files.Config import Config
 
 
 class Startpage():
-    def __init__(self) -> None:
+    def __init__(self, fresh: bool = True) -> None:
 
         Config.load("Data/Private/Config.txt")
         Config.load("Data/Public/Config.txt")
@@ -21,10 +21,9 @@ class Startpage():
         self.driver = webdriver.Chrome(service=s, chrome_options=options)
         self.driver.get(Config.get("webPage"))
 
-        # Create a fresh start
-        self.driver.execute_script("reset()")
-        self.driver.execute_script("save()")
-        pass
+        if fresh:
+            self.driver.execute_script("reset()")
+            self.driver.execute_script("save()")
 
     def getDriver(self) -> webdriver.Chrome:
         return self.driver

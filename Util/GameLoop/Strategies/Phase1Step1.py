@@ -16,7 +16,7 @@ Alive = True
 class Phase1Step1():
     def createPaperclips(self, dummy: str):
         while Alive:
-            self.actions.makeClip()
+            self.actions.threadClick()
 
     def __getNextStrat(self) -> None:
         if not self.trustStrategies:
@@ -127,7 +127,7 @@ class Phase1Step1():
             self.actions.pressButton(projectBttn)
 
             if projectBttn == "Photonic Chip":
-                # Current kill point, takes about 16 minutes for now.
+                # Current kill point, takes a consistent 13m 1s for now.
                 TS.print(f"Reached Photonic Chips in {TS.deltaStr(self.start)}")
                 self.__kill()
 

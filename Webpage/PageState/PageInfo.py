@@ -13,22 +13,26 @@ class PageInfo():
 
     def update(self, field: str) -> None:
         """Read the value of a data field on the webpage."""
-        self.state[field] = self.driver.find_element(By.ID, self.ids[field]).text
+        self.state[field] = self.driver.find_element(By.ID, self.ids[field])  # .text
 
-    def get(self, attribute: str) -> str:
+    def get(self, element: str):
         """Get the contents of a data field. The value will be reused if called for multiple times per tick."""
-        if not self.state.get(attribute, False):  # Lazy lookup
-            self.update(attribute)
+        if not self.state.get(element, False):  # Lazy lookup
+            self.update(element)
 
-        return self.state[attribute]
+        return self.state[element]
 
-    def getInt(self, attribute: str) -> int:
+    def getInt(self, element: str) -> int:
         """Same as get(), but converts the value to integer."""
-        return int(self.get(attribute).replace(",", "").replace(".", ""))
+        return int(self.get(element).text.replace(",", "").replace(".", ""))
 
-    def getFl(self, attribute: str) -> float:
+    def getFl(self, element: str) -> float:
         """Same as get(), but converts the value to float."""
-        return float(self.get(attribute))
+        return float(self.get(element).text)
+
+    def getAttribute(self, element: str, attribute: str):
+        """Same as get(), but converts the style to float."""
+        return self.get(element).get_attribute(attribute)
 
     def tick(self) -> None:
         """Deprecates all data."""
