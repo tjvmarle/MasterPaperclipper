@@ -8,14 +8,11 @@ The Hadwiger Problem,projectButton15,creat=150,
 The Toth Sausage Conjecture,projectButton17,creat=200,
 Donkey Space,projectButton19,creat=250,
 
-# Free ops
-Quantum Computing,projectButton50,ops=10000,base module
-Photonic Chip,projectButton51,ops=10000,free ops
-
 # More wire
 Improved Wire Extrusion,projectButton7,ops=1750,500 additional wire
 Optimized Wire Extrusion,projectButton8,ops=3500,1125 additional wire
 Microlattice Shapecasting,projectButton9,ops=7500,2625 additional wire
+Spectral Froth Annealment,projectButton10,ops=12000,
 
 # Clipper improvements
 Improved AutoClippers,projectButton1,ops=750,+25%
@@ -32,6 +29,11 @@ Hypnodrones,projectButton70,ops=70000,
 # Additional modules
 Algorithmic Trading,projectButton21,ops=10000,
 Strategic Modeling,projectButton20,ops=12000,
+
+# Free ops
+Quantum Computing,projectButton50,ops=10000,base module
+Photonic Chip,projectButton51,ops=10000,free ops; button is reused for the other buttons
+
 
 # Unimportant projects
 RevTracker,projectButton42,ops=500,

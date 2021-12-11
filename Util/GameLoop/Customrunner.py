@@ -2,10 +2,9 @@
 from selenium import webdriver
 
 from Util.GameLoop.Progresslogger import Progresslogger
+from Util.GameLoop.Strategies.Phase1Step2 import Phase1Step2
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
-
-from Util.Resources.PhotonicClicker import PhotonicClicker
 
 
 class Customrunner():
@@ -15,14 +14,14 @@ class Customrunner():
         self.logger = Progresslogger(self.info, 2)
 
         # Insert custom proc here
-        self.photon = PhotonicClicker(self.info, self.actions)
+        self.proc = Phase1Step2(self.info, self.actions)
 
     def addProc(self, proc) -> None:
-        self.photon.append(proc)
+        self.proc.append(proc)
 
     def tick(self) -> bool:
         self.info.tick()
         self.actions.tick()
         self.logger.tick()
 
-        return self.photon.tick()
+        return self.proc.tick()

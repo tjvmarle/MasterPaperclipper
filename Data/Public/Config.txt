@@ -67,16 +67,16 @@ progressFields=[
 # Syntax = Processors : Memory
 trustSpendingStrategy=[
     # Early processors are required for some quick creativity generation
-    5:1
-    
+    # 5:1
+
     # Temporarily block spending trust until Donkey Space is acquired and an additional 70 creativity is made
-    block1
+    # block1
 
     # Next, 10 memory is required to buy the first quantum upgrades, 15 trust requires 55.000 clips
     5:10
 
     # Semi random residual values. These can be finetuned to improve playtime
-    10:10
+    5:70
     30:70
 ]
 
@@ -99,14 +99,20 @@ phaseOneProjects=[
 ]
 
 phaseTwoProjects=[
-    Hadwiger Clip Diagrams
-    Improved AutoClippers
-    Even Better AutoClippers
-    Optimized AutoClippers
-    Algorithmic Trading
     Strategic Modeling
-    
+    Algorithmic Trading
+
+    Hadwiger Clip Diagrams
+    Improved Wire Extrusion
+    Improved AutoClippers
+    Optimized Wire Extrusion
+    Even Better AutoClippers
+    Microlattice Shapecasting
+    Optimized AutoClippers
+    Spectral Froth Annealment
+
     # Creativity should be less of a problem with ops pushed over max
     New Slogan
     Catchy Jingle
+    Hypno Harmonics
 ]

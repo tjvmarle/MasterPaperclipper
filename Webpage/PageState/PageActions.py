@@ -55,6 +55,9 @@ class PageActions():
         page_button = self.__get(button)
         if page_button and page_button.is_displayed() and page_button.is_enabled():
             page_button.click()
+        else:
+            state = "enabled" if page_button.is_displayed() else "visible"
+            TS.print(f"Attempted to click {button}, but is was not {state}.")
 
     def isEnabled(self, button) -> bool:
         page_button = self.__get(button)
