@@ -31,6 +31,10 @@ infoFields=[
     QuantumChip7:qChip7
     QuantumChip8:qChip8
     QuantumChip9:qChip9
+    LiquidAssets:investmentBankroll
+    
+    # Also present in actionFields
+    PickStrat:stratPicker
 ]
 
 # Fields used on the webpage containing actionable elements
@@ -46,6 +50,15 @@ actionFields=[
     BuyProcessor:btnAddProc
     BuyMemory:btnAddMem
     QuantumCompute:btnQcompute
+    PickRisk:investStrat
+    DepositFunds:btnInvest
+    WithdrawFunds:btnWithdraw
+    ImproveInvestments:btnImproveInvestments
+    NewTournament:btnNewTournament
+    RunTournament:btnRunTournament
+
+    # Also present in infoFields
+    PickStrat:stratPicker
 ]
 
 # Parameters to log progress for. These can be toggled on and off before starting the game
@@ -95,13 +108,12 @@ phaseOneProjects=[
     # Next go for the photonic chips
     # OPT: Eventually this will be priority #1 to reach ASAP. Is going to require balancing of spending trust and buying the righ projects
     Quantum Computing
+
+    # Having a single entry here will allow to 'save up' for this project. The rest will be handled by highPriorityProjects
     Photonic Chip
 ]
 
 phaseTwoProjects=[
-    Strategic Modeling
-    Algorithmic Trading
-
     Hadwiger Clip Diagrams
     Improved Wire Extrusion
     Improved AutoClippers
@@ -115,4 +127,43 @@ phaseTwoProjects=[
     New Slogan
     Catchy Jingle
     Hypno Harmonics
+
+    Strategic Modeling
+    WireBuyer
+    Algorithmic Trading
+    A100
+    B100
+    GREEDY
+    GENEROUS
+]
+
+# TODO: Add additional project list with High priority projects that will be bought when available, regardless of other priorities
+
+# Projects in this list will be bought when possible, outside of any other priorities
+highPriorityProjects=[
+    MegaClippers
+    Improved MegaClippers
+    
+    # Not really important, but it's exact priority doesn't really matter. The additional trust is nice tough
+    Coherent Extrapolated Volition
+    
+    # Same, just buy when you can. Each entry is good for one acquisition
+    Photonic Chip
+    Photonic Chip
+    Photonic Chip
+    Photonic Chip
+    Photonic Chip
+    Photonic Chip
+    Photonic Chip
+    Photonic Chip
+    Photonic Chip
+]
+
+# Overview of the strat to choose, depending on which ones are available
+YomiStrategies=[
+    # Other strats will become available in between, but their succesrate is lower
+    RANDOM
+    A100
+    GREEDY
+    BEAT LAST
 ]
