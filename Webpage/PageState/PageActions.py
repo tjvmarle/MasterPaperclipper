@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
 from Util.Files.Config import Config
 from Util.Timestamp import Timestamp as TS
@@ -23,7 +24,7 @@ class PageActions():
             return None
         return page_button
 
-    def __initThreadTargets(self):
+    def __initThreadTargets(self) -> None:
         for TargetButton, ButtonName in {
                 AutoTarget.MakePaperclips: "MakePaperclip", AutoTarget.CreateOps: "QuantumCompute"}.items():
             self.threadButtons[TargetButton] = self.__get(ButtonName)
@@ -39,10 +40,7 @@ class PageActions():
         self.threadTarget = AutoTarget.MakePaperclips
         self.__initThreadTargets()
 
-    def tick(self):
-        pass
-
-    def threadClick(self):
+    def threadClick(self) -> None:
         """Seperate function for the threadclicker greatly improves performance over pressButton() 
         Clips: ~80 clips/sec
         Ops: 8-10k over max"""
@@ -51,7 +49,7 @@ class PageActions():
     def setThreadClicker(self, newTarget: AutoTarget) -> None:
         self.threadTarget = newTarget
 
-    def pressButton(self, button: str):
+    def pressButton(self, button: str) -> None:
         page_button = self.__get(button)
         if page_button and page_button.is_displayed() and page_button.is_enabled():
             page_button.click()
@@ -62,3 +60,11 @@ class PageActions():
     def isEnabled(self, button) -> bool:
         page_button = self.__get(button)
         return page_button and page_button.is_displayed() and page_button.is_enabled()
+
+    def isVisible(self, button) -> bool:
+        page_button = self.__get(button)
+        return page_button and page_button.is_displayed()
+
+    def selectFromDropdown(self, dropdown: str, selection: str) -> None:
+        Select(self.__get(dropdown)).select_by_visible_text(selection)
+        TS.print(f"From {dropdown}, selecting {selection}")
