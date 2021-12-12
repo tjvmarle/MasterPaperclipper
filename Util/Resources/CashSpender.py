@@ -1,6 +1,7 @@
 # Responsible for spending money on wire, clippers and marketing
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
+from Util.Timestamp import Timestamp as TS
 
 
 class CashSpender():
@@ -8,22 +9,51 @@ class CashSpender():
         self.info = pageInfo
         self.actions = pageActions
         self.highestWireCost = 27
+        self.clipperSpeed = 2.5  # Includes all the upgrades
+        self.megaPerformance = 1
+        self.megaSpeed = lambda: self.megaPerformance * 500
+        self.nextClipper = "BuyAutoclipper"
+        self.killWire = False
 
-    def saveUp(self, buffer: int) -> None:
-        # Sets a new lower limit for fundsd to reach after buying clippers etc.
-        pass
+    def checkWireBuyer(self, project: str):
+        if project == "WireBuyer":
+            TS.print(f"Killed the WireWatcher.")
+            self.killWire = True
 
-    def __buyClippers(self):
-        autoCost = self.info.getFl("AutoCost")
-        if not autoCost:
+    def getCallback(self):
+        return self.checkWireBuyer
+
+    def __determineClipper(self) -> float:
+        # Check which clipper to buy next
+        if not self.actions.isVisible("BuyMegaClipper"):
+            return self.info.getFl("AutoCost")
+
+        autoPrice, megaPrice = [self.info.getFl(clipCost) for clipCost in ("AutoCost", "MegaCost")]
+        buyAuto = autoPrice / self.clipperSpeed < megaPrice / self.megaSpeed()
+        self.nextClipper = "BuyAutoclipper" if buyAuto else "BuyMegaClipper"
+        return autoPrice if buyAuto else megaPrice
+
+    def __buy(self):
+        if not self.actions.isVisible("BuyAutoclipper"):  # You can't buy clippers untill you've made $5
             return
 
-        enoughMoney = (self.info.getFl("Funds") - self.highestWireCost) > autoCost
-        if enoughMoney and self.info.getInt("AutoCount") < 75:
-            self.actions.pressButton("BuyAutoclipper")
+        # Occasionally buy some marketing instead
+        lvlUpCost = self.info.getFl("MarketingCost")
+        clipperCost = self.__determineClipper()
+        funds = self.info.getFl("Funds")
+
+        buyMarketing = lvlUpCost < 5 * clipperCost
+        if buyMarketing and funds > self.highestWireCost + lvlUpCost:
+            self.actions.pressButton("LevelUpMarketing")
+
+        if not buyMarketing and (funds - self.highestWireCost) > clipperCost:
+            self.actions.pressButton(self.nextClipper)
             self.info.update("Funds")
 
     def __updateWire(self):
+        if self.killWire:
+            return
+
         wireCost = self.info.getInt("WireCost")
         self.highestWireCost = max(wireCost, self.highestWireCost)
 
@@ -35,7 +65,11 @@ class CashSpender():
                 wire < 1500 and wireCost / self.highestWireCost <= 0.6) or (
                 wire < 2500 and wireCost / self.highestWireCost <= 0.45):  # Either buy when low or cheap
             self.actions.pressButton("BuyWire")
+            self.info.update("Funds")
+
+    def projectTracker(self, boughtProjects):
+        """Callback for keeping track which projects are bought."""
 
     def tick(self):
         self.__updateWire()
-        self.__buyClippers()
+        self.__buy()
