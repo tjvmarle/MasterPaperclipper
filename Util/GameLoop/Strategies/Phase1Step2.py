@@ -29,15 +29,15 @@ class Phase1Step2():
         self.trustee = TrustSpender(self.info, self.actions)
         self.yomi = TourneyOrganiser(self.info, self.actions)
         self.runners = (self.thread, self.fundsHandler, self.pricer, self.trustee, self.yomi)
-        self.projectNotifiers = [self.fundsHandler.getCallback()]  # Ugly, but works for now
+        self.projectNotifiers = [self.fundsHandler.getCallback()]  # UGLY, but works for now
 
     def __buyProjects(self):
         boughtProject = []
         for project in self.highPrioProjects:
             if self.actions.isEnabled(project):
-                time.sleep(0.4)  # The buttons 'blink' in
-                self.actions.pressButton(project)
-                boughtProject.append(project)
+                time.sleep(0.5)  # The buttons 'blink' in
+                if self.actions.pressButton(project):
+                    boughtProject.append(project)
 
         for project in boughtProject:
             self.highPrioProjects.remove(project)
@@ -50,11 +50,11 @@ class Phase1Step2():
 
         projectBttn = self.projects[0]
         if self.actions.isEnabled(projectBttn):
-            time.sleep(0.4)  # The buttons 'blink' in
-            self.actions.pressButton(projectBttn)
-            self.projects.pop(0)
-            boughtProject.append(projectBttn)
-            TS.print(f"Bought {projectBttn}.")
+            time.sleep(0.5)  # The buttons 'blink' in
+            if self.actions.pressButton(projectBttn):
+                self.projects.pop(0)
+                boughtProject.append(projectBttn)
+                TS.print(f"Bought {projectBttn}.")
 
             if projectBttn in self.highPrioProjects:  # This should rarely occur
                 TS.print(f"Race condition encountered, removing {projectBttn}.")

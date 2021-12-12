@@ -144,9 +144,11 @@ phaseTwoProjects=[
     TIT FOR TAT
     BEAT LAST
 
-
     # For later
     Hypnodrones
+
+    # Just get rid of it already
+    RevTracker
 ]
 
 # TODO: Add additional project list with High priority projects that will be bought when available, regardless of other priorities

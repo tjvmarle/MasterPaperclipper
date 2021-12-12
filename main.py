@@ -44,4 +44,4 @@ TS.print(f"Averaged {totalFrames / totalTicks:.2f} fps.")
 # game.save(Config.get("savePathPhotonicPhase"))
 
 time.sleep(3)  # Watch in awe at your creation
-webPage.getDriver().close()  # Bit ugly, but fine for now.
+webPage.getDriver().close()  # UGLY, but fine for now.

@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
+from colorama import Fore, Style
 from Util.Files.Config import Config
 from Util.Timestamp import Timestamp as TS
 from enum import Enum
@@ -20,6 +21,7 @@ class PageActions():
     def __get(self, button: str) -> WebElement:
         try:
             page_button = self.driver.find_element(By.ID, self.buttons[button])
+            self.driverAccess += 1
         except NoSuchElementException:
             return None
         return page_button
@@ -31,6 +33,7 @@ class PageActions():
 
     def __init__(self, webdriver: webdriver.Chrome) -> None:
         self.driver = webdriver
+        self.driverAccess = 0
         self.buttons = {  # Combine multiple sources
             **{name: id for name, id in [listEntry.split(":") for listEntry in Config.get("actionFields")]},
             **{name: id for name, id, *_ in Config.get("AllProjects")}}
@@ -53,9 +56,11 @@ class PageActions():
         page_button = self.__get(button)
         if page_button and page_button.is_displayed() and page_button.is_enabled():
             page_button.click()
+            return True
         elif button != "LowerPrice":  # Small problem for later
             state = "enabled" if page_button.is_displayed() else "visible"
-            TS.print(f"Attempted to click {button}, but is was not {state}.")
+            TS.print(f"{Fore.LIGHTRED_EX}Attempted to click {button}, but is was not {state}.{Style.RESET_ALL}")
+            return False
 
     def isEnabled(self, button) -> bool:
         page_button = self.__get(button)

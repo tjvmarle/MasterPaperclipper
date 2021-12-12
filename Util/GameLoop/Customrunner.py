@@ -12,7 +12,7 @@ class Customrunner():
     def __init__(self, driver: webdriver.Chrome) -> None:
         self.info = PageInfo(driver)
         self.actions = PageActions(driver)
-        self.logger = Progresslogger(self.info)
+        self.logger = Progresslogger(self.info, self.actions)
 
         # Insert custom proc here
         self.proc = Phase1Step2(self.info, self.actions)

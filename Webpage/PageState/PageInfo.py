@@ -10,6 +10,7 @@ from Util.Timestamp import Timestamp as TS
 class PageInfo():
     def __init__(self, webdriver: webdriver.Chrome) -> None:
         self.driver = webdriver
+        self.driverAccess = 0
 
         self.state = {}
         self.ids = {name: id for name, id in [listEntry.split(":") for listEntry in Config.get("infoFields")]}
@@ -17,6 +18,7 @@ class PageInfo():
     def update(self, field: str) -> None:
         """Read the value of a data field on the webpage."""
         self.state[field] = self.driver.find_element(By.ID, self.ids[field])  # .text
+        self.driverAccess += 1
 
     def get(self, element: str) -> WebElement:
         """Get the contents of a data field. The value will be reused if called for multiple times per tick."""
