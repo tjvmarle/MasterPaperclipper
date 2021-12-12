@@ -9,25 +9,47 @@ class PriceWatcher():
         self.actions = pageActions
         self.priceAdjustmentTime = 5.0
         self.lastPriceAdjustment = TS.now()
-        pass
+        self.demand = self.info.getInt("Demand")
 
     def __adjustPrice(self):
-        # Only adjust price once every x sec.
-        if TS.delta(self.lastPriceAdjustment) < self.priceAdjustmentTime:
-            return
-
         rate, unsold = [self.info.getInt(field) for field in ("ClipsPerSec", "Unsold")]
 
-        if rate < 40:
-            # Prevents stuttering at low rates
+        # TODO: Add emergency adjustment for too much stock!
+
+        demand = self.info.getInt("Demand")
+        while rate > 0 and demand > 5 * rate:  # Emergency handling for large changes in marketing
+            TS.print(f"Emergency price raise, demand too high! Rate: {rate}, demand {demand}.")
+            self.actions.pressButton("RaisePrice")
+            self.info.update("Demand")
+            demand = self.info.getInt("Demand")
+
+        lastAdjustment = TS.delta(self.lastPriceAdjustment)
+
+        if lastAdjustment > 0.25 and unsold < rate:  # Emergency handling for low stock in marketing
+            TS.print(f"Emergency price raise! Unsold: {unsold}, rate: {rate}.")
+            self.actions.pressButton("RaisePrice")
             return
 
-        # OPT: Optimize to lose a bit less money on the lower side, this slows down buying early clippers
+        if lastAdjustment > 0.25 and unsold > 20 * rate:  # Emergency handling for low stock in marketing
+            TS.print(f"Emergency price drop! Unsold: {unsold}, rate: {rate}.")
+            self.actions.pressButton("LowerPrice")
+            return
+
+        if lastAdjustment < self.priceAdjustmentTime:
+            return
+
         # OPT: Maybe couple Market Demand with production speed instead
-        if unsold > 8 * rate:
+        if unsold > 10 * rate:
+            TS.print(f"Double price drop.")
+            self.actions.pressButton("LowerPrice")
+            self.actions.pressButton("LowerPrice")
+            self.priceAdjustmentTime += 0.5
+        elif unsold > 6 * rate:
+            TS.print(f"Single price drop.")
             self.actions.pressButton("LowerPrice")
             self.priceAdjustmentTime += 0.5
         elif unsold < 4 * rate:
+            TS.print(f"Single price raise.")
             self.actions.pressButton("RaisePrice")
             self.priceAdjustmentTime += 0.5
         else:
