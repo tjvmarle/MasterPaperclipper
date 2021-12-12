@@ -11,7 +11,7 @@ class Progresslogger():
         self.nrOfIntervals = 1
 
     def logProgress(self):
-        currVals = [[field, self.info.get(field)] for field in Config.get("progressFields")]
+        currVals = [[field, self.info.get(field).text] for field in Config.get("progressFields")]
         currValStrings = [f"{name}={value}" for name, value in currVals if value]
 
         TS.print(f"Progress({self.nrOfIntervals}): ", ", ".join(currValStrings))

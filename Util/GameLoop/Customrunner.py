@@ -21,7 +21,6 @@ class Customrunner():
 
     def tick(self) -> bool:
         self.info.tick()
-        self.actions.tick()
         self.logger.tick()
 
         return self.proc.tick()

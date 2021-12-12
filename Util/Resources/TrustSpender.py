@@ -17,7 +17,6 @@ class TrustSpender():
         if not self.trustStrategies:
             # Pretty much end of phase one. Future kill point.
             TS.print(f"Reached end of Phase One in {TS.deltaStr(self.start)}")
-            self.__kill()
 
         nextEntry = self.trustStrategies.pop(0)  # Either <nr>:<nr> or block<nr>
         self.nextStrat = [int(entry) for entry in nextEntry.split(":")] if ":" in nextEntry else nextEntry
