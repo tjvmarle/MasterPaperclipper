@@ -25,6 +25,7 @@ class ThreadClicker():
         self.thread.join()
 
     def __setThreadButton(self):
+        # TODO: ignore making paperclips @ high Clips/second. Almost no benefit
         chips = [element.get_attribute("style").replace(";", "").split(":")[1] for element in self.photonicChips]
         total = sum([float(val.strip()) for val in chips])
         self.actions.setThreadClicker(AutoTarget.CreateOps if total > 0 else AutoTarget.MakePaperclips)

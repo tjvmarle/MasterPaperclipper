@@ -88,8 +88,13 @@ trustSpendingStrategy=[
     # Next, 10 memory is required to buy the first quantum upgrades, 15 trust requires 55.000 clips
     5:10
 
-    # Semi random residual values. These can be finetuned to improve playtime
-    5:70
+    # First get enough ops to buy all tournament strategies, this includes a ~10k overshoot enabled by the Photonic Chips
+    5:23
+
+    # Next max out processors for this phase. This allows faster generation of creativity.
+    30:23
+
+    # We need 100 trust to finish phase 1
     30:70
 ]
 
@@ -136,6 +141,8 @@ phaseTwoProjects=[
     GREEDY
     GENEROUS
     MINIMAX
+    TIT FOR TAT
+    BEAT LAST
 
 
     # For later
@@ -149,6 +156,8 @@ highPriorityProjects=[
     MegaClippers
     Improved MegaClippers
     Even Better MegaClippers
+    Optimized MegaClippers
+    Quantum Foam Annealment
     
     # Not really important, but it's exact priority doesn't really matter. The additional trust is nice tough
     Coherent Extrapolated Volition
@@ -167,6 +176,7 @@ highPriorityProjects=[
     Photonic Chip
     Photonic Chip
     Photonic Chip
+    Theory of Mind
 ]
 
 # Overview of the strat to choose, depending on which ones are available

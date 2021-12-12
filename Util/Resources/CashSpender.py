@@ -9,19 +9,27 @@ class CashSpender():
         self.info = pageInfo
         self.actions = pageActions
         self.highestWireCost = 27
-        self.clipperSpeed = 2.5  # Includes all the upgrades
+        self.clipperSpeed = 2.5  # Includes most of the upgrades
         self.megaPerformance = 1
         self.megaSpeed = lambda: self.megaPerformance * 500
         self.nextClipper = "BuyAutoclipper"
         self.killWire = False
 
-    def checkWireBuyer(self, project: str):
+    def projectAcquired(self, project: str):
         if project == "WireBuyer":
             TS.print(f"Killed the WireWatcher.")
             self.killWire = True
+        elif project == "Hadwiger Clip Diagrams":
+            self.clipperSpeed += 5
+        elif project == "Improved MegaClippers":
+            self.megaPerformance += 0.25
+        elif project == "Even Better MegaClippers":
+            self.megaPerformance += 0.50
+        elif project == "Optimized MegaClippers":
+            self.megaPerformance += 1.00
 
     def getCallback(self):
-        return self.checkWireBuyer
+        return self.projectAcquired
 
     def __determineClipper(self) -> float:
         # Check which clipper to buy next
@@ -42,7 +50,7 @@ class CashSpender():
         clipperCost = self.__determineClipper()
         funds = self.info.getFl("Funds")
 
-        buyMarketing = lvlUpCost < 10 * clipperCost
+        buyMarketing = lvlUpCost < 3 * clipperCost
         if buyMarketing and funds > self.highestWireCost + lvlUpCost:
             self.actions.pressButton("LevelUpMarketing")
 
@@ -66,9 +74,6 @@ class CashSpender():
                 wire < 2500 and wireCost / self.highestWireCost <= 0.45):  # Either buy when low or cheap
             self.actions.pressButton("BuyWire")
             self.info.update("Funds")
-
-    def projectTracker(self, boughtProjects):
-        """Callback for keeping track which projects are bought."""
 
     def tick(self):
         self.__updateWire()

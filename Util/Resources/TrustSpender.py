@@ -9,7 +9,6 @@ class TrustSpender():
         self.info = pageInfo
         self.actions = pageAction
         self.trustStrategies = Config.get("trustSpendingStrategy")
-        TS.print(f"Initialized trust strategies: {self.trustStrategies}.")
         self.nextStrat = None
         self.__getNextStrat()
 

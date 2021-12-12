@@ -7,14 +7,12 @@ class PriceWatcher():
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
         self.info = pageInfo
         self.actions = pageActions
-        self.priceAdjustmentTime = 5.0
+        self.priceAdjustmentTime = 3.0
         self.lastPriceAdjustment = TS.now()
         self.demand = self.info.getInt("Demand")
 
     def __adjustPrice(self):
         rate, unsold = [self.info.getInt(field) for field in ("ClipsPerSec", "Unsold")]
-
-        # TODO: Add emergency adjustment for too much stock!
 
         demand = self.info.getInt("Demand")
         while rate > 0 and demand > 5 * rate:  # Emergency handling for large changes in marketing
@@ -38,16 +36,17 @@ class PriceWatcher():
         # OPT: Maybe couple Market Demand with production speed instead
         if unsold > 10 * rate:
             self.actions.pressButton("LowerPrice")
-            self.actions.pressButton("LowerPrice")
+            if self.actions.isEnabled("LowerPrice"):
+                self.actions.pressButton("LowerPrice")
             self.priceAdjustmentTime += 0.5
         elif unsold > 6 * rate:
             self.actions.pressButton("LowerPrice")
             self.priceAdjustmentTime += 0.5
-        elif unsold < 4 * rate:
+        elif unsold < 3 * rate:
             self.actions.pressButton("RaisePrice")
             self.priceAdjustmentTime += 0.5
         else:
-            self.priceAdjustmentTime = 5.0
+            self.priceAdjustmentTime = 3.0
 
         self.lastPriceAdjustment = TS.now()
 

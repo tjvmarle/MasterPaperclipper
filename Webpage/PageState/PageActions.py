@@ -43,7 +43,7 @@ class PageActions():
     def threadClick(self) -> None:
         """Seperate function for the threadclicker greatly improves performance over pressButton() 
         Clips: ~80 clips/sec
-        Ops: 8-10k over max"""
+        Ops: 10-20k over max depending on amount of Photonic Chips"""
         self.threadButtons[self.threadTarget].click()
 
     def setThreadClicker(self, newTarget: AutoTarget) -> None:
@@ -53,7 +53,7 @@ class PageActions():
         page_button = self.__get(button)
         if page_button and page_button.is_displayed() and page_button.is_enabled():
             page_button.click()
-        else:
+        elif button != "LowerPrice":  # Small problem for later
             state = "enabled" if page_button.is_displayed() else "visible"
             TS.print(f"Attempted to click {button}, but is was not {state}.")
 

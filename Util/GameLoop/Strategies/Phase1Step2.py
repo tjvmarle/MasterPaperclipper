@@ -39,13 +39,14 @@ class Phase1Step2():
                 self.actions.pressButton(project)
                 boughtProject.append(project)
 
-        if not self.projects:
-            return
-
         for project in boughtProject:
             self.highPrioProjects.remove(project)
+            TS.print(f"Bought high prio: {project}.")
             if project in self.projects:
                 self.projects.remove(project)
+
+        if not self.projects:
+            return
 
         projectBttn = self.projects[0]
         if self.actions.isEnabled(projectBttn):
@@ -53,6 +54,7 @@ class Phase1Step2():
             self.actions.pressButton(projectBttn)
             self.projects.pop(0)
             boughtProject.append(projectBttn)
+            TS.print(f"Bought {projectBttn}.")
 
             if projectBttn in self.highPrioProjects:  # This should rarely occur
                 TS.print(f"Race condition encountered, removing {projectBttn}.")
@@ -76,7 +78,7 @@ class Phase1Step2():
 
         if self.info.getInt("Trust") >= 100:
             # Current kill point
-            TS.print(f"Reached 25+ trust in {TS.deltaStr(self.start)}")
+            TS.print(f"Reached 100 trust in {TS.deltaStr(self.start)}")
             TS.print("End goal reached!")
             self.thread.kill()
             return False
