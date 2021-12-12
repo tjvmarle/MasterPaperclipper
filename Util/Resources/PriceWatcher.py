@@ -10,30 +10,47 @@ class PriceWatcher():
         self.priceAdjustmentTime = 3.0
         self.lastPriceAdjustment = TS.now()
         self.demand = self.info.getInt("Demand")
+        self.revTracker = False
+
+    def activateRevTracker(self) -> None:
+        self.revTracker = True
 
     def __adjustPrice(self):
-        rate, unsold = [self.info.getInt(field) for field in ("ClipsPerSec", "Unsold")]
+        rate = self.info.getInt("ClipsPerSec")
 
+        lastAdjustment = TS.delta(self.lastPriceAdjustment)
+        if self.revTracker and lastAdjustment > 5:
+            self.actions.pressButton("RaisePrice" if self.info.getInt("ClipsSoldPerSec") > rate else "LowerPrice")
+            # TODO: Add more handling after large marketing fluctuations
+            return
+
+        unsold = self.info.getInt("Unsold")
+        if self.revTracker:
+            # This is probably slow to react after large changes
+            if unsold > 4 * rate and lastAdjustment > 2:
+                self.actions.pressButton("LowerPrice")
+            elif unsold < 2 * rate and lastAdjustment > 2:
+                self.actions.pressButton("RaisePrice")
+            return
+
+        # TODO: clean up after fresh start. Most is unnecessary after the acquiring the RevTracker
         demand = self.info.getInt("Demand")
         while rate > 0 and demand > 5 * rate:  # Emergency handling for large changes in marketing
             self.actions.pressButton("RaisePrice")
             self.info.update("Demand")
             demand = self.info.getInt("Demand")
 
-        lastAdjustment = TS.delta(self.lastPriceAdjustment)
-
-        if lastAdjustment > 0.25 and unsold < rate:  # Emergency handling for low stock in marketing
+        if lastAdjustment > 0.25 and unsold < rate:  # Emergency handling for low stock
             self.actions.pressButton("RaisePrice")
             return
 
-        if lastAdjustment > 0.25 and unsold > 20 * rate:  # Emergency handling for low stock in marketing
+        if lastAdjustment > 0.25 and unsold > 20 * rate:  # Emergency handling for high stock
             self.actions.pressButton("LowerPrice")
             return
 
         if lastAdjustment < self.priceAdjustmentTime:
             return
 
-        # OPT: Maybe couple Market Demand with production speed instead
         if unsold > 10 * rate:
             self.actions.pressButton("LowerPrice")
             if self.actions.isEnabled("LowerPrice"):

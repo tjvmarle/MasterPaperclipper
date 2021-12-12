@@ -2,13 +2,11 @@
 # Some priorities are: buying projects from free ops, start gathering yomi, get to 100 trust
 # Trust buying can be delegated to seperate strategy
 
-from Util.Resources.CashSpender import CashSpender
-from Util.Resources.PriceWatcher import PriceWatcher
 from Util.Resources.ThreadClicker import ThreadClicker
-from Util.Resources.TourneyOrganiser import TourneyOrganiser
-from Util.Resources.TrustSpender import TrustSpender
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
+from Util.Resources.ResourceAllocator import ResourceAllocator
+
 from Util.Timestamp import Timestamp as TS
 from Util.Files.Config import Config
 import time
@@ -24,18 +22,17 @@ class Phase1Step2():
 
         self.start = Config.get("Gamestart")
         self.thread = ThreadClicker(self.info, self.actions)
-        self.fundsHandler = CashSpender(self.info, self.actions)
-        self.pricer = PriceWatcher(self.info, self.actions)
-        self.trustee = TrustSpender(self.info, self.actions)
-        self.yomi = TourneyOrganiser(self.info, self.actions)
-        self.runners = (self.thread, self.fundsHandler, self.pricer, self.trustee, self.yomi)
-        self.projectNotifiers = [self.fundsHandler.getCallback()]  # UGLY, but works for now
+        self.resourceManager = ResourceAllocator(self.info, self.actions)
+
+        self.runners = (self.thread, self.resourceManager)
+        self.projectNotifiers = [self.resourceManager.moneyHandler.getCallback()]  # UGLY, but works for now
 
     def __buyProjects(self):
         boughtProject = []
         for project in self.highPrioProjects:
             if self.actions.isEnabled(project):
                 time.sleep(0.5)  # The buttons 'blink' in
+                # TODO: get rid of the sleep. Just click and check if you succeed
                 if self.actions.pressButton(project):
                     boughtProject.append(project)
 

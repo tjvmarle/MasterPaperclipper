@@ -57,7 +57,5 @@ World Peace,projectButton29,ops=30000;yomi=15000;ops=30000, 12 trust
 Global Warming,projectButton30,ops=50000;yomi=4500, 15 trust
 Male Pattern Baldness,projectButton31,ops=20000, 20 trust
 
-
-# Unimportant projects
+# Misc
 RevTracker,projectButton42,ops=500,
-WireBuyer,projectButton26,ops=7000,

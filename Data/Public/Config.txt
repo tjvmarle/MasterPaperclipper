@@ -32,6 +32,8 @@ infoFields=[
     QuantumChip8:qChip8
     QuantumChip9:qChip9
     LiquidAssets:investmentBankroll
+    RevPerSec:avgRev
+    ClipsSoldPerSec:avgSales
     
     # Also present in actionFields
     PickStrat:stratPicker
@@ -109,6 +111,9 @@ phaseOneProjects=[
     The Hadwiger Problem
     The Toth Sausage Conjecture
     Donkey Space
+    
+    # Add the RevTracker to ease price adjustments
+    RevTracker
 
     # Next go for the photonic chips
     # OPT: Eventually this will be priority #1 to reach ASAP. Is going to require balancing of spending trust and buying the righ projects
@@ -119,6 +124,7 @@ phaseOneProjects=[
 ]
 
 phaseTwoProjects=[
+    RevTracker
     Hadwiger Clip Diagrams
     Improved Wire Extrusion
     Improved AutoClippers
@@ -126,7 +132,6 @@ phaseTwoProjects=[
     Even Better AutoClippers
     Microlattice Shapecasting
     Optimized AutoClippers
-    Spectral Froth Annealment
 
     # Creativity should be less of a problem with ops pushed over max
     New Slogan
@@ -136,6 +141,8 @@ phaseTwoProjects=[
     Strategic Modeling
     WireBuyer
     Algorithmic Trading
+    Spectral Froth Annealment
+
     A100
     B100
     GREEDY
@@ -146,9 +153,6 @@ phaseTwoProjects=[
 
     # For later
     Hypnodrones
-
-    # Just get rid of it already
-    RevTracker
 ]
 
 # TODO: Add additional project list with High priority projects that will be bought when available, regardless of other priorities

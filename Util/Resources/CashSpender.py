@@ -1,4 +1,6 @@
 # Responsible for spending money on wire, clippers and marketing
+from Util.Resources.HedgeFunder import HedgeFunder
+from Util.Resources.PriceWatcher import PriceWatcher
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
 from Util.Timestamp import Timestamp as TS
@@ -14,11 +16,17 @@ class CashSpender():
         self.megaSpeed = lambda: self.megaPerformance * 500
         self.nextClipper = "BuyAutoclipper"
         self.killWire = False
+        self.revTracker = False
+        self.hedger = HedgeFunder(self.info, self.actions)
+        self.pricer = PriceWatcher(self.info, self.actions)
 
     def projectAcquired(self, project: str):
         if project == "WireBuyer":
             TS.print(f"Killed the WireWatcher.")
             self.killWire = True
+        elif project == "RevPerSec":
+            self.revTracker = True
+            self.pricer.activateRevTracker()
         elif project == "Hadwiger Clip Diagrams":
             self.clipperSpeed += 5
         elif project == "Improved MegaClippers":
@@ -78,3 +86,4 @@ class CashSpender():
     def tick(self):
         self.__updateWire()
         self.__buy()
+        self.pricer.tick()

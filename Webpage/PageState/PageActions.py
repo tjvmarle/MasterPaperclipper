@@ -55,6 +55,7 @@ class PageActions():
     def pressButton(self, button: str) -> None:
         page_button = self.__get(button)
         if page_button and page_button.is_displayed() and page_button.is_enabled():
+            # TODO: Return False if the click still fails. Just catch the exception
             page_button.click()
             return True
         elif button != "LowerPrice":  # Small problem for later
