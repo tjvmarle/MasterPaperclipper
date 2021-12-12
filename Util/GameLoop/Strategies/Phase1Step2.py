@@ -32,16 +32,15 @@ class Phase1Step2():
         self.projectNotifiers = [self.fundsHandler.getCallback()]  # Ugly, but works for now
 
     def __buyProjects(self):
-        if not self.projects:
-            return
-
         boughtProject = []
         for project in self.highPrioProjects:
             if self.actions.isEnabled(project):
                 time.sleep(0.4)  # The buttons 'blink' in
-                TS.print(f"High prio - Buying {project}.")
                 self.actions.pressButton(project)
                 boughtProject.append(project)
+
+        if not self.projects:
+            return
 
         for project in boughtProject:
             self.highPrioProjects.remove(project)
@@ -51,13 +50,12 @@ class Phase1Step2():
         projectBttn = self.projects[0]
         if self.actions.isEnabled(projectBttn):
             time.sleep(0.4)  # The buttons 'blink' in
-            TS.print(f"Buying {projectBttn}")
             self.actions.pressButton(projectBttn)
             self.projects.pop(0)
             boughtProject.append(projectBttn)
 
             if projectBttn in self.highPrioProjects:  # This should rarely occur
-                TS.print(f"Race condition encountered, removeing {projectBttn}.")
+                TS.print(f"Race condition encountered, removing {projectBttn}.")
                 self.highPrioProjects.remove(projectBttn)
 
         for project in boughtProject:
@@ -76,7 +74,7 @@ class Phase1Step2():
         for runner in self.runners:
             runner.tick()
 
-        if self.info.getInt("Trust") >= 25:
+        if self.info.getInt("Trust") >= 100:
             # Current kill point
             TS.print(f"Reached 25+ trust in {TS.deltaStr(self.start)}")
             TS.print("End goal reached!")

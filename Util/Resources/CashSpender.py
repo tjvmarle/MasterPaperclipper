@@ -42,7 +42,7 @@ class CashSpender():
         clipperCost = self.__determineClipper()
         funds = self.info.getFl("Funds")
 
-        buyMarketing = lvlUpCost < 5 * clipperCost
+        buyMarketing = lvlUpCost < 10 * clipperCost
         if buyMarketing and funds > self.highestWireCost + lvlUpCost:
             self.actions.pressButton("LevelUpMarketing")
 

@@ -135,6 +135,11 @@ phaseTwoProjects=[
     B100
     GREEDY
     GENEROUS
+    MINIMAX
+
+
+    # For later
+    Hypnodrones
 ]
 
 # TODO: Add additional project list with High priority projects that will be bought when available, regardless of other priorities
@@ -143,9 +148,14 @@ phaseTwoProjects=[
 highPriorityProjects=[
     MegaClippers
     Improved MegaClippers
+    Even Better MegaClippers
     
     # Not really important, but it's exact priority doesn't really matter. The additional trust is nice tough
     Coherent Extrapolated Volition
+    Cure for Cancer
+    World Peace
+    Global Warming
+    Male Pattern Baldness
     
     # Same, just buy when you can. Each entry is good for one acquisition
     Photonic Chip
@@ -167,3 +177,6 @@ YomiStrategies=[
     GREEDY
     BEAT LAST
 ]
+
+# Log progress every <nr> seconds
+ProgressInterval=60

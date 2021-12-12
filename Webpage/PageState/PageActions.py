@@ -67,4 +67,3 @@ class PageActions():
 
     def selectFromDropdown(self, dropdown: str, selection: str) -> None:
         Select(self.__get(dropdown)).select_by_visible_text(selection)
-        TS.print(f"From {dropdown}, selecting {selection}")

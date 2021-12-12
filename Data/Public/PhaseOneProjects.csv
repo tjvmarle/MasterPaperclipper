@@ -43,9 +43,15 @@ A100,projectButton60,ops=15000,
 B100,projectButton61,ops=17500,
 GREEDY,projectButton62,ops=20000,
 GENEROUS,projectButton63,ops=22500,
+MINIMAX,projectButton64,ops=25000,
 
 # Trust
-Coherent Extrapolated Volition,projectButton27,creat=500;yomi=3000;ops=20000,
+Coherent Extrapolated Volition,projectButton27,creat=500;yomi=3000;ops=20000, 1 trust
+Cure for Cancer,projectButton27,ops=25000, 10 trust
+World Peace,projectButton29,ops=30000;yomi=15000;ops=30000, 12 trust
+Global Warming,projectButton30,ops=50000;yomi=4500, 15 trust
+Male Pattern Baldness,projectButton31,ops=20000, 20 trust
+
 
 # Unimportant projects
 RevTracker,projectButton42,ops=500,
