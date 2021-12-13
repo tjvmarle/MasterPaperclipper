@@ -1,4 +1,6 @@
 # Responsible for spending money on wire, clippers and marketing
+from multiprocessing.dummy import Process
+
 from Util.Resources.HedgeFunder import HedgeFunder
 from Util.Resources.PriceWatcher import PriceWatcher
 from Webpage.PageState.PageActions import PageActions
@@ -16,17 +18,19 @@ class CashSpender():
         self.megaSpeed = lambda: self.megaPerformance * 500
         self.nextClipper = "BuyAutoclipper"
         self.killWire = False
-        self.revTracker = False
-        self.hedger = HedgeFunder(self.info, self.actions)
+        self.hedger = None
         self.pricer = PriceWatcher(self.info, self.actions)
+        self.runners = [self.pricer]
+        self.hedgeInits = 2
 
     def projectAcquired(self, project: str):
         if project == "WireBuyer":
             TS.print(f"Killed the WireWatcher.")
             self.killWire = True
-        elif project == "RevPerSec":
-            self.revTracker = True
-            self.pricer.activateRevTracker()
+        elif project == "RevTracker":
+            thread = Process(target=self.pricer.activateRevTracker)
+            thread.start()
+            self.hedgeInits -= 1
         elif project == "Hadwiger Clip Diagrams":
             self.clipperSpeed += 5
         elif project == "Improved MegaClippers":
@@ -35,6 +39,13 @@ class CashSpender():
             self.megaPerformance += 0.50
         elif project == "Optimized MegaClippers":
             self.megaPerformance += 1.00
+        elif project == "Algorithmic Trading":
+            self.hedgeInits -= 1
+
+        if not self.hedger and self.hedgeInits == 0:  # UGLY: but saves a bunch of additional code
+            TS.print(f"Init hedger!")
+            self.hedger = HedgeFunder(self.info, self.actions)
+            self.runners.append(self.hedger)
 
     def getCallback(self):
         return self.projectAcquired
@@ -86,4 +97,5 @@ class CashSpender():
     def tick(self):
         self.__updateWire()
         self.__buy()
-        self.pricer.tick()
+        for runner in self.runners:
+            runner.tick()

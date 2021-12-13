@@ -5,6 +5,8 @@ infoFields=[
     # Syntax = InternalName:WebPageId
     TotalClips:clips
     Funds:funds
+    RevPerSec:avgRev
+    ClipsSoldPerSec:avgSales
     Unsold:unsoldClips
     ClipPrice:margin
     Demand:demand
@@ -32,10 +34,10 @@ infoFields=[
     QuantumChip8:qChip8
     QuantumChip9:qChip9
     LiquidAssets:investmentBankroll
-    RevPerSec:avgRev
-    ClipsSoldPerSec:avgSales
+
     
-    # Also present in actionFields
+    # Dropdowns - Also present in actionFields
+    InvestRisk:investStrat
     PickStrat:stratPicker
 ]
 
@@ -53,14 +55,17 @@ actionFields=[
     BuyMemory:btnAddMem
     QuantumCompute:btnQcompute
     PickRisk:investStrat
+    UpgradeInvestLevel:btnImproveInvestments
     DepositFunds:btnInvest
     WithdrawFunds:btnWithdraw
     ImproveInvestments:btnImproveInvestments
     NewTournament:btnNewTournament
     RunTournament:btnRunTournament
 
-    # Also present in infoFields
+    # Dropdowns - Also present in infoFields
+    InvestRisk:investStrat
     PickStrat:stratPicker
+    
 ]
 
 # Parameters to log progress for. These can be toggled on and off before starting the game
@@ -196,3 +201,9 @@ YomiStrategies=[
 
 # Log progress every <nr> seconds
 ProgressInterval=60
+
+# Income per sec to reach to trigger the investment waves
+InvestLevels=[100,250,500,1000]
+
+# Nr of seconds to dump al funds into investments
+InvestPeriod=10

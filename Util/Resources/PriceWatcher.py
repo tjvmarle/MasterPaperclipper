@@ -1,3 +1,4 @@
+import time
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
 from Util.Timestamp import Timestamp as TS
@@ -13,16 +14,18 @@ class PriceWatcher():
         self.revTracker = False
 
     def activateRevTracker(self) -> None:
+        time.sleep(0.75)
         self.revTracker = True
 
     def __adjustPrice(self):
         rate = self.info.getInt("ClipsPerSec")
 
         lastAdjustment = TS.delta(self.lastPriceAdjustment)
-        if self.revTracker and lastAdjustment > 5:
-            self.actions.pressButton("RaisePrice" if self.info.getInt("ClipsSoldPerSec") > rate else "LowerPrice")
-            # TODO: Add more handling after large marketing fluctuations
-            return
+
+        # FIXME: This doesn't work with low stock
+        # if self.revTracker and lastAdjustment > 5:
+        #     self.actions.pressButton("RaisePrice" if self.info.getInt("ClipsSoldPerSec") > rate else "LowerPrice")
+        #     return
 
         unsold = self.info.getInt("Unsold")
         if self.revTracker:

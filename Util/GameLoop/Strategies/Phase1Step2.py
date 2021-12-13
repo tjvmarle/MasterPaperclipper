@@ -20,7 +20,6 @@ class Phase1Step2():
         self.highPrioProjects = Config.get("highPriorityProjects")
         self.projects = Config.get("phaseTwoProjects")
 
-        self.start = Config.get("Gamestart")
         self.thread = ThreadClicker(self.info, self.actions)
         self.resourceManager = ResourceAllocator(self.info, self.actions)
 
@@ -31,8 +30,6 @@ class Phase1Step2():
         boughtProject = []
         for project in self.highPrioProjects:
             if self.actions.isEnabled(project):
-                time.sleep(0.5)  # The buttons 'blink' in
-                # TODO: get rid of the sleep. Just click and check if you succeed
                 if self.actions.pressButton(project):
                     boughtProject.append(project)
 
@@ -47,7 +44,6 @@ class Phase1Step2():
 
         projectBttn = self.projects[0]
         if self.actions.isEnabled(projectBttn):
-            time.sleep(0.5)  # The buttons 'blink' in
             if self.actions.pressButton(projectBttn):
                 self.projects.pop(0)
                 boughtProject.append(projectBttn)
@@ -73,9 +69,10 @@ class Phase1Step2():
         for runner in self.runners:
             runner.tick()
 
-        if self.info.getInt("Trust") >= 100:
+        trustKill = 17
+        if self.info.getInt("Trust") >= trustKill:
             # Current kill point
-            TS.print(f"Reached 100 trust in {TS.deltaStr(self.start)}")
+            TS.print(f"Reached {trustKill} trust in {Config.get('Gamestart')}")
             TS.print("End goal reached!")
             self.thread.kill()
             return False
