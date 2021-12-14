@@ -31,6 +31,8 @@ New Slogan,projectButton11,creat=25;ops=2500,
 Catchy Jingle,projectButton12,creat=45;ops=4500,marketing x5
 Hypno Harmonics,projectButton34,ops=7500;trust=1,marketing x5; theres no need to save up for the trust
 Hypnodrones,projectButton70,ops=70000,
+Hostile Takeover,projectButton37,fund=1_000_000,Public Demand x5
+Full Monopoly,projectButton38,yomi=3000;fund=10_000_000,
 
 # Additional modules
 Algorithmic Trading,projectButton21,ops=10000,

@@ -1,5 +1,6 @@
 # Responsible for Investments
 
+import time
 from Util.Files.Config import Config
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
@@ -21,16 +22,20 @@ class HedgeFunder():
         if not self.investmentsActive:
             return
 
+        self.actions.pressButton("BuyWire")  # Wire is cheap and this prevents production blockage
         self.actions.pressButton("DepositFunds")
 
         if TS.delta(self.investStartTime) > self.investTime:
             self.investmentsActive = False
+            TS.print(f"Stop investing.")
 
     def checkIncome(self):
         if not self.investLevels:
             return
 
-        if self.info.getFl("RevPerSec") > self.investLevels[0]:
+        if not self.investmentsActive and self.info.getFl("RevPerSec") > self.investLevels[0]:
+            # TODO: Trigger investments as percentage of time
+            TS.print(f"Start investing at {self.investLevels[0]}.")
             self.investmentsActive = True
             self.investStartTime = TS.now()
             self.investLevels.pop(0)
@@ -42,18 +47,27 @@ class HedgeFunder():
             self.highRisk = True
 
     def setLevel(self):
-        if self.currLevel >= 5:
+        if self.currLevel >= 6:
             return
 
-        # Yomi costs for Invest Upgrades: 100 (54), 658 (55), 1981 (56), 4330 (57), 7943 (58), 13038 (59)
         if self.actions.isEnabled("UpgradeInvestLevel") and self.actions.pressButton("UpgradeInvestLevel"):
             self.currLevel += 1
+
+    def takeOut(self):
+        # Don't drain all savings at once
+        if self.info.getFl("LiquidAssets") > 2_000_000 and self.actions.isVisible("Hostile Takeover"):
+            TS.print("Withdraw for Hostile Takeover!")
+            self.actions.pressButton("WithdrawFunds")
+            time.sleep(0.5)
+            self.actions.pressButton("Hostile Takeover")
+            self.actions.pressButton("DepositFunds")
 
     def tick(self):
         self.setRisk()
         self.setLevel()
         self.checkIncome()
         self.invest()
+        self.takeOut()
 
 # TODO: Phase 1 ends at 100 trust. We need to buy around 10-20 trust from projects.
 # We first need 1 million to buy our competitor.

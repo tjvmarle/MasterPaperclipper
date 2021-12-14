@@ -33,8 +33,9 @@ infoFields=[
     QuantumChip7:qChip7
     QuantumChip8:qChip8
     QuantumChip9:qChip9
-    LiquidAssets:investmentBankroll
 
+    LiquidAssets:investmentBankroll
+    TotalInvested:portValue
     
     # Dropdowns - Also present in actionFields
     InvestRisk:investStrat
@@ -81,6 +82,7 @@ progressFields=[
     Trust
     Processors
     Memory
+    TotalInvested
 ]
 
 # Prioritizes the order in which Processors and Memory need to be bought
@@ -96,10 +98,11 @@ trustSpendingStrategy=[
     5:10
 
     # First get enough ops to buy all tournament strategies, this includes a ~10k overshoot enabled by the Photonic Chips
-    5:23
+    15:10
+    15:40
 
     # Next max out processors for this phase. This allows faster generation of creativity.
-    30:23
+    30:40
 
     # We need 100 trust to finish phase 1
     30:70
@@ -203,7 +206,7 @@ YomiStrategies=[
 ProgressInterval=60
 
 # Income per sec to reach to trigger the investment waves
-InvestLevels=[100,250,500,1000]
+InvestLevels=[100,250,375,500,600,700,800,825,850,875,900,1000]
 
 # Nr of seconds to dump al funds into investments
 InvestPeriod=10

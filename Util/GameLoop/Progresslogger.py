@@ -20,14 +20,6 @@ class Progresslogger():
         currValStrings.append(f"fps={(self.ticks / self.interval):.2f}")  # Average fps over interval
         self.ticks = 0
 
-        # UGLY: This needs a more permanent solution. Important performance metric.
-        driverAccesCount = self.info.driverAccess
-        driverAccesCount += self.actions.driverAccess
-        self.info.driverAccess = 0
-        self.actions.driverAccess = 0
-        driverAccessPerSec = driverAccesCount / self.interval
-        currValStrings.append(f"driverAccess/sec={driverAccessPerSec:.2f}")
-
         TS.print(f"{Fore.LIGHTBLACK_EX}Progress({self.nrOfIntervals}): ",
                  ", ".join(currValStrings), f"{Style.RESET_ALL}")
         # TODO: save values in local file. Perhaps something you can import in a Database or Grafana

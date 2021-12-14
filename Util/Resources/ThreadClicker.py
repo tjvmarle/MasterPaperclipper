@@ -5,12 +5,12 @@ from Webpage.PageState.PageInfo import PageInfo
 
 
 class ThreadClicker():
-    def createPaperclips(self, dummy: str):
+    def runThreadClicker(self, dummy: str):
         while self.alive:
             self.actions.threadClick()
 
     def initThread(self):
-        self.thread = Process(target=self.createPaperclips, args=["1"])
+        self.thread = Process(target=self.runThreadClicker, args=["1"])
         self.thread.start()
 
     def __init__(self, pageInfo: PageInfo, pageAction: PageActions) -> None:

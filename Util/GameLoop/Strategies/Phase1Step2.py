@@ -27,6 +27,7 @@ class Phase1Step2():
         self.projectNotifiers = [self.resourceManager.moneyHandler.getCallback()]  # UGLY, but works for now
 
     def __buyProjects(self):
+        # TODO: Move to seperate class
         boughtProject = []
         for project in self.highPrioProjects:
             if self.actions.isEnabled(project):
@@ -69,10 +70,10 @@ class Phase1Step2():
         for runner in self.runners:
             runner.tick()
 
-        trustKill = 17
+        trustKill = 100
         if self.info.getInt("Trust") >= trustKill:
             # Current kill point
-            TS.print(f"Reached {trustKill} trust in {Config.get('Gamestart')}")
+            TS.print(f"Reached {trustKill} trust in {TS.deltaStr(Config.get('Gamestart'))}")
             TS.print("End goal reached!")
             self.thread.kill()
             return False
