@@ -143,13 +143,15 @@ phaseTwoProjects=[
 
     # Creativity should be less of a problem with ops pushed over max
     New Slogan
+    
+    Spectral Froth Annealment
+    Algorithmic Trading
+    WireBuyer
+
     Catchy Jingle
     Hypno Harmonics
 
     Strategic Modeling
-    WireBuyer
-    Algorithmic Trading
-    Spectral Froth Annealment
 
     A100
     B100
