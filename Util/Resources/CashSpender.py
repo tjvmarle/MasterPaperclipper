@@ -1,5 +1,6 @@
 # Responsible for spending money on wire, clippers and marketing
 from multiprocessing.dummy import Process
+from Util.AcquisitionHandler import AcquisitionHandler
 
 from Util.Resources.HedgeFunder import HedgeFunder
 from Util.Resources.PriceWatcher import PriceWatcher
@@ -9,6 +10,39 @@ from Util.Timestamp import Timestamp as TS
 
 
 class CashSpender():
+    def clipperImprovementAcquired(self, project: str) -> None:
+        TS.print(f"CashSpender notified of {project}.")
+        if project == "Hadwiger Clip Diagrams":
+            self.clipperSpeed += 5
+        elif project == "Improved MegaClippers":
+            self.megaPerformance += 0.25
+        elif project == "Even Better MegaClippers":
+            self.megaPerformance += 0.50
+        elif project == "Optimized MegaClippers":
+            self.megaPerformance += 1.00
+
+    def wireBuyerAcquired(self, project: str) -> None:
+        if project == "WireBuyer":
+            TS.print(f"Killed the WireWatcher.")
+            self.killWire = True
+
+    def checkHedgeInits(self) -> None:
+        if self.hedgeInits == 0:  # UGLY: but saves a bunch of additional code
+            TS.print(f"Init hedger!")
+            self.runners.append(HedgeFunder(self.info, self.actions))
+
+    def revTrackerAcquired(self, project: str) -> None:
+        if project == "RevTracker":
+            thread = Process(target=self.pricer.activateRevTracker)
+            thread.start()
+            self.hedgeInits -= 1
+            self.checkHedgeInits()
+
+    def algoTradingAcquired(self, project: str) -> None:
+        if project == "Algorithmic Trading":
+            self.hedgeInits -= 1
+            self.checkHedgeInits()
+
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
         self.info = pageInfo
         self.actions = pageActions
@@ -18,34 +52,21 @@ class CashSpender():
         self.megaSpeed = lambda: self.megaPerformance * 500
         self.nextClipper = "BuyAutoclipper"
         self.killWire = False
-        self.hedger = None
         self.pricer = PriceWatcher(self.info, self.actions)
         self.runners = [self.pricer]
         self.hedgeInits = 2
+        self.projectWatcher = AcquisitionHandler()
 
-    def projectAcquired(self, project: str):
-        if project == "WireBuyer":
-            TS.print(f"Killed the WireWatcher.")
-            self.killWire = True
-        elif project == "RevTracker":
-            thread = Process(target=self.pricer.activateRevTracker)
-            thread.start()
-            self.hedgeInits -= 1
-        elif project == "Hadwiger Clip Diagrams":
-            self.clipperSpeed += 5
-        elif project == "Improved MegaClippers":
-            self.megaPerformance += 0.25
-        elif project == "Even Better MegaClippers":
-            self.megaPerformance += 0.50
-        elif project == "Optimized MegaClippers":
-            self.megaPerformance += 1.00
-        elif project == "Algorithmic Trading":
-            self.hedgeInits -= 1
+        # If only this language would have useful lambda's
+        self.projectWatcher.addHandle("WireBuyer", self.wireBuyerAcquired)
+        self.projectWatcher.addHandle("RevTracker", self.revTrackerAcquired)
+        self.projectWatcher.addHandle("Algorithmic Trading", self.algoTradingAcquired)
+        for project in ("Hadwiger Clip Diagrams", "Improved MegaClippers", "Even Better MegaClippers",
+                        "Optimized MegaClippers"):
+            self.projectWatcher.addHandle(project, self.clipperImprovementAcquired)
 
-        if not self.hedger and self.hedgeInits == 0:  # UGLY: but saves a bunch of additional code
-            TS.print(f"Init hedger!")
-            self.hedger = HedgeFunder(self.info, self.actions)
-            self.runners.append(self.hedger)
+        # FIXME: This doesnt work. Can only use expression, Python lambdas suck
+        self.projectDict = {"Hadwiger Clip Diagrams": lambda: self.clipperSpeed + 5}
 
     def getCallback(self):
         return self.projectAcquired

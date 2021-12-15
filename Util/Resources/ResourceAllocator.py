@@ -17,7 +17,9 @@ class ResourceAllocator():
         self.trustee = TrustSpender(self.info, self.actions)
         self.yomi = TourneyOrganiser(self.info, self.actions)
         self.pb = ProjectBuyer(self.info, self.actions)
-        self.pb.projectNotifiers.append(self.moneyHandler.getCallback())  # UGLY: bit at least in a seperate class now
+
+        self.pb.addProjectNotifier(self.moneyHandler.projectWatcher)
+        self.pb.addProjectNotifier(self.moneyHandler.pricer.projectWatcher)
 
     def tick(self):
         self.moneyHandler.tick()

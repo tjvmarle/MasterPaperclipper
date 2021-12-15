@@ -1,4 +1,5 @@
 from Util.Timestamp import Timestamp as TS
+from Util.AcquisitionHandler import AcquisitionHandler
 from Util.Files.Config import Config
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
@@ -13,12 +14,13 @@ class ProjectBuyer():
         self.projects = Config.get("phaseTwoProjects")
         self.projectNotifiers = []
 
-    def addNotifier(self, callback) -> None:
-        self.projectNotifiers.append(callback)
+    def addProjectNotifier(self, handler: AcquisitionHandler) -> None:
+        self.projectNotifiers.append(handler)
 
     def notify(self, project: str):
-        for callback in self.projectNotifiers:
-            callback(project)
+        TS.print(f"Notifying the acquisition of {project}.")
+        for handler in self.projectNotifiers:
+            handler.handle(project)
 
     def __buyProjects(self):
         boughtProject = []

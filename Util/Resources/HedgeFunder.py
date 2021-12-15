@@ -55,6 +55,7 @@ class HedgeFunder():
 
     def takeOut(self):
         # Don't drain all savings at once
+        # FIXME: This crashes the script when encountering the cash value a 2nd time.
         if self.info.getFl("LiquidAssets") > 2_000_000 and self.actions.isVisible("Hostile Takeover"):
             TS.print("Withdraw for Hostile Takeover!")
             self.actions.pressButton("WithdrawFunds")

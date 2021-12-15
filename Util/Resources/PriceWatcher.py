@@ -1,10 +1,22 @@
+
 import time
+from multiprocessing.dummy import Process
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
 from Util.Timestamp import Timestamp as TS
+from Util.AcquisitionHandler import AcquisitionHandler
 
 
 class PriceWatcher():
+    def activateRevTracker(self) -> None:
+        time.sleep(0.75)
+        self.revTracker = True
+
+    def revTrackerAcquired(self, project: str) -> None:
+        TS.print(f"PriceWatcher notified of {project}.")
+        thread = Process(target=self.activateRevTracker)
+        thread.start()
+
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
         self.info = pageInfo
         self.actions = pageActions
@@ -13,9 +25,8 @@ class PriceWatcher():
         self.demand = self.info.getInt("Demand")
         self.revTracker = False
 
-    def activateRevTracker(self) -> None:
-        time.sleep(0.75)
-        self.revTracker = True
+        self.projectWatcher = AcquisitionHandler()
+        self.projectWatcher.addHandle("RevTracker", self.revTrackerAcquired)
 
     def __adjustPrice(self):
         rate = self.info.getInt("ClipsPerSec")
