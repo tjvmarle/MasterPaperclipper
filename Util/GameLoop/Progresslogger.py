@@ -2,14 +2,12 @@
 from Util.Files.Config import Config
 from Util.Timestamp import Timestamp as TS
 from Webpage.PageState.PageInfo import PageInfo
-from Webpage.PageState.PageActions import PageActions
 from colorama import Fore, Style
 
 
 class Progresslogger():
-    def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
+    def __init__(self, pageInfo: PageInfo) -> None:
         self.info = pageInfo
-        self.actions = pageActions
         self.interval = int(Config.get("ProgressInterval"))
         self.nrOfIntervals = 1
         self.ticks = 0

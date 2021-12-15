@@ -1,6 +1,7 @@
 # Responsible for spending money on wire, clippers and marketing
 from multiprocessing.dummy import Process
 from Util.AcquisitionHandler import AcquisitionHandler
+from Util.Files.Config import Config
 
 from Util.Resources.HedgeFunder import HedgeFunder
 from Util.Resources.PriceWatcher import PriceWatcher
@@ -11,7 +12,6 @@ from Util.Timestamp import Timestamp as TS
 
 class CashSpender():
     def clipperImprovementAcquired(self, project: str) -> None:
-        TS.print(f"CashSpender notified of {project}.")
         if project == "Hadwiger Clip Diagrams":
             self.clipperSpeed += 5
         elif project == "Improved MegaClippers":
@@ -21,27 +21,23 @@ class CashSpender():
         elif project == "Optimized MegaClippers":
             self.megaPerformance += 1.00
 
-    def wireBuyerAcquired(self, project: str) -> None:
-        if project == "WireBuyer":
-            TS.print(f"Killed the WireWatcher.")
-            self.killWire = True
+    def wireBuyerAcquired(self, _: str) -> None:
+        self.killWire = True
 
     def checkHedgeInits(self) -> None:
-        if self.hedgeInits == 0:  # UGLY: but saves a bunch of additional code
-            TS.print(f"Init hedger!")
+        # UGLY: but saves a bunch of additional code
+        if self.hedgeInits == 0:
             self.runners.append(HedgeFunder(self.info, self.actions))
 
-    def revTrackerAcquired(self, project: str) -> None:
-        if project == "RevTracker":
-            thread = Process(target=self.pricer.activateRevTracker)
-            thread.start()
-            self.hedgeInits -= 1
-            self.checkHedgeInits()
+    def revTrackerAcquired(self, _: str) -> None:
+        thread = Process(target=self.pricer.activateRevTracker)
+        thread.start()
+        self.hedgeInits -= 1
+        self.checkHedgeInits()
 
-    def algoTradingAcquired(self, project: str) -> None:
-        if project == "Algorithmic Trading":
-            self.hedgeInits -= 1
-            self.checkHedgeInits()
+    def algoTradingAcquired(self, _: str) -> None:
+        self.hedgeInits -= 1
+        self.checkHedgeInits()
 
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
         self.info = pageInfo
@@ -49,13 +45,14 @@ class CashSpender():
         self.highestWireCost = 27
         self.clipperSpeed = 2.5  # Includes most of the upgrades
         self.megaPerformance = 1
-        self.megaSpeed = lambda: self.megaPerformance * 500
         self.nextClipper = "BuyAutoclipper"
         self.killWire = False
         self.pricer = PriceWatcher(self.info, self.actions)
         self.runners = [self.pricer]
         self.hedgeInits = 2
         self.projectWatcher = AcquisitionHandler()
+        self.clippersAvailable = False
+        self.maxTrustReached = False
 
         # If only this language would have useful lambda's
         self.projectWatcher.addHandle("WireBuyer", self.wireBuyerAcquired)
@@ -64,9 +61,6 @@ class CashSpender():
         for project in ("Hadwiger Clip Diagrams", "Improved MegaClippers", "Even Better MegaClippers",
                         "Optimized MegaClippers"):
             self.projectWatcher.addHandle(project, self.clipperImprovementAcquired)
-
-        # FIXME: This doesnt work. Can only use expression, Python lambdas suck
-        self.projectDict = {"Hadwiger Clip Diagrams": lambda: self.clipperSpeed + 5}
 
     def getCallback(self):
         return self.projectAcquired
@@ -77,13 +71,22 @@ class CashSpender():
             return self.info.getFl("AutoCost")
 
         autoPrice, megaPrice = [self.info.getFl(clipCost) for clipCost in ("AutoCost", "MegaCost")]
-        buyAuto = autoPrice / self.clipperSpeed < megaPrice / self.megaSpeed()
+        buyAuto = autoPrice / self.clipperSpeed < megaPrice / (self.megaPerformance * 500)
         self.nextClipper = "BuyAutoclipper" if buyAuto else "BuyMegaClipper"
         return autoPrice if buyAuto else megaPrice
 
     def __buy(self):
-        if not self.actions.isVisible("BuyAutoclipper"):  # You can't buy clippers untill you've made $5
+        if not self.clippersAvailable:
+            # You can't buy clippers untill you've made $5
+            self.clippersAvailable = self.actions.isVisible("BuyAutoclipper")
             return
+
+        if self.maxTrustReached:
+            return
+
+        if self.info.getInt("Trust") >= 90:
+            TS.print(f"Reached 90 trust in {TS.delta(Config.get('Gamestart'))}, killing of Clipper acquisition.")
+            self.maxTrustReached = True
 
         # Occasionally buy some marketing instead
         lvlUpCost = self.info.getFl("MarketingCost")

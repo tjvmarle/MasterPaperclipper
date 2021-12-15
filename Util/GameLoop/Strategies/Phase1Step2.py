@@ -26,10 +26,10 @@ class Phase1Step2():
             runner.tick()
 
         trustKill = 100
-        if self.info.getInt("Trust") >= trustKill:
+        if self.info.getInt("Processors") + self.info.getInt("Memory") >= trustKill:
             # Current kill point
-            TS.print(f"Reached {trustKill} trust in {TS.deltaStr(Config.get('Gamestart'))}")
-            TS.print("End goal reached!")
+
+            TS.print(f"End goal reached: Hypnodrones released in {TS.deltaStr(Config.get('Gamestart'))}!")
             self.thread.kill()
             return False
 

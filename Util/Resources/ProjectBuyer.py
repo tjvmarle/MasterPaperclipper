@@ -18,7 +18,6 @@ class ProjectBuyer():
         self.projectNotifiers.append(handler)
 
     def notify(self, project: str):
-        TS.print(f"Notifying the acquisition of {project}.")
         for handler in self.projectNotifiers:
             handler.handle(project)
 

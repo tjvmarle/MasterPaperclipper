@@ -13,7 +13,6 @@ class PriceWatcher():
         self.revTracker = True
 
     def revTrackerAcquired(self, project: str) -> None:
-        TS.print(f"PriceWatcher notified of {project}.")
         thread = Process(target=self.activateRevTracker)
         thread.start()
 

@@ -36,6 +36,8 @@ infoFields=[
 
     LiquidAssets:investmentBankroll
     TotalInvested:portValue
+
+    Yomi:yomiDisplay
     
     # Dropdowns - Also present in actionFields
     InvestRisk:investStrat
@@ -82,6 +84,8 @@ progressFields=[
     Trust
     Processors
     Memory
+    Creativity
+    Yomi
     TotalInvested
 ]
 
@@ -98,11 +102,10 @@ trustSpendingStrategy=[
     5:10
 
     # First get enough ops to buy all tournament strategies, this includes a ~10k overshoot enabled by the Photonic Chips
-    15:10
-    15:40
+    5:40
 
-    # Next max out processors for this phase. This allows faster generation of creativity.
-    30:40
+    10:50
+    30:50
 
     # We need 100 trust to finish phase 1
     30:70
@@ -153,21 +156,21 @@ phaseTwoProjects=[
 
     Strategic Modeling
 
-    A100
     B100
     GREEDY
     GENEROUS
     MINIMAX
     TIT FOR TAT
+
     BEAT LAST
 
     # For later
     Hypnodrones
+    Release the HypnoDrones
 ]
 
-# TODO: Add additional project list with High priority projects that will be bought when available, regardless of other priorities
-
 # Projects in this list will be bought when possible, outside of any other priorities
+# OPT: These might have a decent impact on performance...
 highPriorityProjects=[
     MegaClippers
     Improved MegaClippers
@@ -175,13 +178,16 @@ highPriorityProjects=[
     Optimized MegaClippers
     Quantum Foam Annealment
     
-    # Not really important, but it's exact priority doesn't really matter. The additional trust is nice tough
+    # Not really important, but it's exact priority doesn't really matter. Some also raise investment returns a bit.
     Coherent Extrapolated Volition
     Cure for Cancer
     World Peace
     Global Warming
     Male Pattern Baldness
     
+    # Slightly higher prio than Photonic Chips. Running longer tournaments allows for longer generation of ops through Quantum Computing
+    A100
+
     # Same, just buy when you can. Each entry is good for one acquisition
     Photonic Chip
     Photonic Chip
@@ -207,8 +213,5 @@ YomiStrategies=[
 # Log progress every <nr> seconds
 ProgressInterval=60
 
-# Income per sec to reach to trigger the investment waves
-InvestLevels=[100,250,375,500,600,700,800,825,850,875,900,1000]
-
-# Nr of seconds to dump al funds into investments
-InvestPeriod=10
+# Percentage of time used for investing. Low percentages are affected by fps.
+InvestPercentage=25

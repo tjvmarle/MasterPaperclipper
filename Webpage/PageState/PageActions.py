@@ -60,8 +60,13 @@ class PageActions():
         page_button = self.__get(button)
         try:
             page_button.click()
-        except:
-            TS.print(f"Clicking {button} failed.")
+        except StaleElementReferenceException:
+            del self.cache[button]
+            page_button = self.__get(button)
+            page_button.click()
+            TS.print(f"Stale reference to {button} encountered while clicking.")
+        except Exception as e:
+            TS.print(f"Clicking {button} failed with exception {e}.")
             return False
         return True
 
@@ -71,7 +76,7 @@ class PageActions():
             return page_button and page_button.is_displayed() and page_button.is_enabled()
         except StaleElementReferenceException:
             # Reuse of the same projectbutton for Photonic Chips causes these
-            TS.print(f"Stale reference to {button} encountered.")
+
             del self.cache[button]
             page_button = self.__get(button)
             return page_button and page_button.is_displayed() and page_button.is_enabled()
