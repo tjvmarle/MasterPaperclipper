@@ -16,8 +16,9 @@ class Phase1Step2():
         self.info = pageInfo
         self.actions = pageActions
 
-        self.thread = ThreadClicker(self.info, self.actions)
         self.resourceManager = ResourceAllocator(self.info, self.actions)
+        self.thread = ThreadClicker(self.info, self.actions)
+        self.resourceManager.pb.addProjectNotifier(self.thread.projectWatcher)
 
         self.runners = (self.thread, self.resourceManager)
 
@@ -26,7 +27,7 @@ class Phase1Step2():
             runner.tick()
 
         trustKill = 100
-        if self.info.getInt("Processors") + self.info.getInt("Memory") >= trustKill:
+        if self.info.isVisible("Processors") and self.info.getInt("Processors") + self.info.getInt("Memory") >= trustKill:
             # Current kill point
 
             TS.print(f"End goal reached: Hypnodrones released in {TS.deltaStr(Config.get('Gamestart'))}!")

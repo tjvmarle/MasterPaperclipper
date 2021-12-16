@@ -27,8 +27,13 @@ class PriceWatcher():
         self.projectWatcher = AcquisitionHandler()
         self.projectWatcher.addHandle("RevTracker", self.revTrackerAcquired)
 
+        for _ in range(22):
+            self.actions.pressButton("LowerPrice")
+
     def __adjustPrice(self):
         rate = self.info.getInt("ClipsPerSec")
+        if rate < 80:
+            rate = 60
 
         lastAdjustment = TS.delta(self.lastPriceAdjustment)
 
@@ -46,11 +51,11 @@ class PriceWatcher():
                 self.actions.pressButton("RaisePrice")
             return
 
-        # TODO: clean up after fresh start. Most is unnecessary after the acquiring the RevTracker
+        # FIXME: This is garbage
         demand = self.info.getInt("Demand")
         while rate > 0 and demand > 5 * rate:  # Emergency handling for large changes in marketing
             self.actions.pressButton("RaisePrice")
-            self.info.update("Demand")
+            # self.info.update("Demand")
             demand = self.info.getInt("Demand")
 
         if lastAdjustment > 0.25 and unsold < rate:  # Emergency handling for low stock

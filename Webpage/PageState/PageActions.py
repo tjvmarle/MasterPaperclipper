@@ -50,8 +50,12 @@ class PageActions():
     def threadClick(self) -> None:
         """Seperate function for the threadclicker greatly improves performance over pressButton() 
         Clips: ~80 clips/sec
-        Ops: 10-25k over max depending on amount of Photonic Chips"""
-        self.threadButtons[self.threadTarget].click()
+        Ops: 10-35k over max depending on amount of Photonic Chips"""
+        try:
+            self.threadButtons[self.threadTarget].click()
+        except:
+            # Not a problem as long as it isn's excessive
+            TS.print(f"Threadclick failed on target {self.threadTarget}.")
 
     def setThreadClicker(self, newTarget: AutoTarget) -> None:
         self.threadTarget = newTarget
@@ -60,11 +64,13 @@ class PageActions():
         page_button = self.__get(button)
         try:
             page_button.click()
-        except StaleElementReferenceException:
+        except StaleElementReferenceException:  # Reuse of 'Another Token of Goodwill' causes these
             del self.cache[button]
             page_button = self.__get(button)
-            page_button.click()
-            TS.print(f"Stale reference to {button} encountered while clicking.")
+            if page_button:
+                page_button.click()
+            else:
+                TS.print(f"Second attempt at clicking {button} failed again.")
         except Exception as e:
             TS.print(f"Clicking {button} failed with exception {e}.")
             return False
@@ -74,9 +80,7 @@ class PageActions():
         page_button = self.__get(button)
         try:
             return page_button and page_button.is_displayed() and page_button.is_enabled()
-        except StaleElementReferenceException:
-            # Reuse of the same projectbutton for Photonic Chips causes these
-
+        except StaleElementReferenceException:  # Reuse of the same projectbutton for 'Photonic Chip' causes these
             del self.cache[button]
             page_button = self.__get(button)
             return page_button and page_button.is_displayed() and page_button.is_enabled()

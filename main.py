@@ -1,3 +1,4 @@
+import cProfile
 import time
 from Util.Files.Config import Config
 from Util.GameLoop.Strategizer import Strategizer
@@ -8,9 +9,6 @@ from Util.Timestamp import Timestamp as TS
 # Launch the webpage and load/save options
 webPage = Startpage()
 game = Gamesave(webPage.getDriver())
-
-# Rough overview of next actions:
-# TODO: Write some more UTs
 
 # Load game
 # game.load(Config.get("savePathPhotonicPhase"))
@@ -25,23 +23,39 @@ totalFrames = 0
 totalTicks = 0
 
 TS.print("Start!")
-while strat.tick():
-    frames += 1
-    runtime = TS.delta(frameStamp)
-    if runtime > 5.0:  # Average fps per 5 seconds
-        fps = frames / runtime
-        # TS.print(f"fps: {fps:.2f}")
 
-        totalFrames += fps
-        totalTicks += 1
 
-        frameStamp = TS.now()
-        frames = 0
+def loop():
+    global totalFrames
+    global totalTicks
+    global frames
+    global frameStamp
+    while strat.tick():
+        frames += 1
+        runtime = TS.delta(frameStamp)
+        if runtime > 5.0:  # Average fps per 5 seconds
+            fps = frames / runtime
+            # TS.print(f"fps: {fps:.2f}")
+
+            totalFrames += fps
+            totalTicks += 1
+
+            frameStamp = TS.now()
+            frames = 0
+
+
+loop()
+# cProfile.run('loop()')
+# OPT: Almost 100% of the time spent in webdriver.py:404(execute). On a per-call basis, all calls to the driver take about 13-14 ms. Fewer calls == higher fps!
 
 TS.print(f"Finished in {TS.deltaStr(startTime)}.")
 TS.print(f"Averaged {totalFrames / totalTicks:.2f} fps.")
 
+if totalTicks > 0:
+    TS.print(f"Averaged {totalFrames / totalTicks:.2f} fps.")
+
 # game.save(Config.get("savePathPhotonicPhase"))
+# game.save(Config.get("savePathSecondPhase"))
 
 time.sleep(3)  # Watch in awe at your creation
 webPage.getDriver().close()  # UGLY, but fine for now.

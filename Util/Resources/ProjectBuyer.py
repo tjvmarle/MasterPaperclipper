@@ -11,7 +11,7 @@ class ProjectBuyer():
         self.actions = pageActions
 
         self.highPrioProjects = Config.get("highPriorityProjects")
-        self.projects = Config.get("phaseTwoProjects")
+        self.projects = Config.get("phaseOneProjects")
         self.projectNotifiers = []
 
     def addProjectNotifier(self, handler: AcquisitionHandler) -> None:

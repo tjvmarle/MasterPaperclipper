@@ -2,15 +2,22 @@ from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
 from Util.Files.Config import Config
 from Util.Timestamp import Timestamp as TS
+from Util.AcquisitionHandler import AcquisitionHandler
 
 
 class TrustSpender():
+    def removeBlockage(self, _: str):
+        self.unBlock = True
+
     def __init__(self, pageInfo: PageInfo, pageAction: PageActions) -> None:
         self.info = pageInfo
         self.actions = pageAction
         self.trustStrategies = Config.get("trustSpendingStrategy")
         self.nextStrat = None
         self.__getNextStrat()
+        self.unBlock = False
+        self.projectWatcher = AcquisitionHandler()
+        self.projectWatcher.addHandle("Donkey Space", self.removeBlockage)
 
     def __getNextStrat(self) -> None:
         if not self.trustStrategies:
@@ -29,7 +36,7 @@ class TrustSpender():
         self.initialDeltaRatio = [self.nextStrat[0] - currProc, self.nextStrat[1] - currMem]
 
     def __isBlockActive(self) -> bool:
-        if self.nextStrat == "block1" and "Donkey Space" not in self.projects:
+        if self.nextStrat == "block1" and self.unBlock:
             self.__getNextStrat()
             return False
         return True

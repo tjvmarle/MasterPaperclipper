@@ -93,10 +93,10 @@ progressFields=[
 # Syntax = Processors : Memory
 trustSpendingStrategy=[
     # Early processors are required for some quick creativity generation
-    # 5:1
+    5:1
 
     # Temporarily block spending trust until Donkey Space is acquired and an additional 70 creativity is made
-    # block1
+    block1
 
     # Next, 10 memory is required to buy the first quantum upgrades, 15 trust requires 55.000 clips
     5:10
@@ -104,11 +104,11 @@ trustSpendingStrategy=[
     # First get enough ops to buy all tournament strategies, this includes a ~10k overshoot enabled by the Photonic Chips
     5:40
 
-    10:50
-    30:50
+    50:40
+    50:50
 
     # We need 100 trust to finish phase 1
-    30:70
+    #30:70
 ]
 
 # Priority of buying the projects
@@ -123,18 +123,12 @@ phaseOneProjects=[
     The Toth Sausage Conjecture
     Donkey Space
     
-    # Add the RevTracker to ease price adjustments
-    RevTracker
-
     # Next go for the photonic chips
-    # OPT: Eventually this will be priority #1 to reach ASAP. Is going to require balancing of spending trust and buying the righ projects
     Quantum Computing
 
-    # Having a single entry here will allow to 'save up' for this project. The rest will be handled by highPriorityProjects
+    # Having one entry here will allow to 'save up' for this project. The rest will be handled by highPriorityProjects
     Photonic Chip
-]
 
-phaseTwoProjects=[
     RevTracker
     Hadwiger Clip Diagrams
     Improved Wire Extrusion
@@ -146,11 +140,9 @@ phaseTwoProjects=[
 
     # Creativity should be less of a problem with ops pushed over max
     New Slogan
-    
     Spectral Froth Annealment
     Algorithmic Trading
     WireBuyer
-
     Catchy Jingle
     Hypno Harmonics
 
@@ -161,7 +153,6 @@ phaseTwoProjects=[
     GENEROUS
     MINIMAX
     TIT FOR TAT
-
     BEAT LAST
 
     # For later
@@ -188,15 +179,20 @@ highPriorityProjects=[
     # Slightly higher prio than Photonic Chips. Running longer tournaments allows for longer generation of ops through Quantum Computing
     A100
 
-    # Same, just buy when you can. Each entry is good for one acquisition
+    # Same, just buy when you can. Each entry is good for one acquisition. Requires one duplicate with phaseOneProjects
+    # TODO: Should probably not require a duplicate with phaseOneProjects
     Photonic Chip
     Photonic Chip
     Photonic Chip
+    
     Photonic Chip
     Photonic Chip
     Photonic Chip
+
     Photonic Chip
     Photonic Chip
+    Photonic Chip
+
     Photonic Chip
     Theory of Mind
 ]

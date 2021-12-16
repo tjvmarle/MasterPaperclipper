@@ -2,6 +2,7 @@
 
 import time
 from Util.Files.Config import Config
+from Util.AcquisitionHandler import AcquisitionHandler
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
 from Util.Timestamp import Timestamp as TS
@@ -13,16 +14,22 @@ from Util.Timestamp import Timestamp as TS
 
 
 class HedgeFunder():
+    def limitBreak(self) -> None:
+        self.myFinalForm = True
+
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
         self.info = pageInfo
         self.actions = pageActions
 
         self.investmentsActive = False
+        self.myFinalForm = False
         self.currLevel = 0
         self.highRisk = False
         self.takeOuts = [("Hostile Takeover", 1_500_000), ("Full Monopoly", 11_000_000)]
         self.investTime = float(Config.get("InvestPercentage")) * 0.6
         self.currMinute = TS.now().minute
+        self.projectWatcher = AcquisitionHandler()
+        self.projectWatcher.addHandle("Theory of Mind", self.limitBreak)
 
     def invest(self):
         now = TS.now()
@@ -49,7 +56,7 @@ class HedgeFunder():
             self.highRisk = True
 
     def setInvestmentLevel(self):
-        if self.currLevel >= 8:
+        if self.currLevel >= 8 and not self.myFinalForm:
             # You only need about 86.000 yomi for phase 2 in total
             # TODO: Even more levels could be bought is Theory of Mind is acquired
             return
@@ -89,7 +96,9 @@ class HedgeFunder():
         self.actions.pressButton("A Token of Goodwill")
         for _ in range(0, 9):
             time.sleep(0.5)
-            self.actions.pressButton("Another Token of Goodwill")
+            # Just keep attempting the button untill success
+            while not self.actions.pressButton("Another Token of Goodwill"):
+                pass
 
         # Trustspender runs after this one in the same loop, so trust should've been spent before the Hypnodrones are released.
 

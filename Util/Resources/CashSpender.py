@@ -84,8 +84,8 @@ class CashSpender():
         if self.maxTrustReached:
             return
 
-        if self.info.getInt("Trust") >= 90:
-            TS.print(f"Reached 90 trust in {TS.delta(Config.get('Gamestart'))}, killing of Clipper acquisition.")
+        if self.info.isVisible("Trust") and self.info.getInt("Trust") >= 90:
+            TS.print(f"Reached 90 trust in {TS.deltaStr(Config.get('Gamestart'))}, killing of Clipper acquisition.")
             self.maxTrustReached = True
 
         # Occasionally buy some marketing instead
@@ -105,6 +105,7 @@ class CashSpender():
         if self.killWire:
             return
 
+        # FIXME: It seems that buying clippers happens too early, leaving too little change for wire.
         wireCost = self.info.getInt("WireCost")
         self.highestWireCost = max(wireCost, self.highestWireCost)
 
@@ -112,9 +113,9 @@ class CashSpender():
             return
 
         wire = self.info.getInt("Wire")
-        if wire < 200 or (
-                wire < 1500 and wireCost / self.highestWireCost <= 0.6) or (
-                wire < 2500 and wireCost / self.highestWireCost <= 0.45):  # Either buy when low or cheap
+        if wire < 500 or (
+                wire < 1500 and wireCost / self.highestWireCost <= 0.65) or (
+                wire < 2500 and wireCost / self.highestWireCost <= 0.50):  # Either buy when low or cheap
             self.actions.pressButton("BuyWire")
             self.info.update("Funds")
 

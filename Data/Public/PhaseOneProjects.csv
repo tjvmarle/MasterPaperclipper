@@ -35,13 +35,13 @@ Full Monopoly,projectButton38,yomi=3000;fund=10_000_000,
 
 # Additional modules
 Algorithmic Trading,projectButton21,ops=10000,
-Strategic Modeling,projectButton20,ops=12000,
 
 # Free ops
 Quantum Computing,projectButton50,ops=10000,base module
 Photonic Chip,projectButton51,ops=10000,free ops; button is reused for all levels
 
 # Yomi
+Strategic Modeling,projectButton20,ops=12000,
 A100,projectButton60,ops=15000,
 B100,projectButton61,ops=17500,
 GREEDY,projectButton62,ops=20000,

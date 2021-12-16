@@ -2,9 +2,14 @@
 from multiprocessing.dummy import Process
 from Webpage.PageState.PageActions import PageActions, AutoTarget
 from Webpage.PageState.PageInfo import PageInfo
+from Util.AcquisitionHandler import AcquisitionHandler
+from Util.Timestamp import Timestamp as TS
 
 
 class ThreadClicker():
+    def activatePhotonics(self, _: str) -> None:
+        self.photonicActive = True
+
     def runThreadClicker(self, dummy: str):
         while self.alive:
             self.actions.threadClick()
@@ -17,8 +22,11 @@ class ThreadClicker():
         self.info = pageInfo
         self.actions = pageAction
         self.alive = True
+        self.photonicActive = False
         self.initThread()
         self.photonicChips = [self.info.get(f"QuantumChip{i}") for i in range(10)]
+        self.projectWatcher = AcquisitionHandler()
+        self.projectWatcher.addHandle("Photonic Chip", self.activatePhotonics)
 
     def kill(self):
         self.alive = False
@@ -26,8 +34,10 @@ class ThreadClicker():
 
     def __setThreadButton(self):
         # TODO: ignore making paperclips @ high Clips/second. Almost no benefit
-        chips = [element.get_attribute("style").replace(";", "").split(":")[1] for element in self.photonicChips]
-        total = sum([float(val.strip()) for val in chips])
+        total = -1
+        if self.photonicActive:
+            chips = [element.get_attribute("style").replace(";", "").split(":")[1] for element in self.photonicChips]
+            total = sum([float(val.strip()) for val in chips])
         self.actions.setThreadClicker(AutoTarget.CreateOps if total > 0 else AutoTarget.MakePaperclips)
 
     def tick(self) -> bool:
