@@ -33,10 +33,9 @@ infoFields=[
     QuantumChip7:qChip7
     QuantumChip8:qChip8
     QuantumChip9:qChip9
-
     LiquidAssets:investmentBankroll
     TotalInvested:portValue
-
+    InvestUpgradeCost:investUpgradeCost
     Yomi:yomiDisplay
     
     # Dropdowns - Also present in actionFields
@@ -67,8 +66,7 @@ actionFields=[
 
     # Dropdowns - Also present in infoFields
     InvestRisk:investStrat
-    PickStrat:stratPicker
-    
+    PickStrat:stratPicker   
 ]
 
 # Parameters to log progress for. These can be toggled on and off before starting the game
@@ -123,6 +121,8 @@ phaseOneProjects=[
     The Toth Sausage Conjecture
     Donkey Space
     
+    Improved AutoClippers
+
     # Next go for the photonic chips
     Quantum Computing
 
@@ -132,7 +132,6 @@ phaseOneProjects=[
     RevTracker
     Hadwiger Clip Diagrams
     Improved Wire Extrusion
-    Improved AutoClippers
     Optimized Wire Extrusion
     Even Better AutoClippers
     Microlattice Shapecasting
@@ -157,7 +156,17 @@ phaseOneProjects=[
 
     # For later
     Hypnodrones
+    block1
     Release the HypnoDrones
+    
+    # Small startup for phase two, otherwise the game saves like crap
+    Toth Tubule Enfolding
+    Power Grid
+    Nanoscale Wire Production
+    Harvester Drones
+    Wire Drones
+    Clip Factories
+
 ]
 
 # Projects in this list will be bought when possible, outside of any other priorities
@@ -200,6 +209,8 @@ highPriorityProjects=[
 # Overview of the strat to choose, depending on which ones are available
 YomiStrategies=[
     # Other strats will become available in between, but their succesrate is lower
+    
+    # FIXME: Temporarily disabled for phase two
     RANDOM
     A100
     GREEDY
@@ -209,5 +220,5 @@ YomiStrategies=[
 # Log progress every <nr> seconds
 ProgressInterval=60
 
-# Percentage of time used for investing. Low percentages are affected by fps.
+# Percentage of time used for investing. Very low percentages are affected by fps.
 InvestPercentage=25

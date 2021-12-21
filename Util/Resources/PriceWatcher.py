@@ -16,6 +16,9 @@ class PriceWatcher():
         thread = Process(target=self.activateRevTracker)
         thread.start()
 
+    def kill(self, _: str) -> None:
+        self.Alive = False
+
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
         self.info = pageInfo
         self.actions = pageActions
@@ -23,9 +26,11 @@ class PriceWatcher():
         self.lastPriceAdjustment = TS.now()
         self.demand = self.info.getInt("Demand")
         self.revTracker = False
+        self.Alive = True
 
         self.projectWatcher = AcquisitionHandler()
         self.projectWatcher.addHandle("RevTracker", self.revTrackerAcquired)
+        self.projectWatcher.addHandle("Release the HypnoDrones", self.kill)
 
         for _ in range(22):
             self.actions.pressButton("LowerPrice")
@@ -86,4 +91,5 @@ class PriceWatcher():
         self.lastPriceAdjustment = TS.now()
 
     def tick(self):
-        self.__adjustPrice()
+        if self.Alive:
+            self.__adjustPrice()

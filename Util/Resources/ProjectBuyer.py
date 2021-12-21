@@ -21,6 +21,12 @@ class ProjectBuyer():
         for handler in self.projectNotifiers:
             handler.handle(project)
 
+    def __isBlockActive(self, block: str) -> bool:
+        if block == "block1":
+            return (self.info.getInt("Processors") + self.info.getInt("Memory")) < 100
+
+        return False
+
     def __buyProjects(self):
         boughtProject = []
         for project in self.highPrioProjects:
@@ -37,16 +43,23 @@ class ProjectBuyer():
         if not self.projects:
             return
 
-        projectBttn = self.projects[0]
-        if self.actions.isEnabled(projectBttn):
-            if self.actions.pressButton(projectBttn):
-                self.projects.pop(0)
-                boughtProject.append(projectBttn)
-                TS.print(f"Bought {projectBttn}.")
+        nextProject = self.projects[0]
+        blocked = ("block" in nextProject)
+        if blocked and not self.__isBlockActive(nextProject):
+            blocked = False
+            self.projects.pop(0)
+            nextProject = self.projects[0]
+            TS.print(f"Block1 disabled for ProjectBuyer. Next project is {nextProject}.")
 
-            if projectBttn in self.highPrioProjects:  # This should rarely occur
-                TS.print(f"Race condition encountered, removing {projectBttn}.")
-                self.highPrioProjects.remove(projectBttn)
+        if not blocked and self.actions.isEnabled(nextProject):
+            if self.actions.pressButton(nextProject):
+                self.projects.pop(0)
+                boughtProject.append(nextProject)
+                TS.print(f"Bought {nextProject}.")
+
+            if nextProject in self.highPrioProjects:  # This should rarely occur
+                TS.print(f"Race condition encountered, removing {nextProject}.")
+                self.highPrioProjects.remove(nextProject)
 
         for project in boughtProject:
             self.notify(project)

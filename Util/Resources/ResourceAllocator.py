@@ -31,6 +31,7 @@ class ResourceAllocator():
         self.projectWatcher = AcquisitionHandler()
         self.projectWatcher.addHandle("Strategic Modeling", self.addTournament)
 
+        # TODO: Clean up this mess. Just make an object or callback to add these.
         self.pb.addProjectNotifier(self.projectWatcher)
         self.pb.addProjectNotifier(self.moneyHandler.projectWatcher)
         self.pb.addProjectNotifier(self.moneyHandler.pricer.projectWatcher)

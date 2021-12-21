@@ -11,6 +11,30 @@ from Util.Timestamp import Timestamp as TS
 
 
 class CashSpender():
+    def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
+        self.info = pageInfo
+        self.actions = pageActions
+
+        self.highestWireCost = 27
+        self.clipperSpeed = 2.5  # Includes most of the upgrades
+        self.megaPerformance = 1
+        self.nextClipper = "BuyAutoclipper"
+        self.killWire = False
+        self.pricer = PriceWatcher(self.info, self.actions)
+        self.runners = [self.pricer]
+        self.hedgeInits = 2
+        self.projectWatcher = AcquisitionHandler()
+        self.clippersAvailable = False
+        self.maxTrustReached = False
+
+        # If only this language would have useful lambda's
+        self.projectWatcher.addHandle("WireBuyer", self.wireBuyerAcquired)
+        self.projectWatcher.addHandle("RevTracker", self.revTrackerAcquired)
+        self.projectWatcher.addHandle("Algorithmic Trading", self.algoTradingAcquired)
+        for project in ("Hadwiger Clip Diagrams", "Improved MegaClippers", "Even Better MegaClippers",
+                        "Optimized MegaClippers"):
+            self.projectWatcher.addHandle(project, self.clipperImprovementAcquired)
+
     def clipperImprovementAcquired(self, project: str) -> None:
         if project == "Hadwiger Clip Diagrams":
             self.clipperSpeed += 5
@@ -39,29 +63,6 @@ class CashSpender():
         self.hedgeInits -= 1
         self.checkHedgeInits()
 
-    def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
-        self.info = pageInfo
-        self.actions = pageActions
-        self.highestWireCost = 27
-        self.clipperSpeed = 2.5  # Includes most of the upgrades
-        self.megaPerformance = 1
-        self.nextClipper = "BuyAutoclipper"
-        self.killWire = False
-        self.pricer = PriceWatcher(self.info, self.actions)
-        self.runners = [self.pricer]
-        self.hedgeInits = 2
-        self.projectWatcher = AcquisitionHandler()
-        self.clippersAvailable = False
-        self.maxTrustReached = False
-
-        # If only this language would have useful lambda's
-        self.projectWatcher.addHandle("WireBuyer", self.wireBuyerAcquired)
-        self.projectWatcher.addHandle("RevTracker", self.revTrackerAcquired)
-        self.projectWatcher.addHandle("Algorithmic Trading", self.algoTradingAcquired)
-        for project in ("Hadwiger Clip Diagrams", "Improved MegaClippers", "Even Better MegaClippers",
-                        "Optimized MegaClippers"):
-            self.projectWatcher.addHandle(project, self.clipperImprovementAcquired)
-
     def getCallback(self):
         return self.projectAcquired
 
@@ -75,7 +76,7 @@ class CashSpender():
         self.nextClipper = "BuyAutoclipper" if buyAuto else "BuyMegaClipper"
         return autoPrice if buyAuto else megaPrice
 
-    def __buy(self):
+    def __buyClippersOrMarketing(self):
         if not self.clippersAvailable:
             # You can't buy clippers untill you've made $5
             self.clippersAvailable = self.actions.isVisible("BuyAutoclipper")
@@ -121,6 +122,6 @@ class CashSpender():
 
     def tick(self):
         self.__updateWire()
-        self.__buy()
+        self.__buyClippersOrMarketing()
         for runner in self.runners:
             runner.tick()

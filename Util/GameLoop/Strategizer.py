@@ -2,6 +2,8 @@
 from selenium import webdriver
 from Util.GameLoop.Strategies.PhaseOne import PhaseOne
 from Util.GameLoop.Progresslogger import Progresslogger
+from Util.GameLoop.Strategies.PhaseTwo import PhaseTwo
+from Util.Resources.TourneyOrganiser import TourneyOrganiser
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
 
@@ -10,10 +12,10 @@ class Strategizer():
     def __init__(self, driver: webdriver.Chrome) -> None:
         self.info = PageInfo(driver)
         self.actions = PageActions(driver)
-        self.logger = Progresslogger(self.info, 2)
+        self.logger = Progresslogger(self.info)
 
-        # self.phaseRunner = [Phase1Step1(self.info, self.actions)]
-        self.phaseRunner = PhaseOne(self.info, self.actions)
+        self.phaseRunner = PhaseOne(self.info, self.actions)  # Finishes afteer 45-50 min.
+        # self.phaseRunner = PhaseTwo(self.info, self.actions, TourneyOrganiser(self.info, self.actions))
 
     def tick(self) -> bool:
         self.logger.tick()

@@ -58,9 +58,17 @@ World Peace,projectButton29,ops=30000;yomi=15000;ops=30000, +12 trust
 Global Warming,projectButton30,ops=50000;yomi=4500, +15 trust
 Male Pattern Baldness,projectButton31,ops=20000, +20 trust
 A Token of Goodwill,projectButton40,fund=500_000, +1 trust
-Another Token of Goodwill,projectButton40b,1_000_000, +1 trust
+Another Token of Goodwill,projectButton40b,fund=1_000_000, +1 trust
 
 # Misc
 RevTracker,projectButton42,ops=500,
-Hypnodrones,projectButton70,ops=70000,
+Hypnodrones,projectButton70,ops=70_000,
 Release the HypnoDrones,projectButton35,,
+
+# Phase two
+Toth Tubule Enfolding,projectButton18,ops=45_000,
+Power Grid,projectButton127,ops=40_000,
+Nanoscale Wire Production,projectButton41,ops=35_000,
+Harvester Drones,projectButton43,ops=25_000,
+Wire Drones,projectButton44,ops=25_000,
+Clip Factories,projectButton45,ops=35_000,

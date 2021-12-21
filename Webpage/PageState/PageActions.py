@@ -10,6 +10,7 @@ from enum import Enum
 
 
 class AutoTarget(Enum):
+    Off = 0
     MakePaperclips = 1
     CreateOps = 2
     LaunchProbes = 3
@@ -49,8 +50,11 @@ class PageActions():
 
     def threadClick(self) -> None:
         """Seperate function for the threadclicker greatly improves performance over pressButton() 
-        Clips: ~80 clips/sec
+        Clips: ~75 clips/sec
         Ops: 10-35k over max depending on amount of Photonic Chips"""
+        if self.threadTarget == AutoTarget.Off:
+            return
+
         try:
             self.threadButtons[self.threadTarget].click()
         except:
@@ -63,14 +67,19 @@ class PageActions():
     def pressButton(self, button: str) -> bool:
         page_button = self.__get(button)
         try:
+            if not page_button:
+                return False
+
             page_button.click()
         except StaleElementReferenceException:  # Reuse of 'Another Token of Goodwill' causes these
             del self.cache[button]
+
             page_button = self.__get(button)
             if page_button:
                 page_button.click()
             else:
                 TS.print(f"Second attempt at clicking {button} failed again.")
+                return False
         except Exception as e:
             TS.print(f"Clicking {button} failed with exception {e}.")
             return False

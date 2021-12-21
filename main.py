@@ -5,13 +5,14 @@ from Util.GameLoop.Strategizer import Strategizer
 from Util.Gamesave import Gamesave
 from Webpage.Initialization.Startpage import Startpage
 from Util.Timestamp import Timestamp as TS
+from colorama import Fore, Style
 
 # Launch the webpage and load/save options
 webPage = Startpage()
 game = Gamesave(webPage.getDriver())
 
 # Load game
-# game.load(Config.get("savePathPhotonicPhase"))
+# game.load(Config.get("savePathSecondPhase"))
 
 Config.set("Gamestart", TS.now())
 strat = Strategizer(webPage.getDriver())
@@ -48,14 +49,15 @@ loop()
 # cProfile.run('loop()')
 # OPT: Almost 100% of the time spent in webdriver.py:404(execute). On a per-call basis, all calls to the driver take about 13-14 ms. Fewer calls == higher fps!
 
-TS.print(f"Finished in {TS.deltaStr(startTime)}.")
-TS.print(f"Averaged {totalFrames / totalTicks:.2f} fps.")
+TS.print(f"{Fore.GREEN}Finished in {TS.deltaStr(startTime)}.{Style.RESET_ALL}")
 
 if totalTicks > 0:
     TS.print(f"Averaged {totalFrames / totalTicks:.2f} fps.")
 
 # game.save(Config.get("savePathPhotonicPhase"))
-# game.save(Config.get("savePathSecondPhase"))
+time.sleep(15)
+webPage.getDriver().execute_script("save()")
+game.save(Config.get("savePathSecondPhase"))
 
 time.sleep(3)  # Watch in awe at your creation
 webPage.getDriver().close()  # UGLY, but fine for now.
