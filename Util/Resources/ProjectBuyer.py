@@ -1,5 +1,4 @@
 from Util.Timestamp import Timestamp as TS
-from Util.AcquisitionHandler import AcquisitionHandler
 from Util.Files.Config import Config
 from Util.Listener import Event, Listener
 from Webpage.PageState.PageActions import PageActions
@@ -22,16 +21,23 @@ class ProjectBuyer():
 
     def __buyProjects(self):
         boughtProject = []
+        photonicChecked = False
         for project in self.highPrioProjects:
+
+            # Optimization
+            if project == "Photonic Chip" and photonicChecked or project in self.projects:
+                continue
+
             if self.actions.isEnabled(project):
                 if self.actions.pressButton(project):
                     boughtProject.append(project)
+            # Optimization, check only once when a Photonic Chip is disabled
+            elif not photonicChecked and project == "Photonic Chip":
+                photonicChecked = True
 
         for project in boughtProject:
-            self.highPrioProjects.remove(project)
             TS.print(f"Bought high prio: {project}.")
-            if project in self.projects:
-                self.projects.remove(project)
+            self.highPrioProjects.remove(project)
 
         if not self.projects:
             return
@@ -49,10 +55,6 @@ class ProjectBuyer():
                 self.projects.pop(0)
                 boughtProject.append(nextProject)
                 TS.print(f"Bought {nextProject}.")
-
-            if nextProject in self.highPrioProjects:  # This should rarely occur
-                TS.print(f"Race condition encountered, removing {nextProject}.")
-                self.highPrioProjects.remove(nextProject)
 
         for project in boughtProject:
             Listener.notify(Event.BuyProject, project)

@@ -27,10 +27,6 @@ class TourneyOrganiser():
             if bestStrat in available and self.currStrat != bestStrat:
                 self.actions.selectFromDropdown("PickStrat", bestStrat)
                 self.currStrat = bestStrat
-
-                # OPT: trying to fix timing of longest running tournament
-                if self.currStrat == self.stratList[0]:
-                    self.start = TS.now()
                 break
 
         # Cleanup lower priority strategies
@@ -38,18 +34,17 @@ class TourneyOrganiser():
             del self.stratList[-1]
 
     def __runTourney(self):
-        if not self.actions.isEnabled("NewTournament"):
+        if self.currStrat == self.stratList[0] and TS.delta(self.start) < 64:
+            # Running a tournament with all strategies takes at least 64s
             return
 
-        # OPT
-        if self.currStrat == self.stratList[0]:
-            runTime = TS.delta(self.start)
-            TS.print(f"Last Yomi tournament ran for {runTime:.2f} seconds.")
-            self.start = TS.now()
+        if not self.actions.isEnabled("NewTournament"):
+            return
 
         self.__selectStrat()
         self.actions.pressButton("NewTournament")
         self.actions.pressButton("RunTournament")
+        self.start = TS.now()
 
     def tick(self):
         self.__runTourney()

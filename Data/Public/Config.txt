@@ -93,22 +93,15 @@ trustSpendingStrategy=[
     # Early processors are required for some quick creativity generation
     5:1
 
-    # Temporarily block spending trust until Donkey Space is acquired and an additional 70 creativity is made
+    # Temporarily block spending trust until Donkey Space is acquired
     block1
 
     # Next, 10 memory is required to buy the first quantum upgrades, 15 trust requires 55.000 clips
     5:10
-
-    # First get enough ops to buy all tournament strategies, this includes a ~10k overshoot enabled by the Photonic Chips
     5:40
-
     40:40
-
     # OPT: Low performance makes is more difficult te reach 20k+ ops over max. Could be 50:50 on decent fps.
     40:60
-
-    # We need 100 trust to finish phase 1
-    #30:70
 ]
 
 # Priority of buying the projects
@@ -123,6 +116,7 @@ phaseOneProjects=[
     The Toth Sausage Conjecture
     Donkey Space
     
+    # Experimental. Slightly delays Quantum Computing, but gives a nice boost in the meantime
     Improved AutoClippers
 
     # Next go for the photonic chips
@@ -191,7 +185,6 @@ highPriorityProjects=[
     A100
 
     # Same, just buy when you can. Each entry is good for one acquisition. Requires one duplicate with phaseOneProjects
-    # TODO: Should probably not require a duplicate with phaseOneProjects
     Photonic Chip
     Photonic Chip
     Photonic Chip
@@ -204,7 +197,6 @@ highPriorityProjects=[
     Photonic Chip
     Photonic Chip
 
-    Photonic Chip
     Theory of Mind
 ]
 

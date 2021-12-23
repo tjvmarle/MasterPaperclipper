@@ -22,7 +22,7 @@ class CashSpender():
         self.highestWireCost = 27
         self.clipperSpeed = 2.5
         self.megaPerformance = 1
-        self.nextClipper = "BuyAutoclipper"
+        self.nextObjective = None
         self.killWire = False
         self.pricer = PriceWatcher(self.info, self.actions)
         self.runners = [self.pricer]
@@ -30,19 +30,30 @@ class CashSpender():
         self.clippersAvailable = False
         self.buyKilled = False
         self.alive = True
-        self.trustVisible = False
+        self.enoughClippers = False
+        self.noMegas = True
+        self.marketingLevel = 1
 
-        Listener.listenTo(Event.BuyProject, self.wireBuyerAcquired, lambda project: project == "WireBuyer", True)
-        Listener.listenTo(Event.BuyProject, self.revTrackerAcquired, lambda project: project == "RevTracker", True)
-        Listener.listenTo(Event.BuyProject, self.algoTradingAcquired,
+        Listener.listenTo(Event.BuyProject, self.__wireBuyerAcquired, lambda project: project == "WireBuyer", True)
+        Listener.listenTo(Event.BuyProject, self.__revTrackerAcquired, lambda project: project == "RevTracker", True)
+        Listener.listenTo(Event.BuyProject, self.__algoTradingAcquired,
                           lambda project: project == "Algorithmic Trading", True)
         Listener.listenTo(Event.BuyProject, self.__kill, lambda project: project == "Release the Hypnodrones", True)
 
         filter = lambda x: x in ("Hadwiger Clip Diagrams", "Improved MegaClippers",
                                  "Even Better MegaClippers", "Optimized MegaClippers")
-        Listener.listenTo(Event.BuyProject, self.clipperImprovementAcquired, filter, False)
+        Listener.listenTo(Event.BuyProject, self.__clipperImprovementAcquired, filter, False)
+        Listener.listenTo(Event.BuyProject, self.__megaClippersAcquired,
+                          lambda project: project == "MegaClippers", True)
 
-    def clipperImprovementAcquired(self, project: str) -> None:
+        # The exact project doesn't really matter, but this takes the pressure off the driver for the first part
+        Listener.listenTo(Event.BuyProject, self.__killOfClipperAcquisition,
+                          lambda project: project == "HypnoDrones", True)
+
+    def __killOfClipperAcquisition(self):
+        self.enoughClippers = True
+
+    def __clipperImprovementAcquired(self, project: str) -> None:
         TS.print(f"Clipper improvement acquired: {project}.")
         if project == "Hadwiger Clip Diagrams":
             self.clipperSpeed += 5
@@ -53,38 +64,54 @@ class CashSpender():
         elif project == "Optimized MegaClippers":
             self.megaPerformance += 1.00
 
-    def wireBuyerAcquired(self, _: str) -> None:
+        self.nextObjective = None
+
+    def __megaClippersAcquired(self, _: str) -> None:
+        self.noMegas = False
+        self.nextObjective = None
+
+    def __wireBuyerAcquired(self, _: str) -> None:
         self.killWire = True
 
-    def checkHedgeInits(self) -> None:
+    def __checkHedgeInits(self) -> None:
         # UGLY: but saves a bunch of additional code
         if self.hedgeInits == 0:
             self.runners.append(HedgeFunder(self.info, self.actions))
 
-    def revTrackerAcquired(self, _: str) -> None:
+    def __revTrackerAcquired(self, _: str) -> None:
         thread = Process(target=self.pricer.activateRevTracker)
         thread.start()
         self.hedgeInits -= 1
-        self.checkHedgeInits()
+        self.__checkHedgeInits()
 
-    def algoTradingAcquired(self, _: str) -> None:
+    def __algoTradingAcquired(self, _: str) -> None:
         self.hedgeInits -= 1
-        self.checkHedgeInits()
+        self.__checkHedgeInits()
 
-    def getCallback(self):
-        return self.projectAcquired
-
-    def __determineClipper(self) -> float:
+    def __determineNextClipper(self):
         # Check which clipper to buy next
-        if not self.actions.isVisible("BuyMegaClipper"):
-            return self.info.getFl("AutoCost")
+        if self.noMegas:
+            return ("BuyAutoclipper", self.info.getFl("AutoCost"))
 
+        # OPT: These prizes can probably be calculated as long as you track their count
         autoPrice, megaPrice = [self.info.getFl(clipCost) for clipCost in ("AutoCost", "MegaCost")]
         buyAuto = autoPrice / self.clipperSpeed < megaPrice / (self.megaPerformance * 500)
-        self.nextClipper = "BuyAutoclipper" if buyAuto else "BuyMegaClipper"
-        return autoPrice if buyAuto else megaPrice
+        nextClipper = "BuyAutoclipper" if buyAuto else "BuyMegaClipper"
+        return (nextClipper, autoPrice) if buyAuto else (nextClipper, megaPrice)
 
-    def __buyClippersOrMarketing(self):
+    def __getMarketingCost(self) -> int:
+        return 100 * (2 ** (self.marketingLevel - 1))
+
+    def __giveNextObjective(self):
+        clipper, clipperCost = self.__determineNextClipper()
+
+        # TODO: Move this ratio to Config.
+        if self.__getMarketingCost() < 2 * clipperCost:
+            return ("LevelUpMarketing", self.__getMarketingCost())
+        else:
+            return (clipper, clipperCost)
+
+    def __buyNextObjective(self):
         if not self.clippersAvailable:
             # You can't buy clippers untill you've made $5
             self.clippersAvailable = self.actions.isVisible("BuyAutoclipper")
@@ -93,30 +120,26 @@ class CashSpender():
         if self.buyKilled:
             return
 
-        if not self.trustVisible:
-            # Optimization - reducing amount of calls to the driver
-            self.trustVisible = self.info.isVisible("Trust")
-
-        if self.info.getInt("TotalClips") > 122_000_000:
+        if self.enoughClippers and self.info.getInt("TotalClips") > 122_000_000:
             TS.print(f"Reached 122M clips in {TS.deltaStr(Config.get('Gamestart'))}, killing of Clipper acquisition.")
             self.buyKilled = True  # Kills of this method
             return
 
         # Occasionally buy some marketing instead
         # FIXME: Only save up for marketing if the cost can be achieved within the timeframe before investing starts
-        lvlUpCost = self.info.getFl("MarketingCost")
-        clipperCost = self.__determineClipper()
+        if not self.nextObjective:
+            self.nextObjective = self.__giveNextObjective()
+
+        objectiveButton, objectiveCost = self.nextObjective
         funds = self.info.getFl("Funds")
 
-        # TODO: Move this ratio to Config.
-        buyMarketing = lvlUpCost < 4 * clipperCost
-        if buyMarketing and funds > self.highestWireCost + lvlUpCost:
-            self.actions.pressButton("LevelUpMarketing")
-        elif buyMarketing:
-            return
-
-        if (funds - self.highestWireCost) > clipperCost:
-            self.actions.pressButton(self.nextClipper)
+        if objectiveButton == "LevelUpMarketing" and funds > self.highestWireCost + objectiveCost:
+            self.actions.pressButton(objectiveButton)
+            self.marketingLevel += 1
+            self.nextObjective = None
+        elif objectiveButton in ("BuyAutoclipper", "BuyMegaClipper") and funds > self.highestWireCost + objectiveCost:
+            self.actions.pressButton(objectiveButton)
+            self.nextObjective = None
 
     def __updateWire(self):
         if self.killWire:
@@ -139,6 +162,6 @@ class CashSpender():
             return
 
         self.__updateWire()
-        self.__buyClippersOrMarketing()
+        self.__buyNextObjective()
         for runner in self.runners:
             runner.tick()

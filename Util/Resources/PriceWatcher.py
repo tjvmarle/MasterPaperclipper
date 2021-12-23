@@ -66,7 +66,6 @@ class PriceWatcher():
         demand = self.info.getInt("Demand")
         while rate > 0 and demand > 5 * rate:  # Emergency handling for large changes in marketing
             self.actions.pressButton("RaisePrice")
-            # self.info.update("Demand")
             demand = self.info.getInt("Demand")
 
         if lastAdjustment > 0.25 and unsold < rate:  # Emergency handling for low stock
@@ -82,6 +81,7 @@ class PriceWatcher():
 
         if unsold > 10 * rate:
             self.actions.pressButton("LowerPrice")
+            # OPT: enabled status can be determined from internal tracking of the price
             if self.actions.isEnabled("LowerPrice"):
                 self.actions.pressButton("LowerPrice")
             self.priceAdjustmentTime += 0.5

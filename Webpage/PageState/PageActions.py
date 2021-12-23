@@ -4,8 +4,9 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
 from colorama import Fore, Style
-from Util.Files.Config import Config
+from Util.Listener import Event, Listener
 from Util.Timestamp import Timestamp as TS
+from Util.Files.Config import Config
 from enum import Enum
 
 
@@ -36,6 +37,10 @@ class PageActions():
                 AutoTarget.MakePaperclips: "MakePaperclip", AutoTarget.CreateOps: "QuantumCompute"}.items():
             self.threadButtons[TargetButton] = self.__get(ButtonName)
 
+    def __unCachePhotonic(self, _: str):
+        # Small optimization
+        del self.cache["Photonic Chip"]
+
     def __init__(self, webdriver: webdriver.Chrome) -> None:
         self.driver = webdriver
         self.buttons = {  # Combine multiple sources
@@ -47,6 +52,8 @@ class PageActions():
         self.threadButtons = {}
         self.threadTarget = AutoTarget.MakePaperclips
         self.__initThreadTargets()
+
+        Listener.listenTo(Event.BuyProject, self.__unCachePhotonic, lambda project: project == "Photonic Chip", False)
 
     def threadClick(self) -> None:
         """Seperate function for the threadclicker greatly improves performance over pressButton() 
@@ -85,18 +92,43 @@ class PageActions():
             return False
         return True
 
+    def isVisible(self, button) -> bool:
+        page_button = self.__get(button)
+        try:
+            return page_button and page_button.is_displayed()
+        except StaleElementReferenceException:
+            del self.cache[button]
+
+            page_button = self.__get(button)
+            if page_button:
+                TS.print(f"Stale reference encountered to {button}, attempting a second time.")
+                return page_button.is_displayed()
+            else:
+                TS.print(f"Could not retrieve {button}, executing isVisible() failed.")
+                return False
+        except Exception as e:
+            TS.print(f"Performing isVisible() on {button} failed with exception {e}.")
+            return False
+        # page_button = self.__get(button)
+        # return page_button and self.__trySafe(button, page_button.is_displayed)
+
     def isEnabled(self, button) -> bool:
         page_button = self.__get(button)
         try:
-            return page_button and page_button.is_displayed() and page_button.is_enabled()
-        except StaleElementReferenceException:  # Reuse of the same projectbutton for 'Photonic Chip' causes these
+            return page_button and self.isVisible(button) and page_button.is_enabled()
+        except StaleElementReferenceException:
             del self.cache[button]
-            page_button = self.__get(button)
-            return page_button and page_button.is_displayed() and page_button.is_enabled()
 
-    def isVisible(self, button) -> bool:
-        page_button = self.__get(button)
-        return page_button and page_button.is_displayed()
+            page_button = self.__get(button)
+            if page_button:
+                TS.print(f"Stale reference encountered to {button}, attempting a second time.")
+                return self.isVisible(button) and page_button.is_enabled()
+            else:
+                TS.print(f"Could not retrieve {button}, executing isEnabled() failed.")
+                return False
+        except Exception as e:
+            TS.print(f"Performing isEnabled() on {button} failed with exception {e}.")
+            return False
 
     def selectFromDropdown(self, dropdown: str, selection: str) -> None:
         Select(self.__get(dropdown)).select_by_visible_text(selection)
