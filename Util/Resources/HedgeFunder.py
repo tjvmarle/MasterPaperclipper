@@ -1,17 +1,11 @@
 # Responsible for managing Investments
 
 import time
-from typing import Generic
 from Util.Files.Config import Config
-from Util.AcquisitionHandler import AcquisitionHandler
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
 from Util.Timestamp import Timestamp as TS
-
-# TODO: Phase 1 ends at 100 trust. We need to buy around 10-20 trust from projects.
-# We first need 1 million to buy our competitor.
-# After that we need 10 million to buy out all competition.
-# Buying 10 trust after that requires 512 million.
+from Util.Listener import Event, Listener
 
 
 class HedgeFunder():
@@ -32,9 +26,7 @@ class HedgeFunder():
         self.investTime = float(Config.get("InvestPercentage")) * 0.6
         self.currMinute = TS.now().minute
 
-        # TODO: This AH is never added to the notification list, because it is initialized later.
-        self.projectWatcher = AcquisitionHandler()
-        self.projectWatcher.addHandle("Theory of Mind", self.limitBreak)
+        Listener.listenTo(Event.BuyProject, self.limitBreak, lambda project: project == "Theory of Mind", True)
 
     def invest(self):
         # TODO: stop investing when all tokens off goodwill have been bought. Keep remaining cash for buying clippers.
@@ -90,6 +82,7 @@ class HedgeFunder():
             time.sleep(0.5)
             result = self.actions.pressButton(project)
             if result:
+                # FIXME: Apparently this still fails sometimes. Add a check if the project if really gone.
                 TS.print(f"Buying {project} was successful.")
             else:
                 TS.print(f"Buying {project} failed.")
@@ -97,21 +90,24 @@ class HedgeFunder():
             self.takeOuts.pop(0)
 
     def aTokenOfGoodwill(self) -> None:
-        if self.takeOuts or self.noMoreGoodwill:
+        if self.takeOuts or self.noMoreGoodwill or self.info.getInt("Trust") > 90:
             return
 
         availableCash = self.info.getFl("LiquidAssets")
 
-        # OPT: Reaching 90 trust requires 121.4M clips. You also want to reach both points as close to eachother as possible.
         # OPT: Enable buying additional trust if investments for some reason go beyond 1 billion.
         if availableCash < 511_500_000.0:  # This covers 10 acquisitions
-            if self.info.getInt("Wire") < 20_000:
-                self.actions.pressButton("BuyWire")
-            self.actions.pressButton("DepositFunds")
-            # FIXME: this triggers 100% of the time once self.takeOuts is empty. This should maybe only happen once trust reaches 90
             return
 
         self.actions.pressButton("WithdrawFunds")
+        cash = self.info.getFl("Funds")
+        TS.print(f"Funds withdrawn, available cash is: {cash}.")
+        if cash < 511_500_000.0:
+            # Something went wrong.
+            TS.print(f"Money withdrawal failed.")
+            self.actions.pressButton("DepositFunds")
+            return
+
         self.actions.pressButton("A Token of Goodwill")
         for _ in range(0, 9):
             time.sleep(0.5)

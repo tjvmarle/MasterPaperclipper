@@ -18,7 +18,6 @@ class Phase1Step2():
 
         self.resourceManager = ResourceAllocator(self.info, self.actions)
         self.thread = ThreadClicker(self.info, self.actions)
-        self.resourceManager.pb.addProjectNotifier(self.thread.projectWatcher)
 
         self.runners = (self.thread, self.resourceManager)
 

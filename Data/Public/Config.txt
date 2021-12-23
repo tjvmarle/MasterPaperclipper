@@ -102,8 +102,10 @@ trustSpendingStrategy=[
     # First get enough ops to buy all tournament strategies, this includes a ~10k overshoot enabled by the Photonic Chips
     5:40
 
-    50:40
-    50:50
+    40:40
+
+    # OPT: Low performance makes is more difficult te reach 20k+ ops over max. Could be 50:50 on decent fps.
+    40:60
 
     # We need 100 trust to finish phase 1
     #30:70
@@ -210,7 +212,6 @@ highPriorityProjects=[
 YomiStrategies=[
     # Other strats will become available in between, but their succesrate is lower
     
-    # FIXME: Temporarily disabled for phase two
     RANDOM
     A100
     GREEDY

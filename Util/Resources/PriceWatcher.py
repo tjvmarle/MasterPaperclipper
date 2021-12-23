@@ -4,7 +4,8 @@ from multiprocessing.dummy import Process
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
 from Util.Timestamp import Timestamp as TS
-from Util.AcquisitionHandler import AcquisitionHandler
+from Util.Files.Config import Config
+from Util.Listener import Event, Listener
 
 
 class PriceWatcher():
@@ -27,15 +28,20 @@ class PriceWatcher():
         self.demand = self.info.getInt("Demand")
         self.revTracker = False
         self.Alive = True
+        self.firstTime = True
 
-        self.projectWatcher = AcquisitionHandler()
-        self.projectWatcher.addHandle("RevTracker", self.revTrackerAcquired)
-        self.projectWatcher.addHandle("Release the HypnoDrones", self.kill)
+        Listener.listenTo(Event.BuyProject, self.revTrackerAcquired, lambda project: project == "RevTracker", True)
+        Listener.listenTo(Event.BuyProject, self.kill, lambda project: project == "Release the HypnoDrones", True)
 
         for _ in range(22):
             self.actions.pressButton("LowerPrice")
 
     def __adjustPrice(self):
+        if self.firstTime and TS.delta(Config.get("Gamestart")) < 10:
+            return
+        else:
+            self.firstTime = False
+
         rate = self.info.getInt("ClipsPerSec")
         if rate < 80:
             rate = 60

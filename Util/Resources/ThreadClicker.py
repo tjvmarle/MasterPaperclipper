@@ -2,12 +2,12 @@
 from multiprocessing.dummy import Process
 from Webpage.PageState.PageActions import PageActions, AutoTarget
 from Webpage.PageState.PageInfo import PageInfo
-from Util.AcquisitionHandler import AcquisitionHandler
+from Util.Listener import Event, Listener
 from Util.Timestamp import Timestamp as TS
 
 
 class ThreadClicker():
-    def nextPhase(self) -> None:
+    def nextPhase(self, _: str) -> None:
         self.phaseOne = False
 
     def activatePhotonics(self, _: str) -> None:
@@ -28,8 +28,8 @@ class ThreadClicker():
         self.photonicActive = False
         self.initThread()
         self.photonicChips = [self.info.get(f"QuantumChip{i}") for i in range(10)]
-        self.projectWatcher = AcquisitionHandler()
-        self.projectWatcher.addHandle("Photonic Chip", self.activatePhotonics)
+        Listener.listenTo(Event.BuyProject, self.activatePhotonics, lambda project: project == "Photonic Chip", True)
+        Listener.listenTo(Event.BuyProject, self.nextPhase, lambda project: project == "MegaClippers", True)
         self.phaseOne = True
 
     def kill(self):

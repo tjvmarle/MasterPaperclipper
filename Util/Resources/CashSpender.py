@@ -1,8 +1,8 @@
 # Responsible for spending money on wire, clippers and marketing
 from multiprocessing.dummy import Process
-from Util.AcquisitionHandler import AcquisitionHandler
 from Util.Files.Config import Config
 
+from Util.Listener import Event, Listener
 from Util.Resources.HedgeFunder import HedgeFunder
 from Util.Resources.PriceWatcher import PriceWatcher
 from Webpage.PageState.PageActions import PageActions
@@ -11,31 +11,39 @@ from Util.Timestamp import Timestamp as TS
 
 
 class CashSpender():
+    def __kill(self, _: str) -> None:
+        TS.print(f"Hypnodrones released, killing of CashSpender.")
+        self.alive = False
+
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
         self.info = pageInfo
         self.actions = pageActions
 
         self.highestWireCost = 27
-        self.clipperSpeed = 2.5  # Includes most of the upgrades
+        self.clipperSpeed = 2.5
         self.megaPerformance = 1
         self.nextClipper = "BuyAutoclipper"
         self.killWire = False
         self.pricer = PriceWatcher(self.info, self.actions)
         self.runners = [self.pricer]
         self.hedgeInits = 2
-        self.projectWatcher = AcquisitionHandler()
         self.clippersAvailable = False
-        self.maxTrustReached = False
+        self.buyKilled = False
+        self.alive = True
+        self.trustVisible = False
 
-        # If only this language would have useful lambda's
-        self.projectWatcher.addHandle("WireBuyer", self.wireBuyerAcquired)
-        self.projectWatcher.addHandle("RevTracker", self.revTrackerAcquired)
-        self.projectWatcher.addHandle("Algorithmic Trading", self.algoTradingAcquired)
-        for project in ("Hadwiger Clip Diagrams", "Improved MegaClippers", "Even Better MegaClippers",
-                        "Optimized MegaClippers"):
-            self.projectWatcher.addHandle(project, self.clipperImprovementAcquired)
+        Listener.listenTo(Event.BuyProject, self.wireBuyerAcquired, lambda project: project == "WireBuyer", True)
+        Listener.listenTo(Event.BuyProject, self.revTrackerAcquired, lambda project: project == "RevTracker", True)
+        Listener.listenTo(Event.BuyProject, self.algoTradingAcquired,
+                          lambda project: project == "Algorithmic Trading", True)
+        Listener.listenTo(Event.BuyProject, self.__kill, lambda project: project == "Release the Hypnodrones", True)
+
+        filter = lambda x: x in ("Hadwiger Clip Diagrams", "Improved MegaClippers",
+                                 "Even Better MegaClippers", "Optimized MegaClippers")
+        Listener.listenTo(Event.BuyProject, self.clipperImprovementAcquired, filter, False)
 
     def clipperImprovementAcquired(self, project: str) -> None:
+        TS.print(f"Clipper improvement acquired: {project}.")
         if project == "Hadwiger Clip Diagrams":
             self.clipperSpeed += 5
         elif project == "Improved MegaClippers":
@@ -82,31 +90,38 @@ class CashSpender():
             self.clippersAvailable = self.actions.isVisible("BuyAutoclipper")
             return
 
-        if self.maxTrustReached:
+        if self.buyKilled:
             return
 
-        if self.info.isVisible("Trust") and self.info.getInt("Trust") >= 90:
-            TS.print(f"Reached 90 trust in {TS.deltaStr(Config.get('Gamestart'))}, killing of Clipper acquisition.")
-            self.maxTrustReached = True
+        if not self.trustVisible:
+            # Optimization - reducing amount of calls to the driver
+            self.trustVisible = self.info.isVisible("Trust")
+
+        if self.info.getInt("TotalClips") > 122_000_000:
+            TS.print(f"Reached 122M clips in {TS.deltaStr(Config.get('Gamestart'))}, killing of Clipper acquisition.")
+            self.buyKilled = True  # Kills of this method
+            return
 
         # Occasionally buy some marketing instead
+        # FIXME: Only save up for marketing if the cost can be achieved within the timeframe before investing starts
         lvlUpCost = self.info.getFl("MarketingCost")
         clipperCost = self.__determineClipper()
         funds = self.info.getFl("Funds")
 
-        buyMarketing = lvlUpCost < 3 * clipperCost
+        # TODO: Move this ratio to Config.
+        buyMarketing = lvlUpCost < 4 * clipperCost
         if buyMarketing and funds > self.highestWireCost + lvlUpCost:
             self.actions.pressButton("LevelUpMarketing")
+        elif buyMarketing:
+            return
 
-        if not buyMarketing and (funds - self.highestWireCost) > clipperCost:
+        if (funds - self.highestWireCost) > clipperCost:
             self.actions.pressButton(self.nextClipper)
-            self.info.update("Funds")
 
     def __updateWire(self):
         if self.killWire:
             return
 
-        # FIXME: It seems that buying clippers happens too early, leaving too little change for wire.
         wireCost = self.info.getInt("WireCost")
         self.highestWireCost = max(wireCost, self.highestWireCost)
 
@@ -118,9 +133,11 @@ class CashSpender():
                 wire < 1500 and wireCost / self.highestWireCost <= 0.65) or (
                 wire < 2500 and wireCost / self.highestWireCost <= 0.50):  # Either buy when low or cheap
             self.actions.pressButton("BuyWire")
-            self.info.update("Funds")
 
     def tick(self):
+        if not self.alive:
+            return
+
         self.__updateWire()
         self.__buyClippersOrMarketing()
         for runner in self.runners:

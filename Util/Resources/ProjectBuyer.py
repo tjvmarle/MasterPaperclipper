@@ -1,6 +1,7 @@
 from Util.Timestamp import Timestamp as TS
 from Util.AcquisitionHandler import AcquisitionHandler
 from Util.Files.Config import Config
+from Util.Listener import Event, Listener
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
 
@@ -12,14 +13,6 @@ class ProjectBuyer():
 
         self.highPrioProjects = Config.get("highPriorityProjects")
         self.projects = Config.get("phaseOneProjects")
-        self.projectNotifiers = []
-
-    def addProjectNotifier(self, handler: AcquisitionHandler) -> None:
-        self.projectNotifiers.append(handler)
-
-    def notify(self, project: str):
-        for handler in self.projectNotifiers:
-            handler.handle(project)
 
     def __isBlockActive(self, block: str) -> bool:
         if block == "block1":
@@ -62,7 +55,7 @@ class ProjectBuyer():
                 self.highPrioProjects.remove(nextProject)
 
         for project in boughtProject:
-            self.notify(project)
+            Listener.notify(Event.BuyProject, project)
 
     def tick(self):
         self.__buyProjects()

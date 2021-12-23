@@ -1,8 +1,8 @@
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
-from Util.Files.Config import Config
+from Util.Listener import Event, Listener
 from Util.Timestamp import Timestamp as TS
-from Util.AcquisitionHandler import AcquisitionHandler
+from Util.Files.Config import Config
 
 
 class TrustSpender():
@@ -16,8 +16,8 @@ class TrustSpender():
         self.nextStrat = None
         self.__getNextStrat()
         self.unBlock = False
-        self.projectWatcher = AcquisitionHandler()
-        self.projectWatcher.addHandle("Donkey Space", self.removeBlockage)
+
+        Listener.listenTo(Event.BuyProject, self.removeBlockage, lambda project: project == "Donkey Space", True)
 
     def __getNextStrat(self) -> None:
         if not self.trustStrategies:
