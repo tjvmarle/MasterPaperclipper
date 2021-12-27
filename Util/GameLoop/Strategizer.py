@@ -14,8 +14,8 @@ class Strategizer():
         self.actions = PageActions(driver)
         self.logger = Progresslogger(self.info)
 
-        self.phaseRunner = PhaseOne(self.info, self.actions)  # Finishes afteer 45-50 min.
-        # self.phaseRunner = PhaseTwo(self.info, self.actions, TourneyOrganiser(self.info, self.actions))
+        # self.phaseRunner = PhaseOne(self.info, self.actions)  # Finishes afteer 45-60 min.
+        self.phaseRunner = PhaseTwo(self.info, self.actions, TourneyOrganiser(self.info, self.actions))
 
     def tick(self) -> bool:
         self.logger.tick()

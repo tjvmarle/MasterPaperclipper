@@ -37,8 +37,12 @@ class ThreadClicker():
         self.photonicActive = False
         self.__initThread()
         self.phaseOne = True
-        Listener.listenTo(Event.BuyProject, self.__activatePhotonics, lambda project: project == "Photonic Chip", True)
-        Listener.listenTo(Event.BuyProject, self.__nextPhase, lambda project: project == "MegaClippers", True)
+
+        # Temporary for phase two
+        # Listener.listenTo(Event.BuyProject, self.__activatePhotonics, lambda project: project == "Photonic Chip", True)
+        # Listener.listenTo(Event.BuyProject, self.__nextPhase, lambda project: project == "MegaClippers", True)
+        self.__activatePhotonics("dummy")
+        self.__nextPhase("dummy")
 
     def kill(self):
         self.alive = False

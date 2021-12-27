@@ -12,7 +12,7 @@ webPage = Startpage()
 game = Gamesave(webPage.getDriver())
 
 # Load game
-# game.load(Config.get("savePathSecondPhase"))
+game.load(Config.get("savePathSecondPhase"))
 
 Config.set("Gamestart", TS.now())
 strat = Strategizer(webPage.getDriver())

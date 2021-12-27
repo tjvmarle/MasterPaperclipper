@@ -44,6 +44,12 @@ infoFields=[
 
     # Optimizationg purposes
     QuantumComputing:qComputing
+
+    # Phase 2
+    FactoryClipsPerSec:clipmakerRate2
+    MatterPerSec:maps
+    WirePerSec:wpps
+    WireStock:nanoWire
 ]
 
 # Fields used on the webpage containing actionable elements
@@ -69,7 +75,26 @@ actionFields=[
 
     # Dropdowns - Also present in infoFields
     InvestRisk:investStrat
-    PickStrat:stratPicker   
+    PickStrat:stratPicker 
+
+    # 2nd phase
+    BuyFactory:btnMakeFactory
+    DissFactory:btnFactoryReboot
+    BuyHarvester:btnMakeHarvester
+    BuyHarvesterx10:btnHarvesterx10
+    BuyHarvesterx100:btnHarvesterx100
+    BuyHarvesterx1000:btnHarvesterx1000
+    BuyWire:btnMakeWireDrone
+    BuyWirex10:btnWireDronex10
+    BuyWirex100:btnWireDronex100
+    BuyWirex1000:btnWireDronex1000
+    BuySolar:btnMakeFarm
+    BuySolarx10:btnFarmx10
+    BuySolarx100:btnFarmx100
+    BuyBattery:btnMakeBattery
+    BuyBatteryx10:btnBatteryx10
+    BuyBatteryx100:btnBatteryx100
+    SwarmSlider:swarmSlider
 ]
 
 # Parameters to log progress for. These can be toggled on and off before starting the game
@@ -213,6 +238,13 @@ highPriorityProjects=[
     Hypnodrones
 ]
 
+phaseTwoProjects=[
+    Swarm Computing
+    Momentum
+    Drone flocking
+    Upgraded Factories
+]
+
 # Overview of the strat to choose, depending on which ones are available.
 YomiStrategies=[
     # Other strats will become available in between, but their succesrate is lower
@@ -242,3 +274,4 @@ InvestUpgradeCosts=[
     67_732
     85_806
 ]
+

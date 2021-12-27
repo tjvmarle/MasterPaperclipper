@@ -13,7 +13,7 @@ class TourneyOrganiser():
         self.currStrat = None
         self.tourneyOn = False
         self.__selectStrat()
-        self.start = TS.now()
+        self.start = None
 
     def __selectStrat(self):
         if self.currStrat == self.stratList[0]:
@@ -34,7 +34,7 @@ class TourneyOrganiser():
             del self.stratList[-1]
 
     def __runTourney(self):
-        if self.currStrat == self.stratList[0] and TS.delta(self.start) < 64:
+        if self.currStrat == self.stratList[0] and self.start and TS.delta(self.start) < 64:
             # Running a tournament with all strategies takes at least 64s
             return
 

@@ -12,7 +12,7 @@ from Util.Files.Config import Config
 
 
 class PhaseOne():
-    def __killPhaseTwo(self, _: str):
+    def __killPhaseOne(self, _: str):
         self.kill = True
 
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
@@ -20,7 +20,7 @@ class PhaseOne():
         self.actions = pageActions
 
         self.resourceManager = ResourceAllocator(self.info, self.actions)
-        Listener.listenTo(Event.BuyProject, self.__killPhaseTwo, lambda project: project == "Clip Factories", True)
+        Listener.listenTo(Event.BuyProject, self.__killPhaseOne, lambda project: project == "Clip Factories", True)
         self.thread = ThreadClicker(self.info, self.actions)
         self.runners = (self.thread, self.resourceManager)
         self.kill = False

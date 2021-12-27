@@ -115,7 +115,7 @@ class PageActions():
         # page_button = self.__get(button)
         # return page_button and self.__trySafe(button, page_button.is_displayed)
 
-    def isEnabled(self, button) -> bool:
+    def isEnabled(self, button: str) -> bool:
         page_button = self.__get(button)
         try:
             return page_button and self.isVisible(button) and page_button.is_enabled()
@@ -135,3 +135,8 @@ class PageActions():
 
     def selectFromDropdown(self, dropdown: str, selection: str) -> None:
         Select(self.__get(dropdown)).select_by_visible_text(selection)
+
+    def setSlideValue(self) -> None:
+        #TODO: Implement
+        raise NotImplementedError
+        pass
