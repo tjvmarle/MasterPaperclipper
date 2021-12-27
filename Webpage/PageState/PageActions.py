@@ -39,6 +39,7 @@ class PageActions():
 
     def __unCachePhotonic(self, _: str):
         # Small optimization
+        # FIXME: didn't work. Still stale references when buying these.
         del self.cache["Photonic Chip"]
 
     def __init__(self, webdriver: webdriver.Chrome) -> None:
@@ -78,12 +79,14 @@ class PageActions():
                 return False
 
             page_button.click()
+            Listener.notify(Event.ButtonPressed, button)
         except StaleElementReferenceException:  # Reuse of 'Another Token of Goodwill' causes these
             del self.cache[button]
 
             page_button = self.__get(button)
             if page_button:
                 page_button.click()
+                Listener.notify(Event.ButtonPressed, button)
             else:
                 TS.print(f"Second attempt at clicking {button} failed again.")
                 return False

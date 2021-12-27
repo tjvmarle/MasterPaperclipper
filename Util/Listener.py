@@ -5,7 +5,7 @@ from Util.Timestamp import Timestamp as TS
 
 class Event(Enum):
     BuyProject = 0
-    SpendTrust = 1
+    ButtonPressed = 1
 
 
 class _filteredCallback():

@@ -6,14 +6,25 @@ from Webpage.PageState.PageInfo import PageInfo
 
 
 class ProjectBuyer():
+    def __enoughFundsWithdrawn(self, _: str) -> None:
+        funds = self.info.getFl("Funds")
+        self.enoughFunds = (funds > 511_500_000.0)
+
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
         self.info = pageInfo
         self.actions = pageActions
 
         self.highPrioProjects = Config.get("highPriorityProjects")
         self.projects = Config.get("phaseOneProjects")
+        self.enoughFunds = False
+
+        Listener.listenTo(Event.ButtonPressed, self.__enoughFundsWithdrawn,
+                          lambda button: button == "WithdrawFunds", False)
 
     def __isBlockActive(self, block: str) -> bool:
+        if block == "block0":
+            return not self.enoughFunds
+
         if block == "block1":
             return (self.info.getInt("Processors") + self.info.getInt("Memory")) < 100
 

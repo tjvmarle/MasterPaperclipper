@@ -6,6 +6,10 @@ from Util.Files.Config import Config
 
 
 class TrustSpender():
+    def __hypnoDronesRelease(self, _: str) -> None:
+        self.hypnoReleased = True
+        pass
+
     def __acquiredDonkeySpace(self, _: str):
         self.unBlock = True
 
@@ -16,12 +20,15 @@ class TrustSpender():
         self.nextStrat = None
         self.unBlock = False
         self.finalStratActive = False
+        self.hypnoReleased = False
 
         # Optimization, tracking internally is (a lot) faster than reading from the page
         self.Processors = 1
         self.Memory = 1
 
         Listener.listenTo(Event.BuyProject, self.__acquiredDonkeySpace, lambda project: project == "Donkey Space", True)
+        Listener.listenTo(Event.BuyProject, self.__hypnoDronesRelease,
+                          lambda project: project == "Release the HypnoDrones", True)
         self.__getNextStrat()
 
     def __getNextStrat(self) -> None:
@@ -29,8 +36,8 @@ class TrustSpender():
             return
 
         if not self.trustStrategies:
-            TS.print(f"Truststrategies exhausted, switching to 10000:10000.")
-            self.nextStrat = [10000, 10000]
+            TS.print(f"Truststrategies exhausted, switching to 10_000:10_000.")
+            self.nextStrat = [10_000, 10_000]
             self.finalStratActive = True
             return
 
@@ -67,6 +74,10 @@ class TrustSpender():
 
     def __spendTrust(self):
         if "block" in self.nextStrat and self.__isBlockActive():
+            return
+
+        if self.hypnoReleased:
+            # Temporary, prevents crashing after reaching 2nd phase.
             return
 
         trust = self.info.getInt("Trust")

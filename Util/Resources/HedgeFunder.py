@@ -9,9 +9,15 @@ from Util.Listener import Event, Listener
 
 
 class HedgeFunder():
-    def limitBreak(self, _: str) -> None:
+    def __yomiEnabled(self, _: str) -> None:
+        self.yomiAvailable = True
+
+    def __limitBreak(self, _: str) -> None:
         TS.print(f"Limit break enabled. Stonks only go up!")
         self.myFinalForm = True
+
+    def __fullMonoAcquired(self, _: str) -> None:
+        self.fullMonoAcq = True
 
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
         self.info = pageInfo
@@ -19,20 +25,20 @@ class HedgeFunder():
 
         self.investmentsActive = False
         self.myFinalForm = False
-        self.currLevel = 1
+        self.currLevel = 0
         self.highRisk = False
-        self.noMoreGoodwill = False
+        self.noMoreInvesting = False
         self.fullMonoAcq = False
+        self.yomiAvailable = False
         # TODO: Move these buffers to Config
         self.takeOuts = [("Hostile Takeover", 1_500_000), ("Full Monopoly", 11_000_000)]
         self.investTime = float(Config.get("InvestPercentage")) * 0.6
         self.currMinute = TS.now().minute
+        self.InvestUpgradeCosts = [int(cost) for cost in Config.get("InvestUpgradeCosts")]
 
-        Listener.listenTo(Event.BuyProject, self.limitBreak, lambda project: project == "Full Monopoly", True)
-        Listener.listenTo(Event.BuyProject, self.limitBreak, lambda project: project == "Theory of Mind", True)
-
-    def __fullMonoAcquired(self, _: str) -> None:
-        self.fullMonoAcq = True
+        Listener.listenTo(Event.BuyProject, self.__fullMonoAcquired, lambda project: project == "Full Monopoly", True)
+        Listener.listenTo(Event.BuyProject, self.__limitBreak, lambda project: project == "Theory of Mind", True)
+        Listener.listenTo(Event.BuyProject, self.__yomiEnabled, lambda project: project == "Strategic Modeling", True)
 
     def invest(self):
         # TODO: stop investing when all tokens off goodwill have been bought. Drain remaining cash for buying clippers.
@@ -54,29 +60,23 @@ class HedgeFunder():
         self.actions.pressButton("DepositFunds")
 
     def setRiskLevel(self):
-        if not self.highRisk and self.currLevel > 3:
+        if not self.highRisk and self.currLevel > 2:
             # Options: Low Risk, Med Risk, High Risk
             self.actions.selectFromDropdown("InvestRisk", "High Risk")
             self.highRisk = True
 
     def setInvestmentLevel(self):
-        if self.currLevel >= 10 and not self.myFinalForm:
-            # You only need about 86.000 yomi for phase 2 in total
+        if (self.currLevel >= 10 and not self.myFinalForm) or not self.InvestUpgradeCosts or not self.yomiAvailable:
             return
 
-        if self.currLevel >= 8 and not self.fullMonoAcq:
-            # OPT: Upgradecost can be determined from self.currLevel
+        currYomi = self.info.getInt("Yomi")
+        if self.currLevel >= 6 and not self.fullMonoAcq:
             # Ensure a 3k buffer to always allow Full Monopoly to be bought
-            yomiCost = self.info.getInt("InvestUpgradeCost")
-            yomiStash = self.info.getInt("Yomi")
-            if yomiStash < (yomiCost + 3_000):
-                return
+            currYomi -= 3_000
 
-        # OPT: If previous yomiStash is determined, the button's state can be determined.
-        if self.actions.isEnabled("UpgradeInvestLevel") and self.actions.pressButton("UpgradeInvestLevel"):
-            TS.print(
-                f"Current invest level is {self.currLevel}, spending {self.info.getInt('InvestUpgradeCost')} Yomi for an upgrade.")
+        if currYomi > self.InvestUpgradeCosts[0] and self.actions.pressButton("UpgradeInvestLevel"):
             self.currLevel += 1
+            self.InvestUpgradeCosts.pop(0)
 
     def takeOut(self):
         if not self.takeOuts:
@@ -99,7 +99,7 @@ class HedgeFunder():
             self.takeOuts.pop(0)
 
     def aTokenOfGoodwill(self) -> None:
-        if self.takeOuts or self.noMoreGoodwill or self.info.getInt("Trust") > 90:
+        if self.takeOuts or self.noMoreInvesting or self.info.getInt("Trust") > 90:
             return
 
         availableCash = self.info.getFl("LiquidAssets")
@@ -110,32 +110,21 @@ class HedgeFunder():
 
         self.actions.pressButton("WithdrawFunds")
         cash = self.info.getFl("Funds")
-        TS.print(f"Funds withdrawn, available cash is: {cash}.")
         if cash < 511_500_000.0:
-            # Something went wrong.
+            # Race condition.
             TS.print(f"Money withdrawal failed.")
             self.actions.pressButton("DepositFunds")
             return
 
-        # FIXME: somehting is going seriously wrong here. The projects are not getting bought.
-        TS.print("Buying Token of Goodwill")
-        self.actions.pressButton("A Token of Goodwill")
-        for _ in range(0, 9):
-            time.sleep(0.5)
-            TS.print("Buying more Tokens of Goodwill")
-            self.actions.pressButton("Another Token of Goodwill")
-
-        if self.actions.isVisible("Buying Token of Goodwill") or self.actions.isVisible("Another Token of Goodwill"):
-            # This will also trigger when you withdraw more than 1 billion, but that's acceptable for now.
-            TS.print("Somehting went wrong! All tokens of goodwill should have been bought by now.")
-
-        self.noMoreGoodwill = True
-        TS.print(f"Killed off self.aTokenOfGoodwill().")
-        time.sleep(0.5)
+        self.noMoreInvesting = True
+        return
 
     def tick(self):
-        self.setRiskLevel()
-        self.setInvestmentLevel()
-        self.invest()
-        self.takeOut()
-        self.aTokenOfGoodwill()
+        if self.noMoreInvesting:
+            self.actions.pressButton("WithdrawFunds")
+        else:
+            self.setRiskLevel()
+            self.setInvestmentLevel()
+            self.invest()
+            self.takeOut()
+            self.aTokenOfGoodwill()

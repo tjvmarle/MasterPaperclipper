@@ -41,6 +41,9 @@ infoFields=[
     # Dropdowns - Also present in actionFields
     InvestRisk:investStrat
     PickStrat:stratPicker
+
+    # Optimizationg purposes
+    QuantumComputing:qComputing
 ]
 
 # Fields used on the webpage containing actionable elements
@@ -150,8 +153,18 @@ phaseOneProjects=[
     TIT FOR TAT
     BEAT LAST
 
-    # For later
-    Hypnodrones
+    block0
+    A Token of Goodwill
+    Another Token of Goodwill
+    Another Token of Goodwill
+    Another Token of Goodwill
+    Another Token of Goodwill
+    Another Token of Goodwill
+    Another Token of Goodwill
+    Another Token of Goodwill
+    Another Token of Goodwill
+    Another Token of Goodwill
+
     block1
     Release the HypnoDrones
     
@@ -162,7 +175,6 @@ phaseOneProjects=[
     Harvester Drones
     Wire Drones
     Clip Factories
-
 ]
 
 # Projects in this list will be bought when possible, outside of any other priorities
@@ -198,12 +210,12 @@ highPriorityProjects=[
     Photonic Chip
 
     Theory of Mind
+    Hypnodrones
 ]
 
-# Overview of the strat to choose, depending on which ones are available
+# Overview of the strat to choose, depending on which ones are available.
 YomiStrategies=[
     # Other strats will become available in between, but their succesrate is lower
-    
     RANDOM
     A100
     GREEDY
@@ -215,3 +227,18 @@ ProgressInterval=60
 
 # Percentage of time used for investing. Very low percentages are affected by fps.
 InvestPercentage=25
+
+InvestUpgradeCosts=[
+       100
+       658
+     1_981
+     4_330
+     7_943
+    13_038
+    19_825
+    28_500
+    39_255
+    52_273
+    67_732
+    85_806
+]

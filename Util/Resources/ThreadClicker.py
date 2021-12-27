@@ -4,14 +4,13 @@ from Webpage.PageState.PageActions import PageActions, AutoTarget
 from Webpage.PageState.PageInfo import PageInfo
 from Util.Listener import Event, Listener
 from Util.Timestamp import Timestamp as TS
+import re
 
 
 class ThreadClicker():
     def __nextPhase(self, _: str) -> None:
+        TS.print(f"Killing off autoclicker for making paperclips.")
         self.phaseOne = False
-
-    def __addPhotonicChip(self, _: str) -> None:
-        self.currChips.append(self.photonicChips.pop(0))
 
     def __activatePhotonics(self, _: str) -> None:
         self.photonicActive = True
@@ -24,32 +23,32 @@ class ThreadClicker():
         self.thread = Process(target=self.__runThreadClicker, args=["1"])
         self.thread.start()
 
+    def __getPhotonicTotal(self) -> float:
+        # Parsing the raw HTML is a lot faster.
+        rawHTML = self.info.get("QuantumComputing").get_attribute('innerHTML')
+        total = [float(val) for val in re.findall('(?<=opacity: ).+(?=;)', rawHTML)]
+        total.pop()  # Opacity of last ops value
+        return sum(total)
+
     def __init__(self, pageInfo: PageInfo, pageAction: PageActions) -> None:
         self.info = pageInfo
         self.actions = pageAction
         self.alive = True
         self.photonicActive = False
         self.__initThread()
-        self.photonicChips = [self.info.get(f"QuantumChip{i}") for i in range(10)]
-        self.currChips = []
-        Listener.listenTo(Event.BuyProject, self.__activatePhotonics, lambda project: project == "Photonic Chip", True)
-        Listener.listenTo(Event.BuyProject, self.__addPhotonicChip, lambda project: project == "Photonic Chip", False)
-        Listener.listenTo(Event.BuyProject, self.__nextPhase, lambda project: project == "MegaClippers", True)
         self.phaseOne = True
+        Listener.listenTo(Event.BuyProject, self.__activatePhotonics, lambda project: project == "Photonic Chip", True)
+        Listener.listenTo(Event.BuyProject, self.__nextPhase, lambda project: project == "MegaClippers", True)
 
     def kill(self):
         self.alive = False
         self.thread.join()
 
     def __setThreadButton(self):
-        # TODO: ignore making paperclips @ high Clips/second. Almost no benefit
-        # OPT: add timed pauses, saves a lot on accessing the chip's states
         altTarget = AutoTarget.MakePaperclips if self.phaseOne else AutoTarget.Off
         total = -1
         if self.photonicActive:
-            chips = [element.get_attribute("style").replace(";", "").split(":")[1]
-                     for element in self.currChips]
-            total = sum([float(val.strip()) for val in chips])
+            total = self.__getPhotonicTotal()
         self.actions.setThreadClicker(AutoTarget.CreateOps if total > 0 else altTarget)
 
     def tick(self) -> bool:

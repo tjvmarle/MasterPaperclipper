@@ -15,6 +15,16 @@ class CashSpender():
         TS.print(f"Hypnodrones released, killing of CashSpender.")
         self.alive = False
 
+    def __moneyWithdrawn(self, _: str) -> None:
+        funds = self.info.getFl("Funds")
+        TS.print(f"Money withdrawn from bank, current cash is {funds}.")
+        self.buyingOutGoodwill = (funds > 511_500_000.0) and self.tokensOfGoodwill > 0
+
+    def __tokensBought(self, _: str) -> None:
+        self.tokensOfGoodwill -= 1
+        if self.tokensOfGoodwill == 0:
+            self.buyingOutGoodwill = False
+
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
         self.info = pageInfo
         self.actions = pageActions
@@ -33,24 +43,32 @@ class CashSpender():
         self.enoughClippers = False
         self.noMegas = True
         self.marketingLevel = 1
+        self.tokensOfGoodwill = Config.get("phaseOneProjects").count("Another Token of Goodwill")
+        self.buyingOutGoodwill = False
 
+        # UGLY: this class probably needs some splitting up
         Listener.listenTo(Event.BuyProject, self.__wireBuyerAcquired, lambda project: project == "WireBuyer", True)
         Listener.listenTo(Event.BuyProject, self.__revTrackerAcquired, lambda project: project == "RevTracker", True)
         Listener.listenTo(Event.BuyProject, self.__algoTradingAcquired,
                           lambda project: project == "Algorithmic Trading", True)
         Listener.listenTo(Event.BuyProject, self.__kill, lambda project: project == "Release the Hypnodrones", True)
 
-        filter = lambda x: x in ("Hadwiger Clip Diagrams", "Improved MegaClippers",
-                                 "Even Better MegaClippers", "Optimized MegaClippers")
+        filter = lambda project: project in ("Hadwiger Clip Diagrams", "Improved MegaClippers",
+                                             "Even Better MegaClippers", "Optimized MegaClippers")
         Listener.listenTo(Event.BuyProject, self.__clipperImprovementAcquired, filter, False)
         Listener.listenTo(Event.BuyProject, self.__megaClippersAcquired,
                           lambda project: project == "MegaClippers", True)
+        Listener.listenTo(Event.BuyProject, self.__tokensBought,
+                          lambda project: project == "Another Token of Goodwill", False)
+
+        Listener.listenTo(Event.ButtonPressed, self.__moneyWithdrawn,
+                          lambda button: button == "WithdrawFunds", False)
 
         # The exact project doesn't really matter, but this takes the pressure off the driver for the first part
         Listener.listenTo(Event.BuyProject, self.__killOfClipperAcquisition,
-                          lambda project: project == "HypnoDrones", True)
+                          lambda project: project == "Hypnodrones", True)
 
-    def __killOfClipperAcquisition(self):
+    def __killOfClipperAcquisition(self, _: str):
         self.enoughClippers = True
 
     def __clipperImprovementAcquired(self, project: str) -> None:
@@ -117,7 +135,7 @@ class CashSpender():
             self.clippersAvailable = self.actions.isVisible("BuyAutoclipper")
             return
 
-        if self.buyKilled:
+        if self.buyKilled or self.buyingOutGoodwill:
             return
 
         if self.enoughClippers and self.info.getInt("TotalClips") > 122_000_000:

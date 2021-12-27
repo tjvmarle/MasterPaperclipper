@@ -12,7 +12,7 @@ from Util.Files.Config import Config
 
 
 class PhaseOne():
-    def killPhaseOne(self):
+    def __killPhaseTwo(self, _: str):
         self.kill = True
 
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
@@ -20,7 +20,7 @@ class PhaseOne():
         self.actions = pageActions
 
         self.resourceManager = ResourceAllocator(self.info, self.actions)
-        Listener.listenTo(Event.BuyProject, self.killPhaseOne, lambda project: project == "Clip Factories", True)
+        Listener.listenTo(Event.BuyProject, self.__killPhaseTwo, lambda project: project == "Clip Factories", True)
         self.thread = ThreadClicker(self.info, self.actions)
         self.runners = (self.thread, self.resourceManager)
         self.kill = False
@@ -29,12 +29,7 @@ class PhaseOne():
         for runner in self.runners:
             runner.tick()
 
-        # trustKill = 100
         if self.kill:
-            # not self.actions.isVisible("Release the HypnoDrones") and self.actions.isVisible("BuyProcessor") and not self.actions.isEnabled("BuyProcessor") and self.info.getInt(
-            #         "Processors") + self.info.getInt("Memory") >= trustKill:
-            # Current kill point - takes about 48 minutes
-
             TS.print(f"Phase two reached, startup initialized for global paperclip conversion!")
             self.thread.kill()
             return False
