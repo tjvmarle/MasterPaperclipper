@@ -5,7 +5,7 @@ from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
 from Util.Resources.ProjectBuyer import ProjectBuyer
 from Util.Resources.TourneyOrganiser import TourneyOrganiser
-from Util.Resources.ProductionManager import ProductionManager
+from Util.Resources.ClipSpender import ClipSpender
 from Util.Timestamp import Timestamp as TS
 from Util.Files.Config import Config
 
@@ -19,7 +19,7 @@ class PhaseTwo():
         self.tourneyOrganizer = organiser
         self.thread = ThreadClicker(self.info, self.actions)
         self.pb = ProjectBuyer(self.info, self.actions)  # Reïnitialize this one for phase two
-        self.pm = ProductionManager(self.info, self.actions)
+        self.pm = ClipSpender(self.info, self.actions)
         self.runners = [self.tourneyOrganizer, self.thread, self.pb, self.pm]
 
         # TODO: Add a trustspender after acquiring Swarm Computing

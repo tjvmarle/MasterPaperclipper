@@ -275,3 +275,4 @@ InvestUpgradeCosts=[
     85_806
 ]
 
+FactoryStableTime=2.0
