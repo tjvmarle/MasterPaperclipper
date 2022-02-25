@@ -23,8 +23,12 @@ class TrustSpender():
         self.hypnoReleased = False
 
         # Optimization, tracking internally is (a lot) faster than reading from the page
-        self.Processors = 1
-        self.Memory = 1
+        # self.Processors = 1
+        # self.Memory = 1
+
+        # Temporary for 2nd phase
+        self.Processors = 40
+        self.Memory = 60
 
         Listener.listenTo(Event.BuyProject, self.__acquiredDonkeySpace, lambda project: project == "Donkey Space", True)
         Listener.listenTo(Event.BuyProject, self.__hypnoDronesRelease,
@@ -80,8 +84,11 @@ class TrustSpender():
             # Temporary, prevents crashing after reaching 2nd phase.
             return
 
-        trust = self.info.getInt("Trust")
-        while trust > self.Processors + self.Memory:
+        # TEMP: for 2nd phase
+        # trust = self.info.getInt("Trust")
+        trust = self.info.getInt("Gifts")
+        # while trust > self.Processors + self.Memory:
+        while trust > 0:
             if self.nextStrat == [self.Processors, self.Memory]:
                 self.__getNextStrat()
                 if "block" in self.nextStrat:
@@ -90,14 +97,17 @@ class TrustSpender():
             if self.initialDeltaRatio[1] == 0:  # E.g. moving from 20:20 to 40:20
                 self.actions.pressButton("BuyProcessor")
                 self.Processors += 1
+                trust -= 1
                 continue
 
             if self.initialDeltaRatio[0] == 0:
                 self.actions.pressButton("BuyMemory")
                 self.Memory += 1
+                trust -= 1
                 continue
 
             self.__buyFromRatio()
+            trust -= 1
 
     def tick(self):
         self.__spendTrust()

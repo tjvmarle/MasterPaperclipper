@@ -47,9 +47,13 @@ infoFields=[
 
     # Phase 2
     FactoryClipsPerSec:clipmakerRate2
+    FactoryCost:factoryCostDisplay
     MatterPerSec:maps
     WirePerSec:wpps
     WireStock:nanoWire
+    Gifts:swarmGifts
+    AvailMatter:availableMatterDisplay
+    AcquiredMatter:acquiredMatterDisplay
 ]
 
 # Fields used on the webpage containing actionable elements
@@ -80,21 +84,28 @@ actionFields=[
     # 2nd phase
     BuyFactory:btnMakeFactory
     DissFactory:btnFactoryReboot
+
     BuyHarvester:btnMakeHarvester
     BuyHarvesterx10:btnHarvesterx10
     BuyHarvesterx100:btnHarvesterx100
     BuyHarvesterx1000:btnHarvesterx1000
+    DissHarvester:btnHarvesterReboot
+
     BuyWire:btnMakeWireDrone
     BuyWirex10:btnWireDronex10
     BuyWirex100:btnWireDronex100
     BuyWirex1000:btnWireDronex1000
+    DissWire:btnWireDroneReboot
+    
     BuySolar:btnMakeFarm
     BuySolarx10:btnFarmx10
     BuySolarx100:btnFarmx100
+    
     BuyBattery:btnMakeBattery
     BuyBatteryx10:btnBatteryx10
     BuyBatteryx100:btnBatteryx100
-    SwarmSlider:swarmSlider
+    
+    SwarmSlider:slider
 ]
 
 # Parameters to log progress for. These can be toggled on and off before starting the game
@@ -119,17 +130,29 @@ progressFields=[
 # Syntax = Processors : Memory
 trustSpendingStrategy=[
     # Early processors are required for some quick creativity generation
-    5:1
+    #5:1
 
     # Temporarily block spending trust until Donkey Space is acquired
-    block1
+    #block1
 
     # Next, 10 memory is required to buy the first quantum upgrades, 15 trust requires 55.000 clips
-    5:10
-    5:40
-    40:40
-    # OPT: Low performance makes is more difficult te reach 20k+ ops over max. Could be 50:50 on decent fps.
-    40:60
+    #5:10
+    #5:40
+    #40:40
+    # OPT: Low performance makes it more difficult te reach 20k+ ops over max. Could be 50:50 on decent fps.
+    # OPT: 80k ops are required in 2nd phase, so end with enough memory
+    #30:70
+
+    # 120 ops are required for space exploration (finishing the 2nd phase)
+    40:115
+
+    115:115
+
+    # Most expensive project is 250k ops
+    115:240
+    240:240
+    240:290
+    10_000:290
 ]
 
 # Priority of buying the projects
@@ -178,7 +201,9 @@ phaseOneProjects=[
     TIT FOR TAT
     BEAT LAST
 
+    # Block further acquisition untill enough funds are available to immediately finish the first phase
     block0
+
     A Token of Goodwill
     Another Token of Goodwill
     Another Token of Goodwill
@@ -243,6 +268,15 @@ phaseTwoProjects=[
     Momentum
     Drone flocking
     Upgraded Factories
+    Drone alignment
+    Hyperspeed Factories
+    Supply Chain
+    Adversarial Cohesion
+    Space Exploration
+]
+
+phaseThreeProjects=[
+
 ]
 
 # Overview of the strat to choose, depending on which ones are available.
@@ -275,4 +309,8 @@ InvestUpgradeCosts=[
     85_806
 ]
 
+# Seconds a factory's production value needs to be stable before new one is considered for acquisition
 FactoryStableTime=2.0
+
+# Nr of factories required before acquisition switches to drones only until entire planet is converted
+ConsumePlanetFactoryThreshold=60

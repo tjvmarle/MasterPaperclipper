@@ -136,7 +136,10 @@ class PageActions():
     def selectFromDropdown(self, dropdown: str, selection: str) -> None:
         Select(self.__get(dropdown)).select_by_visible_text(selection)
 
-    def setSlideValue(self) -> None:
-        #TODO: Implement
-        raise NotImplementedError
-        pass
+    def setSlideValue(self, sliderName: str, value: int) -> None:
+        slider = self.buttons.get(sliderName, False)
+        if not slider:
+            return
+
+        # Using direct js, because Selenium support for these is absent
+        self.driver.execute_script(f'document.getElementById("{slider}").value = {value}')

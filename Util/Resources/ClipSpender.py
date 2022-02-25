@@ -19,16 +19,22 @@ class Item(Enum):
 
 
 class _ClipValue():
-    # TODO: Add other magnitudes
-    magnitudes = {"million": 0, "billion": 1, "trillion": 2, "qaudrillion": 3, "octillion": 99}
-    inv_mag = {}
+    magnitudes = {"zero": -1, "million": 0, "billion": 1, "trillion": 2, "quadrillion": 3, "quintillion": 4,
+                  "sextillion": 5, "septillion": 6, "octillion": 7, "nonillion": 8, "decillion": 9}
+
+    inverse_magnitudes = {}
 
     def __init__(self, value: WebElement) -> None:
-        number, magnitude = value.text.split()
+        if value.text != '0':
+            number, magnitude = value.text.split()
+        else:
+            number = 0
+            magnitude = "zero"
+
         self.value = float(number)
         self.magnitude = _ClipValue.magnitudes[magnitude]
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> bool:
         if self.magnitude == other.magnitude:
             return self.value < other.value
         else:
@@ -45,11 +51,16 @@ class _ClipValue():
 
     def __mul__(self, factor: float):
         self.value *= factor
-        if self.value > 1_000.0 and (self.magnitude + 1) in _ClipValue.inv_mag:
+        if self.value > 1_000.0 and (self.magnitude + 1) in _ClipValue.inverse_magnitudes:
             self.value /= 1_000.0
             self.magnitude += 1
 
         return self
+
+    def zero(self) -> bool:
+        return self.value == 0 and self.magnitude == -1
+
+# TODO: the buy() functions could probably use quite a bit of refactoring
 
 
 class ClipSpender():
@@ -65,6 +76,20 @@ class ClipSpender():
     def __momentumAcquired(self, _: str) -> None:
         self.momentum = True
 
+    def __swarmAcquired(self, _: str) -> None:
+        self.actions.setSlideValue("SwarmSlider", 170)
+        # TODO: Probably going to need a seperate swarm balancer
+        # Push the slider more to think when wire/s >> clips/s
+        # 120k ops required to finish the phase
+
+    def __supplyChainAcquired(self, _: str) -> None:
+        self.supplyChainBought = True
+
+    def __triggerPlanetaryConsumption(self):
+        self.actions.setSlideValue("SwarmSlider", 10)
+        self.consumeAll = True
+        TS.print("Triggered planetary consumption!")
+
     def __firstBuy(self):
         self.__buy(Item.Solar)
         self.__buy(Item.Harvester)
@@ -77,7 +102,7 @@ class ClipSpender():
         self.actions = pageAction
 
         # For some stupid reason this doesn't work in-class
-        _ClipValue.inv_mag = {value: key for (key, value) in _ClipValue.magnitudes.items()}
+        _ClipValue.inverse_magnitudes = {value: key for (key, value) in _ClipValue.magnitudes.items()}
 
         self.droneRatio = 1.625  # Production speed Harvester vs Wire is 1.625 : 1
         self.itemCount = {item: 0 for item in Item}
@@ -88,13 +113,30 @@ class ClipSpender():
         self.momentum = False
         self.lastProdValue = _ClipValue(self.info.get("FactoryClipsPerSec"))
         self.lastValueMoment = TS.now()
+        self.initSwarm = True
+        self.supplyChainBought = False
+        self.consumeAll = False
+        self.dronesDissed = False
+        self.killPlanetaryConsumption = False
 
         Listener.listenTo(Event.BuyProject, self.__momentumAcquired, lambda project: project == "Momentum", True)
+        Listener.listenTo(Event.BuyProject, self.__swarmAcquired, lambda project: project == "Swarm Computing", True)
+        Listener.listenTo(Event.BuyProject, self.__supplyChainAcquired,
+                          lambda project: project == "Supply Chain", True)
 
-    def __pressBuy(self, item: Item) -> None:
+    def __pressBuy(self, item: Item, amount: int = None) -> None:
         button = ClipSpender.buttons[item]
+
+        if amount:
+            button += f"x{amount}"
+        else:
+            amount = 1
+
+        if not self.actions.isEnabled(button):
+            return
+
         self.actions.pressButton(button)
-        self.itemCount[item] += 1
+        self.itemCount[item] += amount
         self.nextItem = None
 
     def __fastBuy(self, amount: int = None) -> bool:
@@ -133,7 +175,7 @@ class ClipSpender():
                 self.__pressBuy(nextDroneButton())
             amount -= highestEnabled
 
-            # Make one safe attemt and try to fastbuy the rest
+            # Make one safe attempt and try to fastbuy the rest
             if not self.__buy(nextDroneButton()):
                 return False
             amount -= 1
@@ -146,6 +188,7 @@ class ClipSpender():
 
     def __buy(self, item: Item) -> bool:
         # Note: 1000 Battery Towers are needed to finish Phase 2
+        # TODO: Maybe make a buysafe that checks for power consumption first
 
         button = ClipSpender.buttons[item]
 
@@ -156,6 +199,9 @@ class ClipSpender():
         return True
 
     def __determineNext(self) -> Item:
+
+        if self.consumeAll:
+            return Item.Harvester
 
         # Only allow factories if their production rate is stable for a few seconds
         # It also limits buying a factory to every couple of seconds
@@ -168,22 +214,65 @@ class ClipSpender():
 
         return Item.Harvester  # Doesn't matter which drone you return, handled seperately
 
+    def buyLarge(self) -> None:
+        # Always buy second highest (?)
+        highestEnabled = None
+        droneButton = ClipSpender.buttons[self.nextItem]
+        for magnitude in [1000, 100, 10]:
+            if self.freePower() >= magnitude and self.actions.isEnabled("".join([droneButton, f"x{magnitude}"])):
+                highestEnabled = magnitude
+                break
+
+        if self.nextItem == Item.Harvester:
+            currRatio = lambda: float(self.itemCount[Item.Wire]) / float(self.itemCount[Item.Harvester])
+            self.nextItem = Item.Harvester if currRatio() > self.droneRatio else Item.Wire
+
+        self.__pressBuy(self.nextItem, highestEnabled)
+
+    def buySolar(self) -> None:
+        # Always buy highest amount possible (?)
+        highestEnabled = None
+        solarButton = ClipSpender.buttons[self.nextItem]
+        for magnitude in [100, 10]:
+            if self.actions.isEnabled("".join([solarButton, f"x{magnitude}"])):
+                highestEnabled = magnitude
+                break
+
+        self.__pressBuy(self.nextItem, highestEnabled)
+
+    def __solarBought(self) -> bool:
+        if self.nextItem in ClipSpender.power and not self.freePower() - ClipSpender.power[self.nextItem] > 0:
+            self.nextItem = Item.Solar
+            self.buySolar()
+            return True
+        return False
+
     def __buyNext(self) -> None:
+        if not self.supplyChainBought and self.itemCount[Item.Factory] >= 50:
+            # Saving up clips to acquire self-correcting Supply Chain
+            return
+
+        if self.itemCount[Item.Factory] >= int(Config.get("ConsumePlanetFactoryThreshold")):
+            self.__triggerPlanetaryConsumption()
+
         if not self.nextItem:
             self.nextItem = self.__determineNext()
 
-        if self.nextItem in ClipSpender.power and not self.freePower() - ClipSpender.power[self.nextItem] > 0:
-            self.nextItem = Item.Solar
+        if self.__solarBought():
+            return
 
         if self.nextItem in [Item.Harvester, Item.Wire]:
-            self.__fastBuy()
+            self.buyLarge()
             return
 
         if self.__buy(self.nextItem) and self.nextItem == Item.Factory:
             self.lastValueMoment = TS.now()
 
     def __checkProductionStability(self):
+        """As long as momentum isn't acquired, checks if production has been stable for a couple of seconds. this allows production to stabilize for a bit after buying an additional factory and prevents overbuying them."""
+
         if self.momentum:
+            # No use in checking stability if momentum is acquired, because it will increase constantly
             return
 
         clipsPerSec = _ClipValue(self.info.get("FactoryClipsPerSec"))
@@ -191,7 +280,59 @@ class ClipSpender():
             self.lastProdValue = clipsPerSec
             self.lastValueMoment = TS.now()
 
+    def __consumePlanet(self):
+        if self.killPlanetaryConsumption:
+            return
+
+        # Finish out the phase
+        self.nextItem = Item.Harvester
+
+        if self.__solarBought():
+            return
+
+        if self.freePower() > 200 and _ClipValue(
+                self.info.get("FactoryClipsPerSec")) > _ClipValue(
+                self.info.get("FactoryCost")):
+            self.__buy(Item.Factory)
+            return
+
+        if not self.dronesDissed:
+            if self.info.get("AvailMatter").text == "0":
+                self.actions.pressButton("DissHarvester")
+
+                if self.info.get("AcquiredMatter").text == "0":
+                    self.actions.pressButton("DissWire")
+                    self.dronesDissed = True
+                else:
+                    # No more available matter, but still acquired matter left.
+                    # Choosing a wire drone over a harvester skips the autobalancer
+                    self.nextItem = Item.Wire
+                    self.buyLarge()
+
+            else:
+                # Still matter available
+                self.nextItem = Item.Harvester
+                self.buyLarge()
+            return
+
+        if self.itemCount[Item.Battery] < 1_000:
+            self.__pressBuy(Item.Battery, 100)
+            return
+
+        # OPT: Technically the cutoff point could be higher. There's 6 oct clips and you only need five. This does require dissasembling your factories on the right moment.
+        if self.info.get("WireStock").text != '0':
+            self.__buy(Item.Factory)
+        else:
+            self.actions.pressButton("DissFactory")
+            self.killPlanetaryConsumption = True
+            # This should more or less trigger the next phase
+
     def tick(self):
-        # TODO: Add Swarm Computing slider
-        self.__checkProductionStability()
-        self.__buyNext()
+        if not self.consumeAll:
+            # Regular course of second phase
+            # TODO: Entertain the swarm when necesarry
+            self.__checkProductionStability()
+            self.__buyNext()
+        else:
+            # Last part, exhausting planetary supplies
+            self.__consumePlanet()

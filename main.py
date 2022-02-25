@@ -11,8 +11,8 @@ from colorama import Fore, Style
 webPage = Startpage()
 game = Gamesave(webPage.getDriver())
 
-# Load game
-game.load(Config.get("savePathSecondPhase"))
+# Load a previous save
+game.load(Config.get("savePathThirdPhase"))
 
 Config.set("Gamestart", TS.now())
 strat = Strategizer(webPage.getDriver())
@@ -54,10 +54,10 @@ TS.print(f"{Fore.GREEN}Finished in {TS.deltaStr(startTime)}.{Style.RESET_ALL}")
 if totalTicks > 0:
     TS.print(f"Averaged {totalFrames / totalTicks:.2f} fps.")
 
-# game.save(Config.get("savePathPhotonicPhase"))
-time.sleep(15)
-webPage.getDriver().execute_script("save()")
-game.save(Config.get("savePathSecondPhase"))
+# time.sleep(15)
+# webPage.getDriver().execute_script("save()")
+# time.sleep(1)
+# game.save(Config.get("savePathThirdPhase"))
 
 time.sleep(3)  # Watch in awe at your creation
 webPage.getDriver().close()  # UGLY, but fine for now.
