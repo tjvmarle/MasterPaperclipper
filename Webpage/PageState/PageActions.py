@@ -14,7 +14,7 @@ class AutoTarget(Enum):
     Off = 0
     MakePaperclips = 1
     CreateOps = 2
-    LaunchProbes = 3
+    LaunchProbe = 3
 
 # Class with all actionable items of the entire page
 
@@ -34,7 +34,7 @@ class PageActions():
 
     def __initThreadTargets(self) -> None:
         for TargetButton, ButtonName in {
-                AutoTarget.MakePaperclips: "MakePaperclip", AutoTarget.CreateOps: "QuantumCompute"}.items():
+                AutoTarget.MakePaperclips: "MakePaperclip", AutoTarget.CreateOps: "QuantumCompute", AutoTarget.LaunchProbe: "LaunchProbe"}.items():
             self.threadButtons[TargetButton] = self.__get(ButtonName)
 
     def __unCachePhotonic(self, _: str):

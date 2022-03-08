@@ -17,8 +17,9 @@ class ProjectBuyer():
         # Phase one stuff
         # self.highPrioProjects = Config.get("highPriorityProjects")
         # self.projects = Config.get("phaseOneProjects")
+        # self.projects = Config.get("phaseTwoProjects")
 
-        self.projects = Config.get("phaseTwoProjects")
+        self.projects = Config.get("phaseThreeProjects")
         self.enoughFunds = False
 
         Listener.listenTo(Event.ButtonPressed, self.__enoughFundsWithdrawn,

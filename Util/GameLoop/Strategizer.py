@@ -1,8 +1,9 @@
 # Main module to guide the actions on the webpage. The exact actions are dependent on the current active strategy, which is determined from the current phase and state of the game.
 from selenium import webdriver
 from Util.GameLoop.Strategies.PhaseOne import PhaseOne
-from Util.GameLoop.Progresslogger import Progresslogger
 from Util.GameLoop.Strategies.PhaseTwo import PhaseTwo
+from Util.GameLoop.Strategies.PhaseThree import PhaseThree
+from Util.GameLoop.Progresslogger import Progresslogger
 from Util.Resources.TourneyOrganiser import TourneyOrganiser
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
@@ -14,8 +15,9 @@ class Strategizer():
         self.actions = PageActions(driver)
         self.logger = Progresslogger(self.info)
 
-        # self.phaseRunner = PhaseOne(self.info, self.actions)  # Finishes afteer 45-60 min.
-        self.phaseRunner = PhaseTwo(self.info, self.actions, TourneyOrganiser(self.info, self.actions))
+        # self.phaseRunner = PhaseOne(self.info, self.actions)  # Finishes after 45-60 min.
+        # self.phaseRunner = PhaseTwo(self.info, self.actions, TourneyOrganiser(self.info, self.actions)) # Takes about 20 min
+        self.phaseRunner = PhaseThree(self.info, self.actions, TourneyOrganiser(self.info, self.actions))
 
     def tick(self) -> bool:
         self.logger.tick()

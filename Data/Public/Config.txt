@@ -106,6 +106,25 @@ actionFields=[
     BuyBatteryx100:btnBatteryx100
     
     SwarmSlider:slider
+
+    # 3rd phase
+    LaunchProbe:btnMakeProbe
+    BuyProbeTrust:btnIncreaseProbeTrust
+
+    LowerSpeed:btnLowerProbeSpeed
+    RaiseSpeed:btnRaiseProbeSpeed
+    LowerExploration:btnLowerProbeNav
+    RaiseExploration:btnRaiseProbeNav
+    LowerReplication:btnLowerProbeRep
+    RaiseReplication:btnRaiseProbeRep
+    LowerHazard:btnLowerProbeHaz
+    RaiseHazard:btnRaiseProbeHaz
+    LowerFactory:btnLowerProbeFac
+    RaiseFactory:btnRaiseProbeFac
+    LowerHarvester:btnLowerProbeHarv
+    RaiseHarvester:btnRaiseProbeHarv
+    LowerWire:btnLowerProbeWire
+    RaiseWire:btnRaiseProbeWire
 ]
 
 # Parameters to log progress for. These can be toggled on and off before starting the game
@@ -144,12 +163,12 @@ trustSpendingStrategy=[
     #30:70
 
     # 120 ops are required for space exploration (finishing the 2nd phase)
-    40:115
+    40:135
 
-    115:115
+    150:135
 
     # Most expensive project is 250k ops
-    115:240
+    150:240
     240:240
     240:290
     10_000:290
@@ -276,7 +295,7 @@ phaseTwoProjects=[
 ]
 
 phaseThreeProjects=[
-
+    Elliptic Hull
 ]
 
 # Overview of the strat to choose, depending on which ones are available.

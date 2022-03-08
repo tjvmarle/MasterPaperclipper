@@ -38,7 +38,7 @@ class ThreadClicker():
         self.__initThread()
         self.phaseOne = True
 
-        # Temporary for phase two
+        # Dis- and enabled for phase two
         # Listener.listenTo(Event.BuyProject, self.__activatePhotonics, lambda project: project == "Photonic Chip", True)
         # Listener.listenTo(Event.BuyProject, self.__nextPhase, lambda project: project == "MegaClippers", True)
         self.__activatePhotonics("dummy")
@@ -49,7 +49,11 @@ class ThreadClicker():
         self.thread.join()
 
     def __setThreadButton(self):
-        altTarget = AutoTarget.MakePaperclips if self.phaseOne else AutoTarget.Off
+        # FIXME: Temporary disabled for phase three
+        # altTarget = AutoTarget.MakePaperclips if self.phaseOne else AutoTarget.Off
+
+        altTarget = AutoTarget.LaunchProbe
+
         total = -1
         if self.photonicActive:
             total = self.__getPhotonicTotal()
