@@ -27,8 +27,12 @@ class TrustSpender():
         # self.Memory = 1
 
         # Temporary for 2nd phase
-        self.Processors = 40
-        self.Memory = 60
+        # self.Processors = 40
+        # self.Memory = 60
+
+        # Temporary for 3rd phase
+        self.Processors = 55
+        self.Memory = 115
 
         Listener.listenTo(Event.BuyProject, self.__acquiredDonkeySpace, lambda project: project == "Donkey Space", True)
         Listener.listenTo(Event.BuyProject, self.__hypnoDronesRelease,

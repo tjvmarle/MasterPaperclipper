@@ -5,17 +5,17 @@ from Webpage.PageState.PageInfo import PageInfo
 from Util.Listener import Event, Listener
 from Util.Timestamp import Timestamp as TS
 from Util.Files.Config import Config
-from enum import Enum
+from enum import Enum, auto
 from typing import Tuple
 import time
 
 
 class Item(Enum):
-    Factory = 1
-    Harvester = 2
-    Wire = 3
-    Solar = 4
-    Battery = 5
+    Factory = auto()
+    Harvester = auto()
+    Wire = auto()
+    Solar = auto()
+    Battery = auto()
 
 
 class _ClipValue():

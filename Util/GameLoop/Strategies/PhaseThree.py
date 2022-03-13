@@ -24,7 +24,8 @@ class PhaseThree():
         self.balancer = ProbeBalancer(self.info, self.actions)
         self.pb = ProjectBuyer(self.info, self.actions)
         self.thread = ThreadClicker(self.info, self.actions)
-        self.runners = [self.tourneyOrganizer, self.balancer, self.thread, self.pb]
+        self.trustee = TrustSpender(self.info, self.actions)
+        self.runners = [self.tourneyOrganizer, self.balancer, self.thread, self.pb, self.trustee]
         self.kill = False
 
     def tick(self):

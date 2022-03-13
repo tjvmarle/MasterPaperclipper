@@ -54,6 +54,10 @@ infoFields=[
     Gifts:swarmGifts
     AvailMatter:availableMatterDisplay
     AcquiredMatter:acquiredMatterDisplay
+
+    # Phase 3
+    MaxTrust:maxTrustDisplay
+    TrustCost:probeTrustCostDisplay
 ]
 
 # Fields used on the webpage containing actionable elements
@@ -163,15 +167,14 @@ trustSpendingStrategy=[
     #30:70
 
     # 120 ops are required for space exploration (finishing the 2nd phase)
-    40:135
-
-    150:135
+    55:140
+    150:140
 
     # Most expensive project is 250k ops
-    150:240
-    240:240
-    240:290
-    10_000:290
+    250:140
+    250:240
+    500:290
+    100_000:290
 ]
 
 # Priority of buying the projects
@@ -296,6 +299,11 @@ phaseTwoProjects=[
 
 phaseThreeProjects=[
     Elliptic Hull
+    Reboot the Swarm
+    Combat
+    The OODA Loop
+    Name the battles
+    Strategic Attachment
 ]
 
 # Overview of the strat to choose, depending on which ones are available.

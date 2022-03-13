@@ -1,5 +1,7 @@
 from typing import List
 from datetime import date, datetime
+import time
+from multiprocessing.dummy import Process
 
 
 class Timestamp():
@@ -40,7 +42,7 @@ class Timestamp():
 
         totalTime = int(Timestamp.delta(timestamp))
         timeString = []
-        for secondsPerUnit, unitName in ((60*60*24, "day"), (3600, "hour"), (60, "minute"), (1, "second")):
+        for secondsPerUnit, unitName in ((60 * 60 * 24, "day"), (3600, "hour"), (60, "minute"), (1, "second")):
             totalTime = Timestamp.__breakDownTime(totalTime, secondsPerUnit, unitName, timeString)
 
         return "".join(timeString)
@@ -50,3 +52,11 @@ class Timestamp():
 
         now = Timestamp.now().strftime("%H:%M:%S")
         print(f"{now}:", *text)
+
+    def __timedCallback(delay, callback, *cbArgs) -> None:
+        time.sleep(delay)
+        callback(*cbArgs)
+
+    def setTimer(delay, callback, *cbArgs) -> None:
+        thread = Process(target=Timestamp.__timedCallback, args=(delay, callback, *cbArgs))
+        thread.start()

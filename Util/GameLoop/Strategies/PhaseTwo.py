@@ -27,6 +27,10 @@ class PhaseTwo():
         self.tourneyOrganizer = organiser
         self.thread = ThreadClicker(self.info, self.actions)
         self.pb = ProjectBuyer(self.info, self.actions)  # Reïnitialize this one for phase two
+
+        # OPT: Spend a few minutes increasing processors, memory, creativity and yomi before finishing out the phase
+        # 351.658 yomi is required to buy 20 probe trust in phase three
+        # It would also help to have at least 175k creativity to buy Strategic Attachment
         self.pm = ClipSpender(self.info, self.actions)
         self.runners = [self.tourneyOrganizer, self.thread, self.pb, self.pm]
         self.kill = False

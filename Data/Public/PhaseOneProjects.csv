@@ -84,4 +84,8 @@ Space Exploration,projectButton46,,
 
 # Phase three
 Elliptic Hull,projectButton129,ops=125_000,
-Strategic Attachment,projectButton128,creat=175000,
+Strategic Attachment,projectButton128,creat=175_000,
+Reboot the Swarm,projectButton130,ops=100_000,
+Combat,projectButton131,ops=150_000,
+Name the battles,projectButton121,creat=225_000
+The OODA Loop,projectButton120,,
