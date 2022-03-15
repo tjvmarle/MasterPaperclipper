@@ -15,6 +15,7 @@ class SettingType(Enum):
     Factory = auto()
     Harvester = auto()
     Wire = auto()
+    Combat = auto()
 
 
 class SettingEntry():
@@ -47,7 +48,8 @@ class ProbeSettings():
             ["LowerHazard", "RaiseHazard"],
             ["LowerFactory", "RaiseFactory"],
             ["LowerHarvester", "RaiseHarvester"],
-            ["LowerWire", "RaiseWire"]]
+            ["LowerWire", "RaiseWire"],
+            ["LowerCombat", "RaiseCombat"]]
         settingList = [enum for enum in SettingType]
         assert len(buttonPairs) == len(settingList)
 
@@ -97,9 +99,9 @@ class ProbeBalancer():
         speed = 2 if self.oodaLoopEnabled else 0
 
         if self.combatEnabled:
-            self.setTrust(speed, 0, self.currTrust - speed - 11, 6, 0, 0, 5)
+            self.setTrust(speed, 0, self.currTrust - speed - 11, 6, 0, 0, 0, 5)
         elif self.fightingForHonor:
-            self.setTrust(speed, 0, self.currTrust - speed - 13, 6, 0, 0, 5)
+            self.setTrust(speed, 0, self.currTrust - speed - 13, 6, 0, 0, 0, 5)
         else:
             self.setTrust(0, 0, self.currTrust - 6, 6, 0, 0, 0)
 
@@ -120,11 +122,15 @@ class ProbeBalancer():
             TS.setTimer(120, self.droneProductionIterator)  # Repeat every two minutes
 
             self.remainingDroneProductionIterations -= 1
+            TS.print(f"Performed next drone iteration, {self.remainingDroneProductionIterations} cycles remaining.")
 
-    def setTrust(self, speed: int, explore: int, replicate: int, hazard: int, factory: int, harvester: int, wire: int) -> bool:
+    def setTrust(
+            self, speed: int, explore: int, replicate: int, hazard: int, factory: int, harvester: int, wire: int,
+            combat: int = 0) -> bool:
         """ Set the new trust values. The values will first be decreased so enough trust is available for the remaining increases. Returns False if not enough trust is available."""
         mappedValues = {SettingType.Speed: speed, SettingType.Explore: explore, SettingType.Replicate: replicate,
-                        SettingType.Hazard: hazard, SettingType.Factory: factory, SettingType.Harvester: harvester, SettingType.Wire: wire}
+                        SettingType.Hazard: hazard, SettingType.Factory: factory, SettingType.Harvester: harvester,
+                        SettingType.Wire: wire, SettingType.Combat: combat}
         total = sum(mappedValues.values())
 
         if total > self.currTrust:
@@ -146,7 +152,7 @@ class ProbeBalancer():
         self.info = pageInfo
         self.actions = pageActions
         self.settings = ProbeSettings(pageActions)
-        self.remainingDroneProductionIterations = 5
+        self.remainingDroneProductionIterations = 500  # pseudo-infinite
 
         self.fightingForHonor = False
         self.combatEnabled = False
@@ -154,7 +160,7 @@ class ProbeBalancer():
 
         self.currTrust = 0
 
-        # TODO: check required Yomi for 20 points. Current save doesn't have enough. Stops at 14.
+        # Requires 351.658 yomi
         for _ in range(20):
             if self.actions.isEnabled("BuyProbeTrust"):
                 self.actions.pressButton("BuyProbeTrust")
@@ -164,7 +170,7 @@ class ProbeBalancer():
 
         self.actions.setSlideValue("SwarmSlider", 199)  # We can manage for a long time without much production
         self.__setToCreatingProbes()  # Creating many probes is the first priority
-        TS.setTimer(60, self.droneProductionIterator)  # Start iteartive cycle to increase drone count
+        TS.setTimer(60, self.droneProductionIterator)  # Start iterative cycle to increase drone count
 
         Listener.listenTo(Event.BuyProject, self.__combatBought, lambda project: project == "Combat", True)
         Listener.listenTo(Event.BuyProject, self.__oodaLoopBought, lambda project: project == "The OODA Loop", True)
@@ -177,7 +183,7 @@ class ProbeBalancer():
             self.actions.pressButton("BuyProbeTrust")
             self.currTrust += 1
 
-            # This is easier for now than implementing a mutex. Will fix later.
+            # FIXME: This is easier for now than implementing a mutex. Will fix later.
             # Could still cause a race condition if any of the delayed droneProductionIterator-calls trigger at the same time at this one.
             if self.remainingDroneProductionIterations == 0:
                 self.actions.pressButton("RaiseReplication")

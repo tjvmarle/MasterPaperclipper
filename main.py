@@ -47,7 +47,7 @@ def loop():
 
 loop()
 # cProfile.run('loop()')
-# OPT: Almost 100% of the time spent in webdriver.py:404(execute). On a per-call basis, all calls to the driver take about 13-14 ms. Fewer calls == higher fps!
+# OPT: Almost 100% of the time spent in webdriver.py:404(execute). On a per-call basis, all calls to the driver take about 13-14 ms, ~74 calls/s. Fewer calls == higher fps!
 
 TS.print(f"{Fore.GREEN}Finished in {TS.deltaStr(startTime)}.{Style.RESET_ALL}")
 

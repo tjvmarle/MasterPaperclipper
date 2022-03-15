@@ -88,7 +88,7 @@ class TrustSpender():
             # Temporary, prevents crashing after reaching 2nd phase.
             return
 
-        # TEMP: for 2nd phase
+        # TEMP: for 2nd/3rd phase
         # trust = self.info.getInt("Trust")
         trust = self.info.getInt("Gifts")
         # while trust > self.Processors + self.Memory:

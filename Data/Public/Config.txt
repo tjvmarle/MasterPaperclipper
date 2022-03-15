@@ -129,6 +129,8 @@ actionFields=[
     RaiseHarvester:btnRaiseProbeHarv
     LowerWire:btnLowerProbeWire
     RaiseWire:btnRaiseProbeWire
+    LowerCombat:btnLowerProbeCombat
+    RaiseCombat:btnRaiseProbeCombat
 ]
 
 # Parameters to log progress for. These can be toggled on and off before starting the game
@@ -168,10 +170,10 @@ trustSpendingStrategy=[
 
     # 120 ops are required for space exploration (finishing the 2nd phase)
     55:140
-    150:140
+    55:165
 
     # Most expensive project is 250k ops
-    250:140
+    250:165
     250:240
     500:290
     100_000:290
