@@ -131,6 +131,9 @@ actionFields=[
     RaiseWire:btnRaiseProbeWire
     LowerCombat:btnLowerProbeCombat
     RaiseCombat:btnRaiseProbeCombat
+
+    EntertainSwarm:btnEntertainSwarm
+    IncreaseMaxTrust:btnIncreaseMaxTrust
 ]
 
 # Parameters to log progress for. These can be toggled on and off before starting the game
@@ -172,11 +175,12 @@ trustSpendingStrategy=[
     55:140
     55:165
 
-    # Most expensive project is 250k ops
+    # Most expensive project is 250k ops, except for the endgame offer
     250:165
     250:240
     500:290
-    100_000:290
+    500:300
+    100_000:300
 ]
 
 # Priority of buying the projects
@@ -306,6 +310,16 @@ phaseThreeProjects=[
     The OODA Loop
     Name the battles
     Strategic Attachment
+
+    # 50k honor
+    Monument to the Fallen
+
+    # Same button gets reused. 10k Honor each.
+    Threnody for the Heroes
+    Threnody for the Heroes
+    Threnody for the Heroes
+    Threnody for the Heroes
+    Threnody for the Heroes
 ]
 
 # Overview of the strat to choose, depending on which ones are available.

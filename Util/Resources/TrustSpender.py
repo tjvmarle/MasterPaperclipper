@@ -70,6 +70,7 @@ class TrustSpender():
         if self.nextStrat[1] - self.Memory == 0:  # Should probably never occur, but prevents possible division by zero
             self.actions.pressButton("BuyProcessor")
             self.Processors += 1
+            return
 
         currDeltaRatio = (self.nextStrat[0] - self.Processors) / (self.nextStrat[1] - self.Memory)
 

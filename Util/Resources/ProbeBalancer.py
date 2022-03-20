@@ -3,6 +3,7 @@ from Webpage.PageState.PageInfo import PageInfo
 from Util.Timestamp import Timestamp as TS
 from Util.Listener import Event, Listener
 from enum import Enum, auto
+from multiprocessing import Lock
 import time
 import math
 
@@ -75,7 +76,15 @@ class ProbeSettings():
         return valmap
 
 
+# Some added safety since we're working with seperate, timed threads
+probeSettingMutex = Lock()
+
+
 class ProbeBalancer():
+
+    def __lockedCall(self, callBack, *args) -> None:
+        with probeSettingMutex:
+            callBack(*args)
 
     def __namingTheBattles(self, _: str) -> None:
         self.fightingForHonor = True
@@ -115,8 +124,10 @@ class ProbeBalancer():
 
     def droneProductionIterator(self) -> None:
         """Self repeating function to create factories and drones after probe count has been able to increase for a while. It's main purpose is to quickly grow the swarm to create additional gifts."""
-        if not self.fightingForHonor and self.remainingDroneProductionIterations > 0:
+        if self.remainingDroneProductionIterations > 0:
             self.__setToCreatingDrones()
+
+            # TODO: perhaps remove the multithreading, it's not really required if we just check timestamps in a loop
             TS.setTimer(10, self.__setToMatter)
             TS.setTimer(12, self.__setToCreatingProbes)  # Back to creating probes
             TS.setTimer(120, self.droneProductionIterator)  # Repeat every two minutes
@@ -124,10 +135,9 @@ class ProbeBalancer():
             self.remainingDroneProductionIterations -= 1
             TS.print(f"Performed next drone iteration, {self.remainingDroneProductionIterations} cycles remaining.")
 
-    def setTrust(
-            self, speed: int, explore: int, replicate: int, hazard: int, factory: int, harvester: int, wire: int,
-            combat: int = 0) -> bool:
-        """ Set the new trust values. The values will first be decreased so enough trust is available for the remaining increases. Returns False if not enough trust is available."""
+    def setTrust(self, speed: int, explore: int, replicate: int, hazard: int, factory: int, harvester: int, wire: int,
+                 combat: int = 0) -> bool:
+        """Set the new trust values. The values will first be decreased so enough trust is available for the remaining increases. Returns False if not enough trust is available."""
         mappedValues = {SettingType.Speed: speed, SettingType.Explore: explore, SettingType.Replicate: replicate,
                         SettingType.Hazard: hazard, SettingType.Factory: factory, SettingType.Harvester: harvester,
                         SettingType.Wire: wire, SettingType.Combat: combat}
@@ -136,17 +146,18 @@ class ProbeBalancer():
         if total > self.currTrust:
             return False
 
-        currValues = self.settings.val()
-        assert len(currValues) == len(mappedValues)
+        with probeSettingMutex:
+            currValues = self.settings.val()
+            assert len(currValues) == len(mappedValues)
 
-        # List together the type, newvalue and delta, sorted with most negative delta first
-        deltaSets = [(type, newValue, newValue - currValues[type])
-                     for type, newValue in mappedValues.items()]
+            # List together the type, newvalue and delta, sorted with most negative delta first
+            deltaSets = [(type, newValue, newValue - currValues[type])
+                         for type, newValue in mappedValues.items()]
 
-        deltaSets.sort(key=lambda tuple: tuple[2])
+            deltaSets.sort(key=lambda tuple: tuple[2])
 
-        for type, newValue, _ in deltaSets:
-            self.settings.set(type, newValue)
+            for type, newValue, _ in deltaSets:
+                self.settings.set(type, newValue)
 
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
         self.info = pageInfo
@@ -157,6 +168,7 @@ class ProbeBalancer():
         self.fightingForHonor = False
         self.combatEnabled = False
         self.oodaLoopEnabled = False
+        self.trustIncreased = False
 
         self.currTrust = 0
 
@@ -178,16 +190,29 @@ class ProbeBalancer():
                           lambda project: project == "Name the battles", True)
 
     def increaseTrust(self) -> None:
-        """Check if we can buy additional trust and do so."""
-        if self.actions.isEnabled("BuyProbeTrust"):
+        """Check if we can increase or buy additional trust and do so."""
+
+        # TODO: This has no place here. Move somewhere else later.
+        if self.actions.isEnabled("EntertainSwarm"):
+            self.actions.pressButton("EntertainSwarm")
+
+        if not self.trustIncreased and self.actions.isEnabled("IncreaseMaxTrust"):
+            self.actions.pressButton("IncreaseMaxTrust")
+            self.trustIncreased = True  # We only do this once
+
+        if self.currTrust < 30 and self.actions.isEnabled("BuyProbeTrust"):
             self.actions.pressButton("BuyProbeTrust")
             self.currTrust += 1
 
-            # FIXME: This is easier for now than implementing a mutex. Will fix later.
-            # Could still cause a race condition if any of the delayed droneProductionIterator-calls trigger at the same time at this one.
-            if self.remainingDroneProductionIterations == 0:
-                self.actions.pressButton("RaiseReplication")
+            # Some threadsafety, because timers could be running to change the probe settings
+            self.__lockedCall(self.actions.pressButton, "RaiseReplication")
 
     def tick(self) -> None:
         # If available matter == 0 --> explore a bit
         self.increaseTrust()
+
+        # TODO:
+        # Once you've bought your 4th/5th Threnody for the Heroes there's no use anymore to shift probes to Factory/Drone production.
+        # Once you hit nonillion amounts of probes you can shift to speed/exploration, can easily do a 5:5
+        # You probably still need to convert all matter to clips, so make sure the are enough Drones before the endgame
+        # Read the time from the message bar at the top of the page once you've converted the entire universe

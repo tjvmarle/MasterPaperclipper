@@ -89,3 +89,17 @@ Reboot the Swarm,projectButton130,ops=100_000,
 Combat,projectButton131,ops=150_000,
 Name the battles,projectButton121,creat=225_000
 The OODA Loop,projectButton120,,
+Monument to the Fallen,projectButton132,,
+Threnody for the Heroes,projectButton133,,
+
+# Endgame Projects
+Greetings,projectButton140,,
+Deep Inside,projectButton141,,
+We are Weak,projectButton142,,
+Face the Drift,projectButton143,,
+No Matter,projectButton144,,
+We Know Things,projectButton145,,
+Exile Offer,projectButton146,,
+Accept,projectButton147,,
+Bonus Demand,projectButton200,,
+Bonus Creativity,projectButton201,,
