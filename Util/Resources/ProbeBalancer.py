@@ -88,20 +88,26 @@ class ProbeBalancer():
 
     def __namingTheBattles(self, _: str) -> None:
         self.fightingForHonor = True
+        self.__setToCreatingProbes()
 
     def __combatBought(self, _: str) -> None:
         self.combatEnabled = True
+        self.__setToCreatingProbes()
 
     def __oodaLoopBought(self, _: str) -> None:
         self.oodaLoopEnabled = True
+        self.__setToCreatingProbes()
+
+    def __threnodyBought(self, _: str) -> None:
+        self.threnodyCounter += 1
 
     def __setToCreatingDrones(self) -> None:
         """Change probe settings to produce a large amount of drones. Usually done intermittently to quickly increase swarm power."""
-        availtrust = self.currTrust - 3
+        availtrust = self.currTrust - 5
         harvesterTrust = math.ceil(availtrust / 2)
         wireTrust = math.floor(availtrust / 2)
 
-        self.setTrust(0, 0, 1, 2, 0, harvesterTrust, wireTrust)
+        self.setTrust(0, 0, 3, 2, 0, harvesterTrust, wireTrust)
 
     def __setToCreatingProbes(self) -> None:
         """Change probe settings to produce as many probes as possible. This is more or less the default setting."""
@@ -116,24 +122,33 @@ class ProbeBalancer():
 
     def __setToMatter(self) -> None:
         """Change probe settings to produce some factories and explore for some matter. We only need a minimal amount of factories, because production will be mostly bottlenecked by low swarm productivity."""
-        availableTrust = self.currTrust - 4
+        # TODO: Instead of checking AvailMatter, check AvailClips vs current nr of Probes
+        matter = self.info.get("AvailMatter").text
+        if matter != "0":
+            # No need to acquire more matter
+            TS.print(f"Skipping matter, current available matter is {matter} g.")
+            return
+        TS.print("Acquiring matter.")
+
+        availableTrust = self.currTrust - 7
         speedTrust = math.ceil(availableTrust / 2)
         exploreTrust = math.floor(availableTrust / 2)
 
-        self.setTrust(speedTrust, exploreTrust, 1, 2, 1, 0, 0)
+        self.setTrust(speedTrust, exploreTrust, 4, 2, 1, 0, 0)
 
-    def droneProductionIterator(self) -> None:
+    def __droneProductionIterator(self) -> None:
         """Self repeating function to create factories and drones after probe count has been able to increase for a while. It's main purpose is to quickly grow the swarm to create additional gifts."""
-        if self.remainingDroneProductionIterations > 0:
+        if self.remainingDroneProductionIterations > 0 and self.threnodyCounter < 4:
             self.__setToCreatingDrones()
 
             # TODO: perhaps remove the multithreading, it's not really required if we just check timestamps in a loop
             TS.setTimer(10, self.__setToMatter)
             TS.setTimer(12, self.__setToCreatingProbes)  # Back to creating probes
-            TS.setTimer(120, self.droneProductionIterator)  # Repeat every two minutes
+            TS.setTimer(120, self.__droneProductionIterator)  # Repeat every two minutes
 
             self.remainingDroneProductionIterations -= 1
-            TS.print(f"Performed next drone iteration, {self.remainingDroneProductionIterations} cycles remaining.")
+            TS.print(
+                f"Performed next drone iteration, {self.remainingDroneProductionIterations} cycles remaining. Threnody counter at {self.threnodyCounter}.")
 
     def setTrust(self, speed: int, explore: int, replicate: int, hazard: int, factory: int, harvester: int, wire: int,
                  combat: int = 0) -> bool:
@@ -169,40 +184,53 @@ class ProbeBalancer():
         self.combatEnabled = False
         self.oodaLoopEnabled = False
         self.trustIncreased = False
+        self.threnodyCounter = 0
 
         self.currTrust = 0
+        self.yomiSpent = 0
 
         # Requires 351.658 yomi
         for _ in range(20):
             if self.actions.isEnabled("BuyProbeTrust"):
+                self.yomiSpent += self.info.getInt("TrustCost")
                 self.actions.pressButton("BuyProbeTrust")
                 self.currTrust += 1
+
+                TS.print(f"Bought {self.currTrust} Trust for a total of {self.yomiSpent} yomi.")
             else:
                 break
 
         self.actions.setSlideValue("SwarmSlider", 199)  # We can manage for a long time without much production
         self.__setToCreatingProbes()  # Creating many probes is the first priority
-        TS.setTimer(60, self.droneProductionIterator)  # Start iterative cycle to increase drone count
+        TS.setTimer(60, self.__droneProductionIterator)  # Start iterative cycle to increase drone count
 
         Listener.listenTo(Event.BuyProject, self.__combatBought, lambda project: project == "Combat", True)
         Listener.listenTo(Event.BuyProject, self.__oodaLoopBought, lambda project: project == "The OODA Loop", True)
         Listener.listenTo(Event.BuyProject, self.__namingTheBattles,
                           lambda project: project == "Name the battles", True)
+        Listener.listenTo(Event.BuyProject, self.__threnodyBought,
+                          lambda project: project == "Threnody for the Heroes", False)
 
     def increaseTrust(self) -> None:
         """Check if we can increase or buy additional trust and do so."""
-
         # TODO: This has no place here. Move somewhere else later.
         if self.actions.isEnabled("EntertainSwarm"):
             self.actions.pressButton("EntertainSwarm")
+
+        if self.actions.isVisible("The OODA Loop"):
+            # Save up the Yomi to buy The OODA loop first
+            return
 
         if not self.trustIncreased and self.actions.isEnabled("IncreaseMaxTrust"):
             self.actions.pressButton("IncreaseMaxTrust")
             self.trustIncreased = True  # We only do this once
 
         if self.currTrust < 30 and self.actions.isEnabled("BuyProbeTrust"):
+            self.yomiSpent += self.info.getInt("TrustCost")
             self.actions.pressButton("BuyProbeTrust")
             self.currTrust += 1
+
+            TS.print(f"Bought {self.currTrust} Trust for a total of {self.yomiSpent} yomi.")
 
             # Some threadsafety, because timers could be running to change the probe settings
             self.__lockedCall(self.actions.pressButton, "RaiseReplication")
@@ -212,7 +240,10 @@ class ProbeBalancer():
         self.increaseTrust()
 
         # TODO:
-        # Once you've bought your 4th/5th Threnody for the Heroes there's no use anymore to shift probes to Factory/Drone production.
-        # Once you hit nonillion amounts of probes you can shift to speed/exploration, can easily do a 5:5
+        # Determine the costs of Probe Trust 21-30
+        # Once you hit nonillion amounts of probes you can shift to speed/exploration, can easily do a 6:6
         # You probably still need to convert all matter to clips, so make sure the are enough Drones before the endgame
         # Read the time from the message bar at the top of the page once you've converted the entire universe
+
+# For reference:
+# {"zero": -1, "million": 0, "billion": 1, "trillion": 2, "quadrillion": 3, "quintillion": 4, "sextillion": 5, "septillion": 6, "octillion": 7, "nonillion": 8, "decillion": 9}
