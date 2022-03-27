@@ -1,3 +1,4 @@
+from pickle import NONE
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
@@ -8,6 +9,7 @@ from Util.Listener import Event, Listener
 from Util.Timestamp import Timestamp as TS
 from Util.Files.Config import Config
 from enum import Enum
+import time
 
 
 class AutoTarget(Enum):
@@ -53,14 +55,20 @@ class PageActions():
         self.threadButtons = {}
         self.threadTarget = AutoTarget.MakePaperclips
         self.__initThreadTargets()
+        self.threadClickerActive = True
 
         Listener.listenTo(Event.BuyProject, self.__unCachePhotonic, lambda project: project == "Photonic Chip", False)
+
+    # TODO: Implement a cleaner solution, this is ugly
+    def setThreadClickerActivity(self, active: bool) -> None:
+        self.threadClickerActive = active
 
     def threadClick(self) -> None:
         """Seperate function for the threadclicker greatly improves performance over pressButton() 
         Clips: ~75 clips/sec
         Ops: 10-35k over max depending on amount of Photonic Chips"""
-        if self.threadTarget == AutoTarget.Off:
+        if self.threadTarget == AutoTarget.Off or not self.threadClickerActive:
+            time.sleep(0.1)
             return
 
         try:

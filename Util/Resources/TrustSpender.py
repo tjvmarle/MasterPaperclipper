@@ -52,6 +52,7 @@ class TrustSpender():
         nextEntry = self.trustStrategies.pop(0)  # Either <nr>:<nr> or block<nr>
         self.nextStrat = [int(entry) for entry in nextEntry.split(":")] if ":" in nextEntry else nextEntry
 
+        TS.print(f"Next Trust strategy acquired: {self.nextStrat}.")
         if "block" in self.nextStrat:
             # Passing this strat requires custom handling somewhere else
             return
@@ -94,8 +95,9 @@ class TrustSpender():
         trust = self.info.getInt("Gifts")
         # while trust > self.Processors + self.Memory:
         while trust > 0:
-            if self.nextStrat == [self.Processors, self.Memory]:
+            if self.nextStrat[0] <= self.Processors and self.nextStrat[1] <= self.Memory:
                 self.__getNextStrat()
+                continue
                 if "block" in self.nextStrat:
                     return
 

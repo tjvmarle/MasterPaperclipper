@@ -224,7 +224,12 @@ class ClipSpender():
                 break
 
         if self.nextItem == Item.Harvester:
-            currRatio = lambda: float(self.itemCount[Item.Wire]) / float(self.itemCount[Item.Harvester])
+            currRatio = lambda: self.droneRatio + 1
+
+            # Prevents division by zero
+            if self.itemCount[Item.Harvester] != 0:
+                currRatio = lambda: float(self.itemCount[Item.Wire]) / float(self.itemCount[Item.Harvester])
+
             self.nextItem = Item.Harvester if currRatio() > self.droneRatio else Item.Wire
 
         self.__pressBuy(self.nextItem, highestEnabled)
@@ -280,8 +285,69 @@ class ClipSpender():
             self.lastProdValue = clipsPerSec
             self.lastValueMoment = TS.now()
 
+    def __maximizeSwarm(self):
+        self.actions.setThreadClickerActivity(False)
+
+        highestDroneCount = max(self.info.getInt("HarvesterCount"), self.info.getInt("WireCount"))
+
+        # The end result should be: 5,832,402/5,832,403
+        for _ in range(5872 - int(highestDroneCount / 1000)):
+            self.actions.pressButton("BuyHarvesterx1000")
+            self.actions.pressButton("BuyWirex1000")
+
+        while(self.actions.isEnabled("BuyHarvester")):
+            self.nextItem = Item.Harvester
+            self.buyLarge()
+
+        self.actions.setThreadClickerActivity(True)
+
+    def __prepareThirdPhase(self):
+        """Gathers additional yomi and Swarm Gifts before starting the third phase."""
+        self.droneRatio = 1
+        self.actions.setThreadClickerActivity(False)  # Don't need these for now.
+
+        # Start buying drones while factories are still converting wire to clips
+        if self.info.get("WireStock").text != '0':
+            self.nextItem = Item.Harvester
+            self.buyLarge()
+            return
+
+        self.killPlanetaryConsumption = True
+
+        self.actions.pressButton("DissFactory")
+        self.actions.pressButton("DissSolar")
+
+        # A single Solar is required or else the swarm will fall asleep, acquiring more seems to make no difference
+        self.actions.pressButton("BuySolar")
+        self.itemCount[Item.Solar] = 10_000_000  # Ugly, but works for now
+
+        TS.setTimer(0, self.__maximizeSwarm)  # No delay required, just run a seperate thread
+
+    def entertainSwarm(self) -> None:
+        if self.actions.isVisible("EntertainSwarm") and self.actions.isEnabled("EntertainSwarm"):
+            self.actions.pressButton("EntertainSwarm")
+
     def __consumePlanet(self):
+        self.entertainSwarm()
+
         if self.killPlanetaryConsumption:
+
+            # At least 351_658 Yomi would be ideal for 3rd phase,
+            if self.itemCount[Item.Battery] < 1_000 and self.info.getInt("Yomi") > 220_000:
+
+                self.actions.pressButton("DissHarvester")
+                self.itemCount[Item.Harvester] = 0
+
+                self.actions.pressButton("DissWire")
+                self.itemCount[Item.Wire] = 0
+
+                for _ in range(10):
+                    self.__pressBuy(Item.Battery, 100)
+                    self.__pressBuy(Item.Solar, 100)
+
+                for _ in range(100):
+                    self.__pressBuy(Item.Solar, 100)
+
             return
 
         # Finish out the phase
@@ -299,10 +365,13 @@ class ClipSpender():
         if not self.dronesDissed:
             if self.info.get("AvailMatter").text == "0":
                 self.actions.pressButton("DissHarvester")
+                self.itemCount[Item.Harvester] = 0
 
                 if self.info.get("AcquiredMatter").text == "0":
                     self.actions.pressButton("DissWire")
+                    self.itemCount[Item.Wire] = 0
                     self.dronesDissed = True
+                    self.actions.setSlideValue("SwarmSlider", 200)
                 else:
                     # No more available matter, but still acquired matter left.
                     # Choosing a wire drone over a harvester skips the autobalancer
@@ -315,19 +384,19 @@ class ClipSpender():
                 self.buyLarge()
             return
 
-        if self.itemCount[Item.Battery] < 1_000:
-            self.__pressBuy(Item.Battery, 100)
-            return
+        # TODO: first prepare the 3rd phase, then store power.
+        # if self.itemCount[Item.Battery] < 1_000:
+        #     self.__pressBuy(Item.Battery, 100)
+        #     return
 
         # OPT: Technically the cutoff point could be higher. There's 6 oct clips and you only need five. This does require dissasembling your factories on the right moment.
-        if self.info.get("WireStock").text != '0':
+        if self.info.get("WireStock").text != '0' and self.itemCount[Item.Factory] < 200:
             self.__buy(Item.Factory)
         else:
-            self.actions.pressButton("DissFactory")
-            self.killPlanetaryConsumption = True
-            # This should more or less trigger the next phase
+            self.__prepareThirdPhase()
 
     def tick(self):
+        # TODO: refactor this spaghetti of state-bools to a single state check
         if not self.consumeAll:
             # Regular course of second phase
             # TODO: Entertain the swarm when necesarry

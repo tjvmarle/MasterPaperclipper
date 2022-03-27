@@ -16,7 +16,8 @@ class Strategizer():
         self.logger = Progresslogger(self.info)
 
         # self.phaseRunner = PhaseOne(self.info, self.actions)  # Finishes after 45-60 min.
-        # self.phaseRunner = PhaseTwo(self.info, self.actions, TourneyOrganiser(self.info, self.actions)) # Takes about 20 min
+        # self.phaseRunner = PhaseTwo(self.info, self.actions, TourneyOrganiser(
+        # self.info, self.actions))  # Takes about 20-30 min
         self.phaseRunner = PhaseThree(self.info, self.actions, TourneyOrganiser(self.info, self.actions))
 
     def tick(self) -> bool:

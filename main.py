@@ -12,6 +12,7 @@ webPage = Startpage()
 game = Gamesave(webPage.getDriver())
 
 # Load a previous save
+# game.load(Config.get("savePathSecondPhase"))
 game.load(Config.get("savePathThirdPhase"))
 
 Config.set("Gamestart", TS.now())
@@ -57,7 +58,7 @@ if totalTicks > 0:
 # time.sleep(15)
 # webPage.getDriver().execute_script("save()")
 # time.sleep(1)
-# game.save(Config.get("savePathThirdPhase"))
+# game.save(Config.get("savePathSecondPhase"))
 
 time.sleep(3)  # Watch in awe at your creation
 webPage.getDriver().close()  # UGLY, but fine for now.

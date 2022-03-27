@@ -18,14 +18,15 @@ class ProjectBuyer():
         # self.highPrioProjects = Config.get("highPriorityProjects")
         # self.projects = Config.get("phaseOneProjects")
         # self.projects = Config.get("phaseTwoProjects")
-
         self.projects = Config.get("phaseThreeProjects")
+
         self.enoughFunds = False
 
         Listener.listenTo(Event.ButtonPressed, self.__enoughFundsWithdrawn,
                           lambda button: button == "WithdrawFunds", False)
 
     def __isBlockActive(self, block: str) -> bool:
+        # TODO: These blocks should be controlled from the phases, not from this class
         if block == "block0":
             return not self.enoughFunds
 

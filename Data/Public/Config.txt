@@ -54,10 +54,14 @@ infoFields=[
     Gifts:swarmGifts
     AvailMatter:availableMatterDisplay
     AcquiredMatter:acquiredMatterDisplay
+    StoredPower:storedPower
+    HarvesterCount:harvesterLevelDisplay
+    WireCount:wireDroneLevelDisplay
 
     # Phase 3
     MaxTrust:maxTrustDisplay
     TrustCost:probeTrustCostDisplay
+    AvailMatter:availableMatterDisplay
 ]
 
 # Fields used on the webpage containing actionable elements
@@ -104,12 +108,14 @@ actionFields=[
     BuySolar:btnMakeFarm
     BuySolarx10:btnFarmx10
     BuySolarx100:btnFarmx100
+    DissSolar:btnFarmReboot
     
     BuyBattery:btnMakeBattery
     BuyBatteryx10:btnBatteryx10
     BuyBatteryx100:btnBatteryx100
     
     SwarmSlider:slider
+    EntertainSwarm:btnEntertainSwarm
 
     # 3rd phase
     LaunchProbe:btnMakeProbe
@@ -132,7 +138,6 @@ actionFields=[
     LowerCombat:btnLowerProbeCombat
     RaiseCombat:btnRaiseProbeCombat
 
-    EntertainSwarm:btnEntertainSwarm
     IncreaseMaxTrust:btnIncreaseMaxTrust
 ]
 
@@ -172,10 +177,12 @@ trustSpendingStrategy=[
     #30:70
 
     # 120 ops are required for space exploration (finishing the 2nd phase)
-    55:140
-    55:165
+    30:95
+    100:95
+    100:120
 
     # Most expensive project is 250k ops, except for the endgame offer
+    100:165
     250:165
     250:240
     500:290
@@ -300,22 +307,22 @@ phaseTwoProjects=[
     Hyperspeed Factories
     Supply Chain
     Adversarial Cohesion
+    block2
     Space Exploration
 ]
 
 phaseThreeProjects=[
+    Strategic Attachment
     Elliptic Hull
     Reboot the Swarm
     Combat
     The OODA Loop
     Name the battles
-    Strategic Attachment
 
     # 50k honor
     Monument to the Fallen
 
-    # Same button gets reused. 10k Honor each.
-    Threnody for the Heroes
+    # Same button gets reused. 10k Honor each. 4 should be enough.
     Threnody for the Heroes
     Threnody for the Heroes
     Threnody for the Heroes
