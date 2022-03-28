@@ -3,6 +3,11 @@
 # Fields used on the webpage containing data
 infoFields=[
     # Syntax = InternalName:WebPageId
+
+    # General
+    Message1:readout1
+
+    # Phase 1
     TotalClips:clips
     Funds:funds
     RevPerSec:avgRev
@@ -62,6 +67,8 @@ infoFields=[
     MaxTrust:maxTrustDisplay
     TrustCost:probeTrustCostDisplay
     AvailMatter:availableMatterDisplay
+    LaunchedProbes:probesTotalDisplay
+    SpaceExploration:colonizedDisplay
 ]
 
 # Fields used on the webpage containing actionable elements
@@ -116,6 +123,7 @@ actionFields=[
     
     SwarmSlider:slider
     EntertainSwarm:btnEntertainSwarm
+    SynchronizeSwarm:btnSynchSwarm
 
     # 3rd phase
     LaunchProbe:btnMakeProbe
@@ -180,14 +188,15 @@ trustSpendingStrategy=[
     30:95
     100:95
     100:120
+    250:120
 
     # Most expensive project is 250k ops, except for the endgame offer
-    100:165
-    250:165
+    # Until then, a lot of creativity is required for the Threnody projects
+    250:230
     250:240
-    500:290
-    500:300
-    100_000:300
+    600:240
+    600:290
+    100_000:290
 ]
 
 # Priority of buying the projects

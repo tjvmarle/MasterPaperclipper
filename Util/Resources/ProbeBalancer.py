@@ -100,19 +100,20 @@ class ProbeBalancer():
 
     def __threnodyBought(self, _: str) -> None:
         self.threnodyCounter += 1
+        if self.threnodyCounter == 4:
+            self.actions.setSlideValue("SwarmSlider", 10)
+            self.actions.setThreadClickerActivity(False)  # Don't need this anymore
 
     def __setToCreatingDrones(self) -> None:
         """Change probe settings to produce a large amount of drones. Usually done intermittently to quickly increase swarm power."""
-        availtrust = self.currTrust - 5
-        harvesterTrust = math.ceil(availtrust / 2)
-        wireTrust = math.floor(availtrust / 2)
-
-        self.setTrust(0, 0, 3, 2, 0, harvesterTrust, wireTrust)
+        speed = 2 if self.oodaLoopEnabled else 0
+        self.setTrust(speed, 0, self.currTrust - speed - 8, 6, 0, 1, 1)
 
     def __setToCreatingProbes(self) -> None:
         """Change probe settings to produce as many probes as possible. This is more or less the default setting."""
         speed = 2 if self.oodaLoopEnabled else 0
 
+        # OPT: Perhaps don't enable combat until Name the battles has been enabled --> you want to lose probes
         if self.combatEnabled:
             self.setTrust(speed, 0, self.currTrust - speed - 11, 6, 0, 0, 0, 5)
         elif self.fightingForHonor:
@@ -136,19 +137,48 @@ class ProbeBalancer():
 
         self.setTrust(speedTrust, exploreTrust, 4, 2, 1, 0, 0)
 
+    def acquireMatter(self) -> None:
+        matterAcquisitionTime = 5
+        secondsSinceLastIteration = int(TS.delta(self.lastIterationTime))
+
+        if secondsSinceLastIteration < 11:
+            # We might be creating drones now
+            return
+
+        if self.nextIteration - secondsSinceLastIteration < matterAcquisitionTime and self.remainingDroneProductionIterations == 0:
+            # Matter acquisition could be cut short by the next iteration triggering
+            return
+
+        if not self.actions.isEnabled("LaunchProbe"):
+            TS.print("Acquire Matter!")
+            self.__setToMatter()
+            TS.setTimer(matterAcquisitionTime, self.__setToCreatingProbes)
+
     def __droneProductionIterator(self) -> None:
         """Self repeating function to create factories and drones after probe count has been able to increase for a while. It's main purpose is to quickly grow the swarm to create additional gifts."""
-        if self.remainingDroneProductionIterations > 0 and self.threnodyCounter < 4:
+        if self.remainingDroneProductionIterations == 0:
+            return
+
+        self.nextIteration = 120 + 30 * self.threnodyCounter
+
+        self.lastIterationTime = TS.now()
+        if self.remainingDroneProductionIterations > 0:
             self.__setToCreatingDrones()
+        TS.print("Triggering next iteration of Drone Production.")
 
-            # TODO: perhaps remove the multithreading, it's not really required if we just check timestamps in a loop
-            TS.setTimer(10, self.__setToMatter)
-            TS.setTimer(12, self.__setToCreatingProbes)  # Back to creating probes
-            TS.setTimer(120, self.__droneProductionIterator)  # Repeat every two minutes
+        TS.setTimer(10, self.__setToCreatingProbes)
+        TS.setTimer(self.nextIteration, self.__droneProductionIterator)
 
-            self.remainingDroneProductionIterations -= 1
-            TS.print(
-                f"Performed next drone iteration, {self.remainingDroneProductionIterations} cycles remaining. Threnody counter at {self.threnodyCounter}.")
+        self.remainingDroneProductionIterations -= 1
+        TS.print(
+            f"Performed next drone iteration, {self.remainingDroneProductionIterations} cycles remaining. Threnody counter at {self.threnodyCounter}.")
+
+    def exploreUniverse(self) -> None:
+        # Only execute the setTimer once, change the remainingDrProdIt to something nicer
+        if "nonillion" in self.info.get("LaunchedProbes").text and self.remainingDroneProductionIterations != 0:
+            TS.print("Start exploring the universe.")
+            self.remainingDroneProductionIterations = 0
+            TS.setTimer(60, self.setTrust, 2, 2, 16, 6, 0, 0, 0, 4)  # Delay a bit to build up more probes
 
     def setTrust(self, speed: int, explore: int, replicate: int, hazard: int, factory: int, harvester: int, wire: int,
                  combat: int = 0) -> bool:
@@ -189,6 +219,9 @@ class ProbeBalancer():
         self.currTrust = 0
         self.yomiSpent = 0
 
+        self.nextIteration = 120
+        self.lastIterationTime = TS.now()
+
         # Requires 351.658 yomi
         for _ in range(20):
             if self.actions.isEnabled("BuyProbeTrust"):
@@ -217,6 +250,9 @@ class ProbeBalancer():
         if self.actions.isEnabled("EntertainSwarm"):
             self.actions.pressButton("EntertainSwarm")
 
+        if self.actions.isEnabled("SynchronizeSwarm"):
+            self.actions.pressButton("SynchronizeSwarm")
+
         if self.actions.isVisible("The OODA Loop"):
             # Save up the Yomi to buy The OODA loop first
             return
@@ -238,6 +274,8 @@ class ProbeBalancer():
     def tick(self) -> None:
         # If available matter == 0 --> explore a bit
         self.increaseTrust()
+        self.acquireMatter()
+        self.exploreUniverse()
 
         # TODO:
         # Determine the costs of Probe Trust 21-30
@@ -247,3 +285,5 @@ class ProbeBalancer():
 
 # For reference:
 # {"zero": -1, "million": 0, "billion": 1, "trillion": 2, "quadrillion": 3, "quintillion": 4, "sextillion": 5, "septillion": 6, "octillion": 7, "nonillion": 8, "decillion": 9}
+
+# Last run: 1:58:56

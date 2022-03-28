@@ -97,9 +97,11 @@ class TrustSpender():
         while trust > 0:
             if self.nextStrat[0] <= self.Processors and self.nextStrat[1] <= self.Memory:
                 self.__getNextStrat()
-                continue
+
                 if "block" in self.nextStrat:
                     return
+
+                continue
 
             if self.initialDeltaRatio[1] == 0:  # E.g. moving from 20:20 to 40:20
                 self.actions.pressButton("BuyProcessor")
