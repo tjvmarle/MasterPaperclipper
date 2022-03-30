@@ -30,7 +30,7 @@ class PhaseOne():
             runner.tick()
 
         if self.kill:
-            TS.print(f"Phase two reached, startup initialized for global paperclip conversion!")
+            TS.print(f"Phase two reached, commence planetary paperclip conversion!")
             self.thread.kill()
             return False
 

@@ -171,18 +171,18 @@ progressFields=[
 # Syntax = Processors : Memory
 trustSpendingStrategy=[
     # Early processors are required for some quick creativity generation
-    #5:1
+    5:1
 
     # Temporarily block spending trust until Donkey Space is acquired
-    #block1
+    block1
 
     # Next, 10 memory is required to buy the first quantum upgrades, 15 trust requires 55.000 clips
-    #5:10
-    #5:40
-    #40:40
+    5:10
+    5:40
+    30:40
     # OPT: Low performance makes it more difficult te reach 20k+ ops over max. Could be 50:50 on decent fps.
     # OPT: 80k ops are required in 2nd phase, so end with enough memory
-    #30:70
+    30:70
 
     # 120 ops are required for space exploration (finishing the 2nd phase)
     30:95
@@ -363,9 +363,9 @@ InvestUpgradeCosts=[
     19_825
     28_500
     39_255
-    52_273
-    67_732
-    85_806
+    #52_273
+    #67_732
+    #85_806
 ]
 
 # Seconds a factory's production value needs to be stable before new one is considered for acquisition

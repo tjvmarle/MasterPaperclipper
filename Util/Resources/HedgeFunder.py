@@ -42,6 +42,7 @@ class HedgeFunder():
 
     def invest(self):
         # TODO: stop investing when all tokens off goodwill have been bought. Drain remaining cash for buying clippers.
+        # OPT: Perhaps use the TS.timer for this
         now = TS.now()
         if self.currMinute == now.minute and not self.investmentsActive:
             return
@@ -55,6 +56,7 @@ class HedgeFunder():
 
         # Wire is cheap and this prevents production blockage
         if self.info.getInt("Wire") < 20_000:
+            # FIXME: This one also cause quite some errors
             self.actions.pressButton("BuyWire")
 
         self.actions.pressButton("DepositFunds")
@@ -74,6 +76,7 @@ class HedgeFunder():
             # Ensure a 3k buffer to always allow Full Monopoly to be bought
             currYomi -= 3_000
 
+        # OPT: Don't by too many of these, as Yomi is very important in Phase3
         if currYomi > self.InvestUpgradeCosts[0] and self.actions.pressButton("UpgradeInvestLevel"):
             self.currLevel += 1
             self.InvestUpgradeCosts.pop(0)
@@ -99,7 +102,7 @@ class HedgeFunder():
             self.takeOuts.pop(0)
 
     def aTokenOfGoodwill(self) -> None:
-        if self.takeOuts or self.noMoreInvesting or self.info.getInt("Trust") > 90:
+        if self.takeOuts or self.noMoreInvesting:  # or self.info.getInt("Trust") > 90:
             return
 
         availableCash = self.info.getFl("LiquidAssets")

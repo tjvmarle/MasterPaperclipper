@@ -12,7 +12,8 @@ from Util.Timestamp import Timestamp as TS
 
 class ResourceAllocator():
     def __addTournament(self, _: str):
-        self.runners.append(TourneyOrganiser(self.info, self.actions))
+        self.tourneyOrganizer = TourneyOrganiser(self.info, self.actions)
+        self.runners.append(self.tourneyOrganizer)
 
     def __trustActivator(self):
         if not self.trustActivated and self.info.isVisible("Trust"):

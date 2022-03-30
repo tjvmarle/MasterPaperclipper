@@ -15,10 +15,10 @@ class ProjectBuyer():
         self.actions = pageActions
 
         # Phase one stuff
-        # self.highPrioProjects = Config.get("highPriorityProjects")
-        # self.projects = Config.get("phaseOneProjects")
+        self.highPrioProjects = Config.get("highPriorityProjects")
+        self.projects = Config.get("phaseOneProjects")
         # self.projects = Config.get("phaseTwoProjects")
-        self.projects = Config.get("phaseThreeProjects")
+        # self.projects = Config.get("phaseThreeProjects")
 
         self.enoughFunds = False
 
@@ -37,23 +37,23 @@ class ProjectBuyer():
 
     def __buyProjects(self):
         boughtProject = []
-        # photonicChecked = False
-        # for project in self.highPrioProjects:
+        photonicChecked = False
+        for project in self.highPrioProjects:
 
-        #     # Optimization
-        #     if project == "Photonic Chip" and photonicChecked or project in self.projects:
-        #         continue
+            # Optimization
+            if project == "Photonic Chip" and photonicChecked or project in self.projects:
+                continue
 
-        #     if self.actions.isEnabled(project):
-        #         if self.actions.pressButton(project):
-        #             boughtProject.append(project)
-        #     # Optimization, check only once when a Photonic Chip is disabled
-        #     elif not photonicChecked and project == "Photonic Chip":
-        #         photonicChecked = True
+            if self.actions.isEnabled(project):
+                if self.actions.pressButton(project):
+                    boughtProject.append(project)
+            # Optimization, check only once when a Photonic Chip is disabled
+            elif not photonicChecked and project == "Photonic Chip":
+                photonicChecked = True
 
-        # for project in boughtProject:
-        #     TS.print(f"Bought high prio: {project}.")
-        #     self.highPrioProjects.remove(project)
+        for project in boughtProject:
+            TS.print(f"Bought high prio: {project}.")
+            self.highPrioProjects.remove(project)
 
         if not self.projects:
             return

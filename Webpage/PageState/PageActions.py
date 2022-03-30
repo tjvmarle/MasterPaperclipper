@@ -10,6 +10,9 @@ from Util.Timestamp import Timestamp as TS
 from Util.Files.Config import Config
 from enum import Enum
 import time
+import sys
+
+sys.tracebacklimit = 0
 
 
 class AutoTarget(Enum):
@@ -99,7 +102,9 @@ class PageActions():
                 TS.print(f"Second attempt at clicking {button} failed again.")
                 return False
         except Exception as e:
-            TS.print(f"Clicking {button} failed with exception {e}.")
+            # FIXME: Suppress for now.
+            if button != "BuyWire":
+                TS.print(f"Clicking {button} failed with exception {e}.")
             return False
         return True
 

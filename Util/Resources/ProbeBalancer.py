@@ -272,7 +272,6 @@ class ProbeBalancer():
             self.__lockedCall(self.actions.pressButton, "RaiseReplication")
 
     def tick(self) -> None:
-        # If available matter == 0 --> explore a bit
         self.increaseTrust()
         self.acquireMatter()
         self.exploreUniverse()
