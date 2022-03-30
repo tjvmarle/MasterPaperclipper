@@ -29,6 +29,11 @@ class Listener():
 
     def listenTo(event: Event, callback, filter=None, oneTimeOnly: bool = False) -> None:
         entry = Listener.__eventCollection.get(event, False)
+
+        if event == Event.BuyProject and isinstance(filter, str):
+            # Works for both Project- and Button names
+            filter = lambda strInput: filter == strInput
+
         newCb = _filteredCallback(callback, filter, oneTimeOnly)
         if not entry:
             Listener.__eventCollection[event] = [newCb]
