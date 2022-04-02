@@ -21,20 +21,14 @@ class ResourceAllocator():
             self.runners.append(ts)
             self.trustActivated = True
 
-    def __killPhaseOne(self, _: str):
-        self.runners.remove(self.moneyHandler)
-
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
         self.info = pageInfo
         self.actions = pageActions
         self.trustActivated = False
         self.moneyHandler = CashSpender(self.info, self.actions)
-        self.pb = ProjectBuyer(self.info, self.actions)
-        self.runners = [self.moneyHandler, self.pb]
+        self.runners = [self.moneyHandler]
 
         Listener.listenTo(Event.BuyProject, self.__addTournament, lambda project: project == "Strategic Modeling", True)
-        Listener.listenTo(Event.BuyProject, self.__killPhaseOne,
-                          lambda project: project == "Release the HypnoDrones", True)
 
     def tick(self):
         self.__trustActivator()

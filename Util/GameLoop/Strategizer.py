@@ -1,49 +1,39 @@
 # Main loop runner. Contains the active running phase and some other functionality.
 from selenium import webdriver
 from Util.GameLoop.Strategies.PhaseOne import PhaseOne
-from Util.GameLoop.Strategies.PhaseTwo import PhaseTwo
-from Util.GameLoop.Strategies.PhaseThree import PhaseThree
 from Util.GameLoop.Strategies.CurrentPhase import CurrentPhase, Phase
 from Util.GameLoop.Progresslogger import Progresslogger
-from Util.Resources.TourneyOrganiser import TourneyOrganiser
+from Util.Resources.ThreadClicker import ThreadClicker
+from Util.Resources.ProjectBuyer import ProjectBuyer
+from Util.Listener import Event, Listener
+
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
 from Util.Timestamp import Timestamp as TS
 
 
-class Strategizer():
+class PhaseRunner():
+    """Main class to handle execution of the three game phases."""
+
     def __init__(self, driver: webdriver.Chrome) -> None:
         self.info = PageInfo(driver)
         self.actions = PageActions(driver)
 
-        self.logger = Progresslogger(self.info)
+        # This one runs outside the game loop.
+        self.thread = ThreadClicker(self.info, self.actions)
 
-        self.phase = Phase.First
-        self.runningPhase = PhaseOne(self.info, self.actions)  # Finishes after 45-60 min.
-        # self.currentPhase = PhaseTwo(self.info, self.actions, TourneyOrganiser(
-        #     self.info, self.actions))  # Takes about 20-30 min
-        # self.currentPhase = PhaseThree(self.info, self.actions, TourneyOrganiser(self.info, self.actions))
+        self.logger = Progresslogger(self.info)  # Optional, but provides some stats while running the game.
+        self.pb = ProjectBuyer(self.info, self.actions)
+        self.activePhase = PhaseOne(self.info, self.actions)
+
+        CurrentPhase.addCbToPhaseMove(Phase.One, self.__moveToNextPhase)
+        CurrentPhase.addCbToPhaseMove(Phase.Two, self.__moveToNextPhase)
 
     def tick(self) -> bool:
         self.logger.tick()
+        self.thread.tick()
+        self.pb.tick()
+        self.activePhase.tick()
 
-        if self.runningPhase.tick():
-            return True
-        else:
-            return self.moveToNextPhase()
-
-    def moveToNextPhase(self):
-        # TODO: Also transfer/fix the threadclicker.
-        # TODO: Also transfer/fix the projectbuyer.
-        if self.phase == CurrentPhase:
-            organizer = self.runningPhase.resourceManager.tourneyOrganizer  # Ugly as hell, we'll fix it later
-            self.runningPhase = PhaseTwo(self.info, self.actions, organizer)
-        elif self.phase == 2:
-            organizer = self.runningPhase.tourneyOrganizer
-            self.runningPhase = PhaseThree(self.info, self.actions, organizer)
-        else:
-            TS.print("Congratulations!")  # Finished the game?
-            return False
-
-        self.phase += 1
-        return True
+    def __moveToNextPhase(self):
+        self.activePhase = self.activePhase.getNextPhase()

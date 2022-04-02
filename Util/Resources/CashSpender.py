@@ -2,6 +2,7 @@
 from selenium.webdriver.common.by import By
 from multiprocessing.dummy import Process
 from Util.Files.Config import Config
+from Util.GameLoop.Strategies.CurrentPhase import CurrentPhase, Phase
 from Util.Listener import Event, Listener
 from Util.Resources.HedgeFunder import HedgeFunder
 from Util.Resources.PriceWatcher import PriceWatcher
@@ -19,7 +20,6 @@ class Flag(Enum):
     BuyingNextObjectiveKilled = auto()
     EnoughClippers = auto()
     BuyingOutGoodwill = auto()
-    Alive = auto()
     MegaClippersAvailable = auto()
 
 
@@ -27,7 +27,6 @@ class CashSpender():
 
     def __moneyWithdrawn(self, _: str) -> None:
         funds = self.info.getFl("Funds")
-        TS.print(f"Money withdrawn from bank, current cash is {funds}.")
         self.flags[Flag.BuyingOutGoodwill] = (funds > 511_500_000.0) and self.tokensOfGoodwill > 0
 
     def __tokensBought(self, _: str) -> None:
@@ -48,7 +47,7 @@ class CashSpender():
         self.hedgeInits = 2
 
         self.flags = FlagBearer(
-            true=(Flag.Alive,),
+            true=(),
             false=(Flag.WireProductionKilled, Flag.ClippersForSale, Flag.BuyingNextObjectiveKilled,
                    Flag.EnoughClippers, Flag.BuyingOutGoodwill, Flag.MegaClippersAvailable))
         self.marketingCost = lambda: 100 * (2 ** (self.marketingLevel - 1))
@@ -70,9 +69,6 @@ class CashSpender():
         # The exact project doesn't really matter, but this takes the pressure off the driver for the first part
         Listener.listenTo(Event.BuyProject, self.__killOfClipperAcquisition, "Hypnodrones", True)
 
-        # This finishes the first phase
-        Listener.listenTo(Event.BuyProject, partial(self.flags.set, Flag.Alive, True), "Release the Hypnodrones", True)
-
     def __killOfClipperAcquisition(self, _: str):
         self.flags[Flag.EnoughClippers] = True
 
@@ -90,6 +86,7 @@ class CashSpender():
         self.nextObjective = None
 
     def __megaClippersAcquired(self, _: str) -> None:
+        TS.print("Enabled Megaclippers for sale")
         self.flags[Flag.MegaClippersAvailable] = True
         self.nextObjective = None
 
@@ -174,13 +171,13 @@ class CashSpender():
                 wire < 2500 and wireCost / self.highestWireCost <= 0.50):  # Either buy when low or cheap
             # FIXME: This one is cause large amount of 'not interactable' errors
             # self.actions.pressButton("BuyWire")
+
+            # Temporary alternative
             self.actions.driver.find_element(By.ID, "btnBuyWire").click()
 
     def tick(self):
-        if not self.flags[Flag.Alive]:
-            return
-
         self.__updateWire()
         self.__buyNextObjective()
+
         for runner in self.runners:
             runner.tick()

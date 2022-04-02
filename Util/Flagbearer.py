@@ -14,7 +14,7 @@ class FlagBearer():
             for entry in false:
                 self.flags[entry] = False
 
-    def set(self, flagId: Any, flagValue: bool):
+    def set(self, flagId: Any, flagValue: bool, *ignore: Any):
         """This one is mostly for callback purposes."""
         self.flags[flagId] = flagValue
 

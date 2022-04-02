@@ -1,3 +1,5 @@
+from functools import partial
+from Util.GameLoop.Strategies.CurrentPhase import CurrentPhase, Phase
 from Util.Timestamp import Timestamp as TS
 from Util.Files.Config import Config
 from Util.Listener import Event, Listener
@@ -6,24 +8,29 @@ from Webpage.PageState.PageInfo import PageInfo
 
 
 class ProjectBuyer():
-    def __enoughFundsWithdrawn(self, _: str) -> None:
-        funds = self.info.getFl("Funds")
-        self.enoughFunds = (funds > 511_500_000.0)
+    """This class handles acquisition of all projects throughout the entire game."""
 
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
         self.info = pageInfo
         self.actions = pageActions
 
-        # Phase one stuff
-        self.highPrioProjects = Config.get("highPriorityProjects")
+        self.highPrioProjects = Config.get("highPriorityProjects")  # Currently only contains phase 1 projects
         self.projects = Config.get("phaseOneProjects")
-        # self.projects = Config.get("phaseTwoProjects")
-        # self.projects = Config.get("phaseThreeProjects")
-
         self.enoughFunds = False
 
-        Listener.listenTo(Event.ButtonPressed, self.__enoughFundsWithdrawn,
-                          lambda button: button == "WithdrawFunds", False)
+        Listener.listenTo(Event.ButtonPressed, self.__enoughFundsWithdrawn, "WithdrawFunds", False)
+        CurrentPhase.addCbToPhaseMove(Phase.One, self.__setNextProjectList)
+        CurrentPhase.addCbToPhaseMove(Phase.Two, self.__setNextProjectList)
+
+    def __enoughFundsWithdrawn(self, _: str) -> None:
+        funds = self.info.getFl("Funds")
+        self.enoughFunds = (funds > 511_500_000.0)
+
+    def __setNextProjectList(self) -> None:
+        if CurrentPhase.phase == Phase.Two:
+            self.projects = Config.get("phaseTwoProjects")
+        else:
+            self.projects = Config.get("phaseThreeProjects")
 
     def __isBlockActive(self, block: str) -> bool:
         # TODO: These blocks should be controlled from the phases, not from this class
@@ -56,6 +63,8 @@ class ProjectBuyer():
             self.highPrioProjects.remove(project)
 
         if not self.projects:
+            for project in boughtProject:
+                Listener.notify(Event.BuyProject, project)
             return
 
         nextProject = self.projects[0]

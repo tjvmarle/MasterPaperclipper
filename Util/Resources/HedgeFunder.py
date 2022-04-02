@@ -55,8 +55,8 @@ class HedgeFunder():
             self.investmentsActive = False  # Stop investments
 
         # Wire is cheap and this prevents production blockage
-        if self.info.getInt("Wire") < 20_000:
-            # FIXME: This one also cause quite some errors
+        # if self.info.getInt("Wire") < 20_000:
+        #     # FIXME: This one also cause quite some errors
             self.actions.pressButton("BuyWire")
 
         self.actions.pressButton("DepositFunds")
@@ -98,6 +98,7 @@ class HedgeFunder():
                 TS.print(f"Buying {project} was successful.")
             else:
                 TS.print(f"Buying {project} failed.")
+            self.actions.pressButton("BuyWire")
             self.actions.pressButton("DepositFunds")
             self.takeOuts.pop(0)
 
@@ -116,15 +117,20 @@ class HedgeFunder():
         if cash < 511_500_000.0:
             # Race condition.
             TS.print(f"Money withdrawal failed.")
+            self.actions.pressButton("BuyWire")
             self.actions.pressButton("DepositFunds")
             return
 
         self.noMoreInvesting = True
         return
 
+    def __emptyAccount(self) -> None:
+        if self.info.getFl("LiquidAssets") > 0:
+            self.actions.pressButton("WithdrawFunds")
+
     def tick(self):
         if self.noMoreInvesting:
-            self.actions.pressButton("WithdrawFunds")
+            self.__emptyAccount()
         else:
             self.setRiskLevel()
             self.setInvestmentLevel()

@@ -8,6 +8,8 @@ from Util.Timestamp import Timestamp as TS
 
 # Class to acquire data from the webpage
 class PageInfo():
+    """This class handles access to elements for read-only purposes."""
+
     def __init__(self, webdriver: webdriver.Chrome) -> None:
         self.driver = webdriver
 

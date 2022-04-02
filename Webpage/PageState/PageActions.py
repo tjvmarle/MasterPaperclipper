@@ -25,6 +25,23 @@ class AutoTarget(Enum):
 
 
 class PageActions():
+    """This class handles access to elements for actionable purposes."""
+
+    def __init__(self, webdriver: webdriver.Chrome) -> None:
+        self.driver = webdriver
+        self.buttons = {  # Combine multiple sources
+            **{name: id for name, id in [listEntry.split(":") for listEntry in Config.get("actionFields")]},
+            **{name: id for name, id, *_ in Config.get("AllProjects")}}
+
+        self.cache = {}
+        self.paperclip = True
+        self.threadButtons = {}
+        self.threadTarget = AutoTarget.MakePaperclips
+        self.__initThreadTargets()
+        self.threadClickerActive = True
+
+        Listener.listenTo(Event.BuyProject, self.__unCachePhotonic, lambda project: project == "Photonic Chip", False)
+
     def __get(self, button: str) -> WebElement:
         page_button = self.cache.get(button, False)
         if page_button:
@@ -47,22 +64,8 @@ class PageActions():
         # FIXME: didn't work. Still stale references when buying these.
         del self.cache["Photonic Chip"]
 
-    def __init__(self, webdriver: webdriver.Chrome) -> None:
-        self.driver = webdriver
-        self.buttons = {  # Combine multiple sources
-            **{name: id for name, id in [listEntry.split(":") for listEntry in Config.get("actionFields")]},
-            **{name: id for name, id, *_ in Config.get("AllProjects")}}
-
-        self.cache = {}
-        self.paperclip = True
-        self.threadButtons = {}
-        self.threadTarget = AutoTarget.MakePaperclips
-        self.__initThreadTargets()
-        self.threadClickerActive = True
-
-        Listener.listenTo(Event.BuyProject, self.__unCachePhotonic, lambda project: project == "Photonic Chip", False)
-
     # TODO: Implement a cleaner solution, this is ugly
+
     def setThreadClickerActivity(self, active: bool) -> None:
         self.threadClickerActive = active
 
@@ -91,6 +94,7 @@ class PageActions():
 
             page_button.click()
             Listener.notify(Event.ButtonPressed, button)
+
         except StaleElementReferenceException:  # Reuse of 'Another Token of Goodwill' causes these
             del self.cache[button]
 
@@ -99,31 +103,37 @@ class PageActions():
                 page_button.click()
                 Listener.notify(Event.ButtonPressed, button)
             else:
-                TS.print(f"Second attempt at clicking {button} failed again.")
+                TS.print(f"Second attempt at clicking [{button}] failed again.")
                 return False
+
         except Exception as e:
             # FIXME: Suppress for now.
             if button != "BuyWire":
-                TS.print(f"Clicking {button} failed with exception {e}.")
+                exc_txt = str(e)
+                msg = exc_txt.split('\n')[0]
+                TS.print(f"Clicking [{button}] failed with exception [{msg}].")
             return False
+
         return True
 
     def isVisible(self, button) -> bool:
         page_button = self.__get(button)
         try:
             return page_button and page_button.is_displayed()
+
         except StaleElementReferenceException:
             del self.cache[button]
 
             page_button = self.__get(button)
             if page_button:
-                TS.print(f"Stale reference encountered to {button}, attempting a second time.")
+                TS.print(f"Stale reference encountered to [{button}], attempting a second time.")
                 return page_button.is_displayed()
             else:
-                TS.print(f"Could not retrieve {button}, executing isVisible() failed.")
+                TS.print(f"Could not retrieve [{button}], executing isVisible() failed.")
                 return False
+
         except Exception as e:
-            TS.print(f"Performing isVisible() on {button} failed with exception {e}.")
+            TS.print(f"Performing isVisible() on [{button}] failed with exception [{e}].")
             return False
         # page_button = self.__get(button)
         # return page_button and self.__trySafe(button, page_button.is_displayed)

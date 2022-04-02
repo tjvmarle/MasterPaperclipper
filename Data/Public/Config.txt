@@ -152,7 +152,7 @@ actionFields=[
 # Parameters to log progress for. These can be toggled on and off before starting the game
 progressFields=[
     # Syntax = InternalName from infoFields
-    # Funds
+    Funds
     # Unsold
     # ClipPrice
     MarketingLevel

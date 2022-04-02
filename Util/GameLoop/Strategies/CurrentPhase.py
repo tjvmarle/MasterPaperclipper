@@ -1,11 +1,13 @@
 from enum import Enum, auto
 from typing import Callable
+from Util.Timestamp import Timestamp as TS
 
 
 class Phase(Enum):
-    First = auto()
-    Second = auto()
-    Third = auto()
+    One = auto()
+    Two = auto()
+    Three = auto()
+    End = auto()
 
 
 class CurrentPhase():
@@ -22,7 +24,7 @@ class CurrentPhase():
             if self.fromPhase == fromPhase:
                 self.cb()
 
-    phase = Phase.First
+    phase = Phase.One
     __cbList = []
 
     def __init__(self) -> None:
@@ -36,10 +38,12 @@ class CurrentPhase():
     def moveToNext() -> None:
         """Moves to next phase and runs all relevant callbacks."""
         prevPhase = CurrentPhase.phase
-        if CurrentPhase.phase == Phase.First:
-            CurrentPhase.phase = Phase.Second
+        if CurrentPhase.phase == Phase.One:
+            CurrentPhase.phase = Phase.Two
+            TS.print("Moving to second phase.")
         else:
-            CurrentPhase.phase = Phase.Third
+            CurrentPhase.phase = Phase.Three
+            TS.print("Moving to third phase.")
 
         for cb in CurrentPhase.__cbList:
             cb.run(prevPhase)

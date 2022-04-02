@@ -1,7 +1,8 @@
 import cProfile
 import time
 from Util.Files.Config import Config
-from Util.GameLoop.Strategizer import Strategizer
+from Util.GameLoop.Strategizer import PhaseRunner
+from Util.GameLoop.Strategies.CurrentPhase import CurrentPhase, Phase
 from Util.Gamesave import Gamesave
 from Webpage.Initialization.Startpage import Startpage
 from Util.Timestamp import Timestamp as TS
@@ -16,7 +17,7 @@ game = Gamesave(webPage.getDriver())
 # game.load(Config.get("savePathThirdPhase"))
 
 Config.set("Gamestart", TS.now())
-strat = Strategizer(webPage.getDriver())
+runner = PhaseRunner(webPage.getDriver())
 
 startTime = Config.get("Gamestart")
 frameStamp = Config.get("Gamestart")
@@ -24,6 +25,7 @@ frames = 0
 totalFrames = 0
 totalTicks = 0
 
+TS.print("\n" * 10)
 TS.print("Start!")
 
 
@@ -32,9 +34,12 @@ def loop():
     global totalTicks
     global frames
     global frameStamp
-    while strat.tick():
+    while CurrentPhase.phase != Phase.End:
+        runner.tick()
+
         frames += 1
         runtime = TS.delta(frameStamp)
+
         if runtime > 5.0:  # Average fps per 5 seconds
             fps = frames / runtime
             # TS.print(f"fps: {fps:.2f}")
