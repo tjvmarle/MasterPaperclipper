@@ -20,7 +20,7 @@ class PhaseOne():
         self.actions = pageActions
 
         self.resourceManager = ResourceAllocator(self.info, self.actions)
-        Listener.listenTo(Event.BuyProject, self.__killPhaseOne, lambda project: project == "Clip Factories", True)
+        Listener.listenTo(Event.BuyProject, self.__killPhaseOne, "Clip Factories", True)
         self.thread = ThreadClicker(self.info, self.actions)
         self.runners = (self.thread, self.resourceManager)
         self.kill = False
@@ -31,7 +31,6 @@ class PhaseOne():
 
         if self.kill:
             TS.print(f"Phase two reached, commence planetary paperclip conversion!")
-            self.thread.kill()
             return False
 
         return True

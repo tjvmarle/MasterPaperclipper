@@ -3,6 +3,7 @@ from selenium import webdriver
 from Util.GameLoop.Strategies.PhaseOne import PhaseOne
 from Util.GameLoop.Strategies.PhaseTwo import PhaseTwo
 from Util.GameLoop.Strategies.PhaseThree import PhaseThree
+from Util.GameLoop.Strategies.CurrentPhase import CurrentPhase, Phase
 from Util.GameLoop.Progresslogger import Progresslogger
 from Util.Resources.TourneyOrganiser import TourneyOrganiser
 from Webpage.PageState.PageActions import PageActions
@@ -17,7 +18,7 @@ class Strategizer():
 
         self.logger = Progresslogger(self.info)
 
-        self.phaseNr = 1
+        self.phase = Phase.First
         self.runningPhase = PhaseOne(self.info, self.actions)  # Finishes after 45-60 min.
         # self.currentPhase = PhaseTwo(self.info, self.actions, TourneyOrganiser(
         #     self.info, self.actions))  # Takes about 20-30 min
@@ -34,15 +35,15 @@ class Strategizer():
     def moveToNextPhase(self):
         # TODO: Also transfer/fix the threadclicker.
         # TODO: Also transfer/fix the projectbuyer.
-        if self.phaseNr == 1:
+        if self.phase == CurrentPhase:
             organizer = self.runningPhase.resourceManager.tourneyOrganizer  # Ugly as hell, we'll fix it later
             self.runningPhase = PhaseTwo(self.info, self.actions, organizer)
-        elif self.phaseNr == 2:
+        elif self.phase == 2:
             organizer = self.runningPhase.tourneyOrganizer
             self.runningPhase = PhaseThree(self.info, self.actions, organizer)
         else:
             TS.print("Congratulations!")  # Finished the game?
             return False
 
-        self.phaseNr += 1
+        self.phase += 1
         return True

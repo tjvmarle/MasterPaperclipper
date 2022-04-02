@@ -9,7 +9,7 @@ from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
 from Util.Timestamp import Timestamp as TS
 from Util.Flagbearer import FlagBearer
-from enum import Enum, Flag, auto
+from enum import Enum, auto
 from functools import partial
 
 
@@ -24,10 +24,6 @@ class Flag(Enum):
 
 
 class CashSpender():
-
-    def __kill(self, _: str) -> None:
-        TS.print(f"Hypnodrones released, killing of CashSpender.")
-        self.flags[Flag.Alive] = False
 
     def __moneyWithdrawn(self, _: str) -> None:
         funds = self.info.getFl("Funds")
@@ -56,13 +52,6 @@ class CashSpender():
             false=(Flag.WireProductionKilled, Flag.ClippersForSale, Flag.BuyingNextObjectiveKilled,
                    Flag.EnoughClippers, Flag.BuyingOutGoodwill, Flag.MegaClippersAvailable))
         self.marketingCost = lambda: 100 * (2 ** (self.marketingLevel - 1))
-        # self.killWire = False
-        # self.clippersAvailable = False
-        # self.buyKilled = False
-        # self.enoughClippers = False
-        # self.buyingOutGoodwill = False
-        # self.alive = True
-        self.MegaClippersAvailable = False
 
         self.marketingLevel = 1
         self.tokensOfGoodwill = Config.get("phaseOneProjects").count("Another Token of Goodwill")
@@ -71,7 +60,6 @@ class CashSpender():
         Listener.listenTo(Event.BuyProject, partial(self.flags.set, Flag.WireProductionKilled, True), "WireBuyer", True)
         Listener.listenTo(Event.BuyProject, self.__revTrackerAcquired, "RevTracker", True)
         Listener.listenTo(Event.BuyProject, self.__algoTradingAcquired, "Algorithmic Trading", True)
-        Listener.listenTo(Event.BuyProject, partial(self.flags.set, Flag.Alive, True), "Release the Hypnodrones", True)
         filter = lambda project: project in ("Hadwiger Clip Diagrams", "Improved MegaClippers",
                                              "Even Better MegaClippers", "Optimized MegaClippers")
         Listener.listenTo(Event.BuyProject, self.__clipperImprovementAcquired, filter, False)
@@ -81,6 +69,9 @@ class CashSpender():
 
         # The exact project doesn't really matter, but this takes the pressure off the driver for the first part
         Listener.listenTo(Event.BuyProject, self.__killOfClipperAcquisition, "Hypnodrones", True)
+
+        # This finishes the first phase
+        Listener.listenTo(Event.BuyProject, partial(self.flags.set, Flag.Alive, True), "Release the Hypnodrones", True)
 
     def __killOfClipperAcquisition(self, _: str):
         self.flags[Flag.EnoughClippers] = True
