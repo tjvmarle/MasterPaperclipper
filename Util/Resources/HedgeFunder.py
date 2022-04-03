@@ -9,6 +9,13 @@ from Util.Listener import Event, Listener
 
 
 class HedgeFunder():
+    # TODO: Investing is still a bit wonky
+
+    def __depositFunds(self) -> None:
+        if self.actions.isEnabled("BuyWireSpool"):
+            self.actions.pressButton("BuyWireSpool")
+            self.actions.pressButton("DepositFunds")
+
     def __yomiEnabled(self, _: str) -> None:
         self.yomiAvailable = True
 
@@ -43,6 +50,7 @@ class HedgeFunder():
     def invest(self):
         # TODO: stop investing when all tokens off goodwill have been bought. Drain remaining cash for buying clippers.
         # OPT: Perhaps use the TS.timer for this
+
         now = TS.now()
         if self.currMinute == now.minute and not self.investmentsActive:
             return
@@ -54,12 +62,7 @@ class HedgeFunder():
         if TS.delta(self.investStart) > self.investTime:
             self.investmentsActive = False  # Stop investments
 
-        # Wire is cheap and this prevents production blockage
-        # if self.info.getInt("Wire") < 20_000:
-        #     # FIXME: This one also cause quite some errors
-            self.actions.pressButton("BuyWire")
-
-        self.actions.pressButton("DepositFunds")
+        self.__depositFunds()
 
     def setRiskLevel(self):
         if not self.highRisk and self.currLevel > 2:
@@ -88,18 +91,19 @@ class HedgeFunder():
         availableCash = self.info.getFl("LiquidAssets")
         project, minCashAvailable = self.takeOuts[0]
 
+        # FIXME: This doesn't work well with tokens of goodwill. No cash is taken out despite having enough funds.
         if availableCash > minCashAvailable and self.actions.isVisible(project):
             TS.print(f"Withdrawing ${availableCash} to buy {project}.")
             self.actions.pressButton("WithdrawFunds")
             time.sleep(0.5)
-            result = self.actions.pressButton(project)
+
             if not self.actions.isVisible(project):
                 # FIXME: Apparently this still fails sometimes. Add a check if the project if really gone.
                 TS.print(f"Buying {project} was successful.")
             else:
                 TS.print(f"Buying {project} failed.")
-            self.actions.pressButton("BuyWire")
-            self.actions.pressButton("DepositFunds")
+
+            self.__depositFunds()
             self.takeOuts.pop(0)
 
     def aTokenOfGoodwill(self) -> None:
@@ -109,6 +113,7 @@ class HedgeFunder():
         availableCash = self.info.getFl("LiquidAssets")
 
         # OPT: Enable buying additional trust if investments for some reason go beyond 1 billion.
+        # Tokens of goodwill become available at 100M clips.
         if availableCash < 511_500_000.0:  # This covers 10 acquisitions
             return
 
@@ -117,8 +122,7 @@ class HedgeFunder():
         if cash < 511_500_000.0:
             # Race condition.
             TS.print(f"Money withdrawal failed.")
-            self.actions.pressButton("BuyWire")
-            self.actions.pressButton("DepositFunds")
+            self.__depositFunds()
             return
 
         self.noMoreInvesting = True

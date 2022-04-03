@@ -28,6 +28,8 @@ class PriceWatcher():
         self.Alive = True
         self.firstTime = True
 
+        self.adjustmentInterval = 2
+
         Listener.listenTo(Event.BuyProject, self.revTrackerAcquired, lambda project: project == "RevTracker", True)
         Listener.listenTo(Event.BuyProject, self.kill, lambda project: project == "Release the HypnoDrones", True)
 
@@ -35,17 +37,12 @@ class PriceWatcher():
             self.actions.pressButton("LowerPrice")
 
     def __adjustPrice(self):
-        # FIXME: This method needs a major overhaul
+        # FIXME: This method needs a major overhaul. The more I fix it, the more it breaks.
 
         if self.firstTime and TS.delta(Config.get("Gamestart")) < 10:
             return
         else:
             self.firstTime = False
-
-        lastAdjustment = TS.delta(self.lastPriceAdjustment)
-
-        if lastAdjustment < 1:
-            return
 
         rate = self.info.getInt("ClipsPerSec")
 
@@ -53,7 +50,22 @@ class PriceWatcher():
             # Out of wire
             return
 
+        lastAdjustment = TS.delta(self.lastPriceAdjustment)
+
+        if lastAdjustment < self.adjustmentInterval:
+            return
+
         unsold = self.info.getInt("Unsold")
+
+        if unsold < rate:
+            # Emergency increase
+            self.actions.pressButton("RaisePrice")
+            self.adjustmentInterval = 0.5
+            return
+        else:
+            self.adjustmentInterval = 2
+            if lastAdjustment < self.adjustmentInterval:
+                return
 
         if unsold > 10 * rate:
             self.actions.pressButton("LowerPrice")

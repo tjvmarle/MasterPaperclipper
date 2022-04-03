@@ -78,7 +78,7 @@ actionFields=[
     LowerPrice:btnLowerPrice
     RaisePrice:btnRaisePrice
     LevelUpMarketing:btnExpandMarketing
-    BuyWire:btnBuyWire
+    BuyWireSpool:btnBuyWire
     BuyAutoclipper:btnMakeClipper
     BuyMegaClipper:btnMakeMegaClipper
     BuyProcessor:btnAddProc

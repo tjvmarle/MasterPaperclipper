@@ -169,11 +169,7 @@ class CashSpender():
         if wire < 500 or (
                 wire < 1500 and wireCost / self.highestWireCost <= 0.65) or (
                 wire < 2500 and wireCost / self.highestWireCost <= 0.50):  # Either buy when low or cheap
-            # FIXME: This one is cause large amount of 'not interactable' errors
-            # self.actions.pressButton("BuyWire")
-
-            # Temporary alternative
-            self.actions.driver.find_element(By.ID, "btnBuyWire").click()
+            self.actions.pressButton("BuyWireSpool")
 
     def tick(self):
         self.__updateWire()

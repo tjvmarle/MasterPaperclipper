@@ -142,6 +142,7 @@ class PageActions():
         page_button = self.__get(button)
         try:
             return page_button and self.isVisible(button) and page_button.is_enabled()
+
         except StaleElementReferenceException:
             del self.cache[button]
 
