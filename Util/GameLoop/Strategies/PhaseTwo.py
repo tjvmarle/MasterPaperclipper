@@ -13,19 +13,20 @@ from Util.Resources.TrustSpender import TrustSpender
 
 class PhaseTwo():
     def __swarmAcquired(self, _: str) -> None:
-        self.runners.append(TrustSpender(self.info, self.actions))
+        self.runners.append(self.trustSpender)
 
-    def __init__(self, pageInfo: PageInfo, pageActions: PageActions, organiser: TourneyOrganiser) -> None:
+    def __init__(self, pageInfo: PageInfo, pageActions: PageActions, organiser: TourneyOrganiser,
+                 trustSpender: TrustSpender) -> None:
         self.info = pageInfo
         self.actions = pageActions
 
         self.tourneyOrganizer = organiser
-        self.thread = ThreadClicker(self.info, self.actions)
+        self.trustSpender = trustSpender
         self.pm = ClipSpender(self.info, self.actions)
 
-        self.runners = [self.tourneyOrganizer, self.thread, self.pm]
+        self.runners = [self.tourneyOrganizer, self.pm]
 
-        Listener.listenTo(Event.BuyProject, self.__swarmAcquired, lambda project: project == "Swarm Computing", True)
+        Listener.listenTo(Event.BuyProject, self.__swarmAcquired, "Swarm Computing", True)
 
         # The trigger to end this phase and move to the next
         # OPT: Spend a few minutes increasing processors, memory, creativity and yomi before finishing out the phase
@@ -38,4 +39,4 @@ class PhaseTwo():
             runner.tick()
 
     def getNextPhase(self):
-        return PhaseThree(self.info, self.actions, self.tourneyOrganizer)
+        return PhaseThree(self.info, self.actions, self.tourneyOrganizer, self.trustSpender)

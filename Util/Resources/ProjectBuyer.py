@@ -44,6 +44,7 @@ class ProjectBuyer():
         return False
 
     def __buyProjects(self):
+        # FIXME: Sometimes projects are still being acquired without them being popped of the list.
         boughtProject = []
         photonicChecked = False
 
@@ -85,7 +86,13 @@ class ProjectBuyer():
                 TS.print(f"Bought {nextProject}.")
 
                 if nextProject == "Another Token of Goodwill":
-                    time.sleep(0.75)
+                    time.sleep(0.25)
+
+        # FIXME: Buying the ninth token seems to fail quite often.
+        if self.projects and self.projects[0] == "Another Token of Goodwill" and self.projects.count(
+                "Another Token of Goodwill") == 1 and not self.actions.isVisible("Another Token of Goodwill"):
+            TS.print("Missed a token of Goodwill, popping it of the list.")
+            self.projects.pop(0)
 
         for project in boughtProject:
             Listener.notify(Event.BuyProject, project)

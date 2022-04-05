@@ -7,18 +7,23 @@ from Util.Files.Config import Config
 
 
 class TrustSpender():
+    """Class track and spent the Computational Resources."""
+
     def __acquiredDonkeySpace(self, _: str):
         self.unBlock = True
 
     def __init__(self, pageInfo: PageInfo, pageAction: PageActions) -> None:
         self.info = pageInfo
         self.actions = pageAction
+
+        # The order of Processors/Memory acquisition is determined entirely from configuration.
         self.trustStrategies = Config.get("trustSpendingStrategy")
+
         self.nextStrat = None
         self.unBlock = False
         self.finalStratActive = False
 
-        # Optimization, tracking internally is (a lot) faster than reading from the page
+        # Optimization, tracking internally is (a lot) faster than reading from the page.
         self.Processors = 1
         self.Memory = 1
 
@@ -26,6 +31,8 @@ class TrustSpender():
         self.__getNextStrat()
 
     def __getNextStrat(self) -> None:
+        """Retrieves the next ratio to work towards. These are loaded initially from the configuration."""
+
         if self.finalStratActive:
             return
 
@@ -63,14 +70,14 @@ class TrustSpender():
 
         if currDeltaRatio >= self.initialDeltaRatio[0] / self.initialDeltaRatio[1]:
             self.actions.pressButton("BuyProcessor")
-            TS.print("Buy Processor1")
             self.Processors += 1
         else:
             self.actions.pressButton("BuyMemory")
-            TS.print("Buy Memory1")
             self.Memory += 1
 
     def __spendTrust(self):
+        """Check if trust/gifts are available and spend them accordingly."""
+
         if "block" in self.nextStrat and self.__isBlockActive():
             return
 

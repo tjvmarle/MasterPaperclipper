@@ -12,9 +12,14 @@ class HedgeFunder():
     # TODO: Investing is still a bit wonky
 
     def __depositFunds(self) -> None:
-        if self.actions.isEnabled("BuyWireSpool"):
+        if not self.actions.isEnabled("BuyWireSpool"):
+            return
+
+        # OPT: This is buying a too much wire early on.
+        if self.info.getInt("Wire") < 10_000_000:
             self.actions.pressButton("BuyWireSpool")
-            self.actions.pressButton("DepositFunds")
+
+        self.actions.pressButton("DepositFunds")
 
     def __yomiEnabled(self, _: str) -> None:
         self.yomiAvailable = True
@@ -37,6 +42,7 @@ class HedgeFunder():
         self.noMoreInvesting = False
         self.fullMonoAcq = False
         self.yomiAvailable = False
+
         # TODO: Move these buffers to Config
         self.cashProjects = [("Hostile Takeover", 1_500_000), ("Full Monopoly", 11_000_000)]
         self.investTime = float(Config.get("InvestPercentage")) * 0.6

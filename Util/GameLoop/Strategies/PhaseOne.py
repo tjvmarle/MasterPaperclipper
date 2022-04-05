@@ -30,4 +30,4 @@ class PhaseOne():
             runner.tick()
 
     def getNextPhase(self):
-        return PhaseTwo(self.info, self.actions, self.resourceManager.tourneyOrganizer)
+        return PhaseTwo(self.info, self.actions, self.resourceManager.tourneyOrganizer, self.resourceManager.trustSpender)

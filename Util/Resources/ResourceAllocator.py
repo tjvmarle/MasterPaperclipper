@@ -17,8 +17,8 @@ class ResourceAllocator():
 
     def __trustActivator(self):
         if not self.trustActivated and self.info.isVisible("Trust"):
-            ts = TrustSpender(self.info, self.actions)
-            self.runners.append(ts)
+            self.trustSpender = TrustSpender(self.info, self.actions)
+            self.runners.append(self.trustSpender)
             self.trustActivated = True
 
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:

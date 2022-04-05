@@ -14,7 +14,7 @@ from Util.Files.Config import Config
 
 
 class PhaseThree():
-    def __init__(self, pageInfo: PageInfo, pageActions: PageActions, organiser: TourneyOrganiser) -> None:
+    def __init__(self, pageInfo: PageInfo, pageActions: PageActions, organiser: TourneyOrganiser, trustSpender) -> None:
         # TODO: Take over the tourneyorganiser + threadclicker from PhaseTwo
         self.info = pageInfo
         self.actions = pageActions
@@ -22,10 +22,9 @@ class PhaseThree():
         # TODO: Add a trustspender
         self.tourneyOrganizer = organiser
         self.balancer = ProbeBalancer(self.info, self.actions)
-        self.pb = ProjectBuyer(self.info, self.actions)
-        self.thread = ThreadClicker(self.info, self.actions)
-        self.trustee = TrustSpender(self.info, self.actions)
-        self.runners = [self.tourneyOrganizer, self.balancer, self.thread, self.pb, self.trustee]
+
+        self.trustSpender = trustSpender
+        self.runners = [self.tourneyOrganizer, self.balancer, self.trustSpender]
         self.kill = False
 
     def checkExploration(self) -> None:

@@ -26,6 +26,8 @@ class PhaseRunner():
         self.pb = ProjectBuyer(self.info, self.actions)
         self.activePhase = PhaseOne(self.info, self.actions)
 
+        # TODO: Trustspender en TourneyOrganiser can be put here.
+
         CurrentPhase.addCbToPhaseMove(Phase.One, self.__moveToNextPhase)
         CurrentPhase.addCbToPhaseMove(Phase.Two, self.__moveToNextPhase)
 
