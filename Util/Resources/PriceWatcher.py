@@ -30,8 +30,8 @@ class PriceWatcher():
 
         self.adjustmentInterval = 2
 
-        Listener.listenTo(Event.BuyProject, self.revTrackerAcquired, lambda project: project == "RevTracker", True)
-        Listener.listenTo(Event.BuyProject, self.kill, lambda project: project == "Release the HypnoDrones", True)
+        Listener.listenTo(Event.BuyProject, self.revTrackerAcquired, "RevTracker", True)
+        Listener.listenTo(Event.BuyProject, self.kill, "Release the HypnoDrones", True)
 
         for _ in range(22):
             self.actions.pressButton("LowerPrice")

@@ -4,13 +4,11 @@ from Util.GameLoop.Strategies.PhaseThree import PhaseThree
 from Util.Resources.ThreadClicker import ThreadClicker
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
-from Util.GameLoop.Strategies.CurrentPhase import CurrentPhase, Phase
+from Util.GameLoop.Strategies.CurrentPhase import CurrentPhase
 from Util.Listener import Event, Listener
 from Util.Resources.TourneyOrganiser import TourneyOrganiser
 from Util.Resources.ClipSpender import ClipSpender
 from Util.Resources.TrustSpender import TrustSpender
-from Util.Timestamp import Timestamp as TS
-from Util.Files.Config import Config
 
 
 class PhaseTwo():

@@ -25,8 +25,10 @@ class _ClipValue():
     inverse_magnitudes = {}
 
     def __init__(self, value: WebElement) -> None:
-        if value.text != '0':
-            number, magnitude = value.text.split()
+        value = value.text
+
+        if value != '0':
+            number, magnitude = value.split()
         else:
             number = 0
             magnitude = "zero"

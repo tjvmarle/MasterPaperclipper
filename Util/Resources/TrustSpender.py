@@ -1,3 +1,4 @@
+from Util.GameLoop.Strategies.CurrentPhase import CurrentPhase, Phase
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
 from Util.Listener import Event, Listener
@@ -6,10 +7,6 @@ from Util.Files.Config import Config
 
 
 class TrustSpender():
-    def __hypnoDronesRelease(self, _: str) -> None:
-        self.hypnoReleased = True
-        pass
-
     def __acquiredDonkeySpace(self, _: str):
         self.unBlock = True
 
@@ -20,23 +17,12 @@ class TrustSpender():
         self.nextStrat = None
         self.unBlock = False
         self.finalStratActive = False
-        self.hypnoReleased = False
 
         # Optimization, tracking internally is (a lot) faster than reading from the page
         self.Processors = 1
         self.Memory = 1
 
-        # Temporary for 2nd phase
-        # self.Processors = 40
-        # self.Memory = 60
-
-        # Temporary for 3rd phase
-        # self.Processors = 55
-        # self.Memory = 115
-
-        Listener.listenTo(Event.BuyProject, self.__acquiredDonkeySpace, lambda project: project == "Donkey Space", True)
-        Listener.listenTo(Event.BuyProject, self.__hypnoDronesRelease,
-                          lambda project: project == "Release the HypnoDrones", True)
+        Listener.listenTo(Event.BuyProject, self.__acquiredDonkeySpace, "Donkey Space", True)
         self.__getNextStrat()
 
     def __getNextStrat(self) -> None:
@@ -88,16 +74,12 @@ class TrustSpender():
         if "block" in self.nextStrat and self.__isBlockActive():
             return
 
-        if self.hypnoReleased:
-            # Temporary, prevents crashing after reaching 2nd phase.
-            return
+        if CurrentPhase.phase == Phase.One:
+            availTrust = self.info.getInt("Trust") - (self.Processors + self.Memory)
+        else:
+            availTrust = self.info.getInt("Gifts")
 
-        # For 2nd/3rd phase
-        # trust = self.info.getInt("Gifts")
-
-        trust = self.info.getInt("Trust")
-        while trust > self.Processors + self.Memory:
-            # while trust > 0:
+        while availTrust > 0:
             if self.nextStrat[0] <= self.Processors and self.nextStrat[1] <= self.Memory:
                 self.__getNextStrat()
 
@@ -109,17 +91,17 @@ class TrustSpender():
             if self.initialDeltaRatio[1] == 0:  # E.g. moving from 20:20 to 40:20
                 self.actions.pressButton("BuyProcessor")
                 self.Processors += 1
-                trust -= 1
+                availTrust -= 1
                 continue
 
             if self.initialDeltaRatio[0] == 0:
                 self.actions.pressButton("BuyMemory")
                 self.Memory += 1
-                trust -= 1
+                availTrust -= 1
                 continue
 
             self.__buyFromRatio()
-            trust -= 1
+            availTrust -= 1
 
     def tick(self):
         self.__spendTrust()

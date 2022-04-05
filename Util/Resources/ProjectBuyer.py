@@ -5,6 +5,7 @@ from Util.Files.Config import Config
 from Util.Listener import Event, Listener
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
+import time
 
 
 class ProjectBuyer():
@@ -45,6 +46,7 @@ class ProjectBuyer():
     def __buyProjects(self):
         boughtProject = []
         photonicChecked = False
+
         for project in self.highPrioProjects:
 
             # Optimization
@@ -53,6 +55,7 @@ class ProjectBuyer():
 
             if self.actions.isEnabled(project):
                 if self.actions.pressButton(project):
+                    time.sleep(0.5)
                     boughtProject.append(project)
             # Optimization, check only once when a Photonic Chip is disabled
             elif not photonicChecked and project == "Photonic Chip":
@@ -80,6 +83,9 @@ class ProjectBuyer():
                 self.projects.pop(0)
                 boughtProject.append(nextProject)
                 TS.print(f"Bought {nextProject}.")
+
+                if nextProject == "Another Token of Goodwill":
+                    time.sleep(0.75)
 
         for project in boughtProject:
             Listener.notify(Event.BuyProject, project)

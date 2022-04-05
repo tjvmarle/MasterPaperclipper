@@ -38,7 +38,7 @@ class HedgeFunder():
         self.fullMonoAcq = False
         self.yomiAvailable = False
         # TODO: Move these buffers to Config
-        self.takeOuts = [("Hostile Takeover", 1_500_000), ("Full Monopoly", 11_000_000)]
+        self.cashProjects = [("Hostile Takeover", 1_500_000), ("Full Monopoly", 11_000_000)]
         self.investTime = float(Config.get("InvestPercentage")) * 0.6
         self.currMinute = TS.now().minute
         self.InvestUpgradeCosts = [int(cost) for cost in Config.get("InvestUpgradeCosts")]
@@ -71,6 +71,9 @@ class HedgeFunder():
             self.highRisk = True
 
     def setInvestmentLevel(self):
+        if self.currLevel >= int(Config.get("MaxInvestLevel")):
+            return
+
         if (self.currLevel >= 10 and not self.myFinalForm) or not self.InvestUpgradeCosts or not self.yomiAvailable:
             return
 
@@ -85,36 +88,37 @@ class HedgeFunder():
             self.InvestUpgradeCosts.pop(0)
 
     def takeOut(self):
-        if not self.takeOuts:
+        """Manages acquisition of two specific projects requiring cash. This doesn't mix well otherwise with the clipper acquisitions or ProjectBuyer."""
+        if not self.cashProjects:
             return
 
         availableCash = self.info.getFl("LiquidAssets")
-        project, minCashAvailable = self.takeOuts[0]
+        project, minCashRequirement = self.cashProjects[0]
 
-        # FIXME: This doesn't work well with tokens of goodwill. No cash is taken out despite having enough funds.
-        if availableCash > minCashAvailable and self.actions.isVisible(project):
+        if availableCash > minCashRequirement and self.actions.isVisible(project):
+
             TS.print(f"Withdrawing ${availableCash} to buy {project}.")
             self.actions.pressButton("WithdrawFunds")
-            time.sleep(0.5)
+
+            time.sleep(0.25)
+            self.actions.pressButton(project)
+            time.sleep(0.25)
 
             if not self.actions.isVisible(project):
+
                 # FIXME: Apparently this still fails sometimes. Add a check if the project if really gone.
                 TS.print(f"Buying {project} was successful.")
+                self.cashProjects.pop(0)
             else:
                 TS.print(f"Buying {project} failed.")
-
-            self.__depositFunds()
-            self.takeOuts.pop(0)
+                self.__depositFunds()
 
     def aTokenOfGoodwill(self) -> None:
-        if self.takeOuts or self.noMoreInvesting:  # or self.info.getInt("Trust") > 90:
+        if self.cashProjects or self.noMoreInvesting:
             return
 
-        availableCash = self.info.getFl("LiquidAssets")
-
-        # OPT: Enable buying additional trust if investments for some reason go beyond 1 billion.
         # Tokens of goodwill become available at 100M clips.
-        if availableCash < 511_500_000.0:  # This covers 10 acquisitions
+        if self.info.getFl("LiquidAssets") < 511_500_000.0:  # This covers 10 acquisitions
             return
 
         self.actions.pressButton("WithdrawFunds")
@@ -126,7 +130,6 @@ class HedgeFunder():
             return
 
         self.noMoreInvesting = True
-        return
 
     def __emptyAccount(self) -> None:
         if self.info.getFl("LiquidAssets") > 0:

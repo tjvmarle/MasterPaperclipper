@@ -31,7 +31,7 @@ class Listener():
         """Due to its global nature only static functionality is allowed."""
         raise NotImplementedError("We don't do that here.")
 
-    def listenTo(event: Event, callback, filter=None, oneTimeOnly: bool = False) -> None:
+    def listenTo(event: Event, callback: Callable, filter, oneTimeOnly: bool = False) -> None:
         """Add a callback to track a specific event."""
         entry = Listener.__eventCollection.get(event, False)
 

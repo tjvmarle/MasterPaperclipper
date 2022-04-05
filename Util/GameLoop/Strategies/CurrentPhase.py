@@ -35,7 +35,7 @@ class CurrentPhase():
         """Allows for triggering callbacks when moving to a next phase."""
         CurrentPhase.__cbList.append(CurrentPhase.MoveTrigger(fromPhase, cb))
 
-    def moveToNext() -> None:
+    def moveToNext(*ignore) -> None:
         """Moves to next phase and runs all relevant callbacks."""
         prevPhase = CurrentPhase.phase
         if CurrentPhase.phase == Phase.One:

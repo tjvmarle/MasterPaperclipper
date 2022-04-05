@@ -40,8 +40,6 @@ class PageActions():
         self.__initThreadTargets()
         self.threadClickerActive = True
 
-        Listener.listenTo(Event.BuyProject, self.__unCachePhotonic, lambda project: project == "Photonic Chip", False)
-
     def __get(self, button: str) -> WebElement:
         page_button = self.cache.get(button, False)
         if page_button:
@@ -58,11 +56,6 @@ class PageActions():
         for TargetButton, ButtonName in {
                 AutoTarget.MakePaperclips: "MakePaperclip", AutoTarget.CreateOps: "QuantumCompute", AutoTarget.LaunchProbe: "LaunchProbe"}.items():
             self.threadButtons[TargetButton] = self.__get(ButtonName)
-
-    def __unCachePhotonic(self, _: str):
-        # Small optimization
-        # FIXME: didn't work. Still stale references when buying these.
-        del self.cache["Photonic Chip"]
 
     # TODO: Implement a cleaner solution, this is ugly
 
@@ -126,7 +119,6 @@ class PageActions():
 
             page_button = self.__get(button)
             if page_button:
-                TS.print(f"Stale reference encountered to [{button}], attempting a second time.")
                 return page_button.is_displayed()
             else:
                 TS.print(f"Could not retrieve [{button}], executing isVisible() failed.")
@@ -148,7 +140,6 @@ class PageActions():
 
             page_button = self.__get(button)
             if page_button:
-                TS.print(f"Stale reference encountered to {button}, attempting a second time.")
                 return self.isVisible(button) and page_button.is_enabled()
             else:
                 TS.print(f"Could not retrieve {button}, executing isEnabled() failed.")

@@ -252,23 +252,17 @@ phaseOneProjects=[
     Another Token of Goodwill
     Another Token of Goodwill
     Another Token of Goodwill
+
     Another Token of Goodwill
     Another Token of Goodwill
     Another Token of Goodwill
+    
     Another Token of Goodwill
     Another Token of Goodwill
     Another Token of Goodwill
 
     block1
     Release the HypnoDrones
-    
-    # Small startup for phase two, otherwise the game saves like crap
-    Toth Tubule Enfolding
-    Power Grid
-    Nanoscale Wire Production
-    Harvester Drones
-    Wire Drones
-    Clip Factories
 ]
 
 # Projects in this list will be bought when possible, outside of any other priorities
@@ -308,6 +302,12 @@ highPriorityProjects=[
 ]
 
 phaseTwoProjects=[
+    Toth Tubule Enfolding
+    Power Grid
+    Nanoscale Wire Production
+    Harvester Drones
+    Wire Drones
+    Clip Factories
     Swarm Computing
     Momentum
     Drone flocking
@@ -352,6 +352,7 @@ ProgressInterval=60
 
 # Percentage of time used for investing. Very low percentages are affected by fps.
 InvestPercentage=25
+MaxInvestLevel=8
 
 InvestUpgradeCosts=[
        100

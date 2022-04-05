@@ -22,8 +22,8 @@ class PhaseOne():
         self.runners = (self.resourceManager,)
 
         # The trigger to end this phase and move to the next
-        Listener.listenTo(Event.BuyProject, CurrentPhase.moveToNext, "Release the Hypnodrones", True)
-        CurrentPhase.addCbToPhaseMove(Phase.One, lambda: time.sleep(3))  # The transition takes a few seconds.
+        Listener.listenTo(Event.BuyProject, CurrentPhase.moveToNext, "Release the HypnoDrones", True)
+        CurrentPhase.addCbToPhaseMove(Phase.One, lambda: time.sleep(4))  # The transition takes a few seconds.
 
     def tick(self):
         for runner in self.runners:

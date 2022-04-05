@@ -26,12 +26,13 @@ class Flag(Enum):
 class CashSpender():
 
     def __moneyWithdrawn(self, _: str) -> None:
-        funds = self.info.getFl("Funds")
-        self.flags[Flag.BuyingOutGoodwill] = (funds > 511_500_000.0) and self.tokensOfGoodwill > 0
+        """Checks if enough money is withdrawn to buy out all Tokens of Goodwill. This will temporarily block all clipper acquisitions."""
+        self.flags[Flag.BuyingOutGoodwill] = self.tokensOfGoodwill > 0 and (self.info.getFl("Funds") > 511_500_000.0)
 
     def __tokensBought(self, _: str) -> None:
+        """Keeps track of the amount of Tokens of Goodwill being acquired. Once they're all bought, clipper acquisition can resume."""
         self.tokensOfGoodwill -= 1
-        if self.tokensOfGoodwill == 0:
+        if self.tokensOfGoodwill <= 0:
             self.flags[Flag.BuyingOutGoodwill] = False
 
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
@@ -56,7 +57,6 @@ class CashSpender():
         self.tokensOfGoodwill = Config.get("phaseOneProjects").count("Another Token of Goodwill")
 
         # UGLY: this class probably needs some splitting up
-        Listener.listenTo(Event.BuyProject, partial(self.flags.set, Flag.WireProductionKilled, True), "WireBuyer", True)
         Listener.listenTo(Event.BuyProject, self.__revTrackerAcquired, "RevTracker", True)
         Listener.listenTo(Event.BuyProject, self.__algoTradingAcquired, "Algorithmic Trading", True)
         filter = lambda project: project in ("Hadwiger Clip Diagrams", "Improved MegaClippers",
@@ -65,6 +65,7 @@ class CashSpender():
         Listener.listenTo(Event.BuyProject, self.__megaClippersAcquired, "MegaClippers", True)
         Listener.listenTo(Event.BuyProject, self.__tokensBought, "Another Token of Goodwill", False)
         Listener.listenTo(Event.ButtonPressed, self.__moneyWithdrawn, "WithdrawFunds", False)
+        Listener.listenTo(Event.BuyProject, partial(self.flags.set, Flag.WireProductionKilled, True), "WireBuyer", True)
 
         # The exact project doesn't really matter, but this takes the pressure off the driver for the first part
         Listener.listenTo(Event.BuyProject, self.__killOfClipperAcquisition, "Hypnodrones", True)
