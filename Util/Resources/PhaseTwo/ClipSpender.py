@@ -1,5 +1,5 @@
-# Class to manage acquisition of drones, factories, solar farms and batteries
-from selenium.webdriver.remote.webelement import WebElement
+
+from Util.Resources.PhaseTwo.ClipValue import ClipValue
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
 from Util.Listener import Event, Listener
@@ -17,59 +17,13 @@ class Item(Enum):
     Battery = auto()
 
 
-class _ClipValue():
-    """More or less a wrapper for the ingame values. Makes it easier to convert and work with the extremely large 
-    values."""
-
-    magnitudes = {"zero": -1, "million": 0, "billion": 1, "trillion": 2, "quadrillion": 3, "quintillion": 4,
-                  "sextillion": 5, "septillion": 6, "octillion": 7, "nonillion": 8, "decillion": 9}
-
-    inverse_magnitudes = {}
-
-    def __init__(self, value: WebElement) -> None:
-        value = value.text
-
-        if " " not in value:
-            number = value
-            magnitude = "zero"
-        else:
-            number, magnitude = value.split(" ")
-
-        self.value = float(number)
-        self.magnitude = _ClipValue.magnitudes[magnitude]
-
-    def __lt__(self, other) -> bool:
-        if self.magnitude == other.magnitude:
-            return self.value < other.value
-        else:
-            return self.magnitude < other.magnitude
-
-    def __eq__(self, other) -> bool:
-        return self.value == other.value and self.magnitude == other.magnitude
-
-    def __ne__(self, other) -> bool:
-        return not (self == other)
-
-    def __le__(self, other) -> bool:
-        return self == other or self < other
-
-    def __mul__(self, factor: float):
-        self.value *= factor
-        if self.value > 1_000.0 and (self.magnitude + 1) in _ClipValue.inverse_magnitudes:
-            self.value /= 1_000.0
-            self.magnitude += 1
-
-        return self
-
-    def zero(self) -> bool:
-        return self.value == 0 and self.magnitude == -1
-
-
 # Because multithreading only has benefits, right?
 closeOutMutex = Lock()
 
 
 class ClipSpender():
+    """Manages acquisition of drones, factories, solar farms and batteries"""
+
     # TODO: the buy() functions could probably use quite a bit of refactoring
 
     buttons = {
@@ -88,7 +42,6 @@ class ClipSpender():
         self.actions.setSlideValue("SwarmSlider", 170)
         # TODO: Probably going to need a seperate swarm balancer
         # Push the slider more to think when wire/s >> clips/s
-        # 120k ops required to finish the phase
 
     def __supplyChainAcquired(self, _: str) -> None:
         self.supplyChainBought = True
@@ -103,7 +56,7 @@ class ClipSpender():
         self.actions = pageAction
 
         # For some stupid reason this doesn't work in-class
-        _ClipValue.inverse_magnitudes = {value: key for (key, value) in _ClipValue.magnitudes.items()}
+        ClipValue.inverse_magnitudes = {value: key for (key, value) in ClipValue.magnitudes.items()}
 
         self.droneRatio = 1.625  # Production speed Harvester vs Wire is 1.625 : 1
         self.itemCount = {item: 0 for item in Item}
@@ -111,7 +64,7 @@ class ClipSpender():
             self.itemCount[Item.Factory] * 200 + self.itemCount[Item.Harvester] + self.itemCount[Item.Wire])
         self.nextItem = None
         self.momentum = False
-        self.lastProdValue = _ClipValue(self.info.get("FactoryClipsPerSec"))
+        self.lastProdValue = ClipValue(self.info.get("FactoryClipsPerSec"))
         self.lastValueMoment = TS.now()
         self.initSwarm = True
         self.supplyChainBought = False
@@ -164,8 +117,8 @@ class ClipSpender():
         if amount == 0:
             return
 
-        currRatio = lambda: float(self.itemCount[Item.Wire]) / float(self.itemCount[Item.Harvester])
-        nextDroneButton = lambda: Item.Harvester if currRatio() > self.droneRatio else Item.Wire
+        def currRatio(): return float(self.itemCount[Item.Wire]) / float(self.itemCount[Item.Harvester])
+        def nextDroneButton(): return Item.Harvester if currRatio() > self.droneRatio else Item.Wire
         if amount <= highestEnabled:
             # No need to check if button is enabled, it should be for total amount
             for _ in range(amount):
@@ -209,8 +162,8 @@ class ClipSpender():
         # Only allow factories if their production rate is stable for a few seconds
         # It also limits buying a factory to every couple of seconds
         if TS.delta(self.lastValueMoment) > float(Config.get("FactoryStableTime")):
-            clipsPerSec = _ClipValue(self.info.get("FactoryClipsPerSec"))
-            wirePersec = _ClipValue(self.info.get("WirePerSec"))
+            clipsPerSec = ClipValue(self.info.get("FactoryClipsPerSec"))
+            wirePersec = ClipValue(self.info.get("WirePerSec"))
             buffer = 1 if not self.momentum else 1.25
             if clipsPerSec * buffer < wirePersec:
                 return Item.Factory
@@ -218,7 +171,10 @@ class ClipSpender():
         return Item.Harvester  # Doesn't matter which drone you return, handled seperately
 
     def buyLarge(self) -> None:
-        # Always buy second highest (?)
+        """Buys drones in largest possible quantity."""
+        if self.freePower() == 0:
+            return
+
         highestEnabled = None
         droneButton = ClipSpender.buttons[self.nextItem]
         for magnitude in [1000, 100, 10]:
@@ -226,14 +182,12 @@ class ClipSpender():
                 highestEnabled = magnitude
                 break
 
-        # FIXME: This will buy a single if not enough power is available
-
         if self.nextItem == Item.Harvester:
-            currRatio = lambda: self.droneRatio + 1
+            def currRatio(): return self.droneRatio + 1
 
             # Prevents division by zero
             if self.itemCount[Item.Harvester] != 0:
-                currRatio = lambda: float(self.itemCount[Item.Wire]) / float(self.itemCount[Item.Harvester])
+                def currRatio(): return float(self.itemCount[Item.Wire]) / float(self.itemCount[Item.Harvester])
 
             self.nextItem = Item.Harvester if currRatio() > self.droneRatio else Item.Wire
 
@@ -258,6 +212,10 @@ class ClipSpender():
         return False
 
     def __buyNext(self) -> None:
+        """Buys the next objective. Could be a factory, drone or solar farm. Batteries not included."""
+
+        # TODO: This is buying too many factories/solar early game, slowing down clip production.
+
         if not self.supplyChainBought and self.itemCount[Item.Factory] >= 50:
             # Saving up clips to acquire self-correcting Supply Chain
             return
@@ -285,7 +243,7 @@ class ClipSpender():
             # No use in checking stability if momentum is acquired, because it will increase constantly
             return
 
-        clipsPerSec = _ClipValue(self.info.get("FactoryClipsPerSec"))
+        clipsPerSec = ClipValue(self.info.get("FactoryClipsPerSec"))
         if clipsPerSec != self.lastProdValue:
             self.lastProdValue = clipsPerSec
             self.lastValueMoment = TS.now()
@@ -379,8 +337,8 @@ class ClipSpender():
         if self.__solarBought():
             return
 
-        if self.freePower() > 200 and _ClipValue(
-                self.info.get("FactoryClipsPerSec")) > _ClipValue(
+        if self.freePower() > 200 and ClipValue(
+                self.info.get("FactoryClipsPerSec")) > ClipValue(
                 self.info.get("FactoryCost")):
             self.__buy(Item.Factory)
             return
@@ -411,8 +369,6 @@ class ClipSpender():
         if self.info.get("WireStock").text != '0' and self.itemCount[Item.Factory] < 200:
             self.__buy(Item.Factory)
             return
-
-        # FIXME:
 
         # Nearing the end of second phase
         self.killPlanetaryConsumption = True

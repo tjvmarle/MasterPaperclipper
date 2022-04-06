@@ -4,6 +4,7 @@ from Webpage.PageState.PageActions import PageActions, AutoTarget
 from Webpage.PageState.PageInfo import PageInfo
 from Util.Listener import Event, Listener
 from Util.Timestamp import Timestamp as TS
+from Util.GameLoop.Phases.CurrentPhase import CurrentPhase, Phase
 import re
 
 
@@ -43,11 +44,14 @@ class ThreadClicker():
         Listener.listenTo(Event.BuyProject, self.__nextPhase, lambda project: project == "MegaClippers", True)
 
     def __setThreadButton(self):
-        altTarget = AutoTarget.MakePaperclips if self.phaseOne else AutoTarget.Off
-        # self.phaseThree = True
+        if CurrentPhase.phase == Phase.One:
+            altTarget = AutoTarget.MakePaperclips
 
-        # FIXME: Needs to be enabled for Phase Three
-        # altTarget = AutoTarget.LaunchProbe
+        elif CurrentPhase.phase == Phase.Two:
+            altTarget = AutoTarget.Off
+
+        else:
+            altTarget = AutoTarget.LaunchProbe
 
         total = -1
         if self.photonicActive:

@@ -350,9 +350,12 @@ YomiStrategies=[
 # Log progress every <nr> seconds
 ProgressInterval=60
 
-# Percentage of time used for investing. Very low percentages are affected by fps.
+# Percentage of time used for investing, runs at start of every minute. Very low percentages are affected by fps. 
 InvestPercentage=25
 MaxInvestLevel=8
+
+# If leveling up marketing is cheaper than MarketingRatio*Clippercost, marketing will be leveled up. Lower values will result in less Marketing levels being bought.
+MarketingRatio=2
 
 InvestUpgradeCosts=[
        100

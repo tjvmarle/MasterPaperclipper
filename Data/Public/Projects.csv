@@ -1,4 +1,5 @@
-# Important projects
+# Translation file for the project buttons to a keyword.
+
 # Name, Id, Cost, Comment
 Creativity,projectButton3,ops=1000,
 Limerick,projectButton6,creat=10,

@@ -13,10 +13,9 @@ class HedgeFunder():
 
     def __depositFunds(self) -> None:
         """Deposit funds in the investment machine, but try to ensure you don't run completely dry on wire."""
-        if self.actions.isEnabled("BuyWireSpool"):
+        if not self.actions.isEnabled("BuyWireSpool"):
             return
 
-        # OPT: This is buying a too much wire early on.
         if TS.delta(self.lastWireMoment) > 1.5 and not self.info.getInt("Wire") < 10_000:
             self.actions.pressButton("BuyWireSpool")
             self.lastWireMoment = TS.now()
@@ -113,9 +112,8 @@ class HedgeFunder():
             self.actions.pressButton(project)
             time.sleep(0.25)
 
+            # Some safety to check if acquisition was actually successful.
             if not self.actions.isVisible(project):
-
-                # FIXME: Apparently this still fails sometimes. Add a check if the project if really gone.
                 TS.print(f"Buying {project} was successful.")
                 self.cashProjects.pop(0)
             else:

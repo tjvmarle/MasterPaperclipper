@@ -59,12 +59,14 @@ class CashSpender():
         # UGLY: this class probably needs some splitting up
         Listener.listenTo(Event.BuyProject, self.__revTrackerAcquired, "RevTracker", True)
         Listener.listenTo(Event.BuyProject, self.__algoTradingAcquired, "Algorithmic Trading", True)
-        filter = lambda project: project in ("Hadwiger Clip Diagrams", "Improved MegaClippers",
-                                             "Even Better MegaClippers", "Optimized MegaClippers")
+        def filter(project): return project in ("Hadwiger Clip Diagrams", "Improved MegaClippers",
+                                                "Even Better MegaClippers", "Optimized MegaClippers")
         Listener.listenTo(Event.BuyProject, self.__clipperImprovementAcquired, filter, False)
         Listener.listenTo(Event.BuyProject, self.__megaClippersAcquired, "MegaClippers", True)
         Listener.listenTo(Event.BuyProject, self.__tokensBought, "Another Token of Goodwill", False)
         Listener.listenTo(Event.ButtonPressed, self.__moneyWithdrawn, "WithdrawFunds", False)
+
+        # Technically we don't need this one, but it's cheap and makes life a little bit easier.
         Listener.listenTo(Event.BuyProject, partial(self.flags.set, Flag.WireProductionKilled, True), "WireBuyer", True)
 
         # The exact project doesn't really matter, but this takes the pressure off the driver for the first part
@@ -118,15 +120,22 @@ class CashSpender():
         return (nextClipper, autoPrice) if buyAuto else (nextClipper, megaPrice)
 
     def __giveNextObjective(self):
+        """Determines next objective to buy, either a specific autoclipper or upgrading Marketing level."""
         clipper, clipperCost = self.__determineNextClipper()
 
-        # TODO: Move this ratio to Config.
-        if self.marketingCost() < 2 * clipperCost:
-            return ("LevelUpMarketing", self.marketingCost())
-        else:
-            return (clipper, clipperCost)
+        if self.marketingCost() < int(Config.get('MarketingRatio')) * clipperCost:
+
+            # Only save up for marketing if the cost can be achieved within the timeframe before investing starts.
+            availSavingTime = 60 - Config.getInt('InvestPercentage') * 0.6
+            maxCash = availSavingTime * self.info.getFl("RevPerSec")
+
+            if maxCash > self.marketingCost():
+                return ("LevelUpMarketing", self.marketingCost())
+
+        return (clipper, clipperCost)
 
     def __buyNextObjective(self):
+        """Buys the next objective if possible. Keeps a buffer to always allow buying wire."""
         if not self.flags[Flag.ClippersForSale]:
             # You can't buy clippers untill you've made $5
             self.flags[Flag.ClippersForSale] = self.actions.isVisible("BuyAutoclipper")
@@ -140,8 +149,6 @@ class CashSpender():
             self.flags[Flag.BuyingNextObjectiveKilled] = True  # Kills of this method
             return
 
-        # Occasionally buy some marketing instead
-        # FIXME: Only save up for marketing if the cost can be achieved within the timeframe before investing starts
         if not self.nextObjective:
             self.nextObjective = self.__giveNextObjective()
 
@@ -157,6 +164,7 @@ class CashSpender():
             self.nextObjective = None
 
     def __updateWire(self):
+        """Buys wire if possible and required. Tries to buy cheap."""
         if self.flags[Flag.WireProductionKilled]:
             return
 

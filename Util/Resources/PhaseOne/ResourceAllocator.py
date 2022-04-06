@@ -1,4 +1,3 @@
-# Keeps track of available resources and updates accordingly when spending/acquiring
 from Util.Listener import Event, Listener
 from Util.Resources.PhaseOne.CashSpender import CashSpender
 from Util.Resources.TrustSpender import TrustSpender
@@ -8,6 +7,8 @@ from Webpage.PageState.PageInfo import PageInfo
 
 
 class ResourceAllocator():
+    """Keeps track of available resources and updates accordingly when spending/acquiring"""
+
     def __addTournament(self, _: str):
         self.tourneyOrganizer = TourneyOrganiser(self.info, self.actions)
         self.runners.append(self.tourneyOrganizer)

@@ -1,15 +1,16 @@
-# Class to load in configuration properties and make them globally available
 import csv
 
 
 class Config():
+    """Global class that reads out the Config.txt and makes its contents available through keywords."""
+
     __config = {}
-    __projects = []
 
     def __init__(self) -> None:
         raise NotImplementedError("We don't do that here.")
 
     def load(path: str) -> None:
+        """Loads in the Config file and saves it's content as dict. Line starting with # are ignored."""
         with open(path) as file:
             lines = file.readlines()
 
@@ -42,6 +43,7 @@ class Config():
                 accumulator.append(line.replace(",", ""))
 
     def loadProjects(path: str):
+        """Loads in the projects csv, allowing access to the buttons through keywords."""
         with open(path, "r") as file:
             csvInput = csv.reader(file, delimiter=",")
 
@@ -55,7 +57,13 @@ class Config():
         Config.__config["AllProjects"] = projectList
 
     def get(param: str) -> str:
+        """Retrieve a configuration value as text."""
         return Config.__config.get(param, "")
 
-    def set(key: str, val) -> None:  # Value may be of any type
+    def getInt(param: str) -> str:
+        """Retrieve a configuration value as integer."""
+        return int(Config.__config.get(param, ""))
+
+    def set(key: str, val) -> None:
+        """Sets a new value for a config parameter. This is allowed as the config.txt only provides initial values."""
         Config.__config[key] = val

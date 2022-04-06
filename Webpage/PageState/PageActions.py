@@ -100,11 +100,9 @@ class PageActions():
                 return False
 
         except Exception as e:
-            # FIXME: Suppress for now.
-            if button != "BuyWire":
-                exc_txt = str(e)
-                msg = exc_txt.split('\n')[0]
-                TS.print(f"Clicking [{button}] failed with exception [{msg}].")
+            exc_txt = str(e)
+            msg = exc_txt.split('\n')[0]
+            TS.print(f"Clicking [{button}] failed with exception [{msg}].")
             return False
 
         return True

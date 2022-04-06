@@ -87,7 +87,7 @@ class ProjectBuyer():
                 if nextProject == "Another Token of Goodwill":
                     time.sleep(0.25)
 
-        # FIXME: Buying the ninth token seems to fail quite often.
+        # FIXME: Buying the tokens fails way to often. Either there's still a token left on the projectList or tokens are being marked as bought while they aren't.
         if self.projects and self.projects[0] == "Another Token of Goodwill" and self.projects.count(
                 "Another Token of Goodwill") == 1 and not self.actions.isVisible("Another Token of Goodwill"):
             TS.print("Missed a token of Goodwill, popping it of the list.")
