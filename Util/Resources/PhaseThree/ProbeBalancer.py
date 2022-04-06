@@ -4,7 +4,6 @@ from Util.Timestamp import Timestamp as TS
 from Util.Listener import Event, Listener
 from enum import Enum, auto
 from multiprocessing import Lock
-import time
 import math
 
 
@@ -72,7 +71,8 @@ class ProbeSettings():
     def val(self):
         """ Returns a dict of {enum: value} """
 
-        valmap = {setting: entry.val() for setting, entry in self.settings.items()}
+        valmap = {setting: entry.val()
+                  for setting, entry in self.settings.items()}
         return valmap
 
 
@@ -81,6 +81,7 @@ probeSettingMutex = Lock()
 
 
 class ProbeBalancer():
+    """Balances the trust settings for the probes. Also acquires new trust when possible."""
 
     def __lockedCall(self, callBack, *args) -> None:
         with probeSettingMutex:
@@ -102,7 +103,8 @@ class ProbeBalancer():
         self.threnodyCounter += 1
         if self.threnodyCounter == 4:
             self.actions.setSlideValue("SwarmSlider", 10)
-            self.actions.setThreadClickerActivity(False)  # Don't need this anymore
+            self.actions.setThreadClickerActivity(
+                False)  # Don't need this anymore
 
     def __setToCreatingDrones(self) -> None:
         """Change probe settings to produce a large amount of drones. Usually done intermittently to quickly increase swarm power."""
@@ -127,7 +129,8 @@ class ProbeBalancer():
         matter = self.info.get("AvailMatter").text
         if matter != "0":
             # No need to acquire more matter
-            TS.print(f"Skipping matter, current available matter is {matter} g.")
+            TS.print(
+                f"Skipping matter, current available matter is {matter} g.")
             return
         TS.print("Acquiring matter.")
 
@@ -178,7 +181,8 @@ class ProbeBalancer():
         if "nonillion" in self.info.get("LaunchedProbes").text and self.remainingDroneProductionIterations != 0:
             TS.print("Start exploring the universe.")
             self.remainingDroneProductionIterations = 0
-            TS.setTimer(60, self.setTrust, 2, 2, 16, 6, 0, 0, 0, 4)  # Delay a bit to build up more probes
+            # Delay a bit to build up more probes
+            TS.setTimer(60, self.setTrust, 2, 2, 16, 6, 0, 0, 0, 4)
 
     def setTrust(self, speed: int, explore: int, replicate: int, hazard: int, factory: int, harvester: int, wire: int,
                  combat: int = 0) -> bool:
@@ -229,16 +233,21 @@ class ProbeBalancer():
                 self.actions.pressButton("BuyProbeTrust")
                 self.currTrust += 1
 
-                TS.print(f"Bought {self.currTrust} Trust for a total of {self.yomiSpent} yomi.")
+                TS.print(
+                    f"Bought {self.currTrust} Trust for a total of {self.yomiSpent} yomi.")
             else:
                 break
 
-        self.actions.setSlideValue("SwarmSlider", 199)  # We can manage for a long time without much production
+        # We can manage for a long time without much production
+        self.actions.setSlideValue("SwarmSlider", 199)
         self.__setToCreatingProbes()  # Creating many probes is the first priority
-        TS.setTimer(60, self.__droneProductionIterator)  # Start iterative cycle to increase drone count
+        # Start iterative cycle to increase drone count
+        TS.setTimer(60, self.__droneProductionIterator)
 
-        Listener.listenTo(Event.BuyProject, self.__combatBought, lambda project: project == "Combat", True)
-        Listener.listenTo(Event.BuyProject, self.__oodaLoopBought, lambda project: project == "The OODA Loop", True)
+        Listener.listenTo(Event.BuyProject, self.__combatBought,
+                          lambda project: project == "Combat", True)
+        Listener.listenTo(Event.BuyProject, self.__oodaLoopBought,
+                          lambda project: project == "The OODA Loop", True)
         Listener.listenTo(Event.BuyProject, self.__namingTheBattles,
                           lambda project: project == "Name the battles", True)
         Listener.listenTo(Event.BuyProject, self.__threnodyBought,
@@ -266,7 +275,8 @@ class ProbeBalancer():
             self.actions.pressButton("BuyProbeTrust")
             self.currTrust += 1
 
-            TS.print(f"Bought {self.currTrust} Trust for a total of {self.yomiSpent} yomi.")
+            TS.print(
+                f"Bought {self.currTrust} Trust for a total of {self.yomiSpent} yomi.")
 
             # Some threadsafety, because timers could be running to change the probe settings
             self.__lockedCall(self.actions.pressButton, "RaiseReplication")

@@ -1,8 +1,8 @@
 import cProfile
 import time
 from Util.Files.Config import Config
-from Util.GameLoop.Strategizer import PhaseRunner
-from Util.GameLoop.Strategies.CurrentPhase import CurrentPhase, Phase
+from Util.GameLoop.PhaseRunner import PhaseRunner
+from Util.GameLoop.Phases.CurrentPhase import CurrentPhase, Phase
 from Util.Gamesave import Gamesave
 from Webpage.Initialization.Startpage import Startpage
 from Util.Timestamp import Timestamp as TS

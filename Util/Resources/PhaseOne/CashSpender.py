@@ -2,10 +2,9 @@
 from selenium.webdriver.common.by import By
 from multiprocessing.dummy import Process
 from Util.Files.Config import Config
-from Util.GameLoop.Strategies.CurrentPhase import CurrentPhase, Phase
 from Util.Listener import Event, Listener
-from Util.Resources.HedgeFunder import HedgeFunder
-from Util.Resources.PriceWatcher import PriceWatcher
+from Util.Resources.PhaseOne.HedgeFunder import HedgeFunder
+from Util.Resources.PhaseOne.PriceWatcher import PriceWatcher
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
 from Util.Timestamp import Timestamp as TS
@@ -24,6 +23,7 @@ class Flag(Enum):
 
 
 class CashSpender():
+    """Manages the spending of our disposable income."""
 
     def __moneyWithdrawn(self, _: str) -> None:
         """Checks if enough money is withdrawn to buy out all Tokens of Goodwill. This will temporarily block all clipper acquisitions."""

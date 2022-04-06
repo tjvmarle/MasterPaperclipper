@@ -6,6 +6,8 @@ from colorama import Fore, Style
 
 
 class Progresslogger():
+    """Logs certain fields every X minutes, if they're available. The desired fields are fully configurable."""
+
     def __init__(self, pageInfo: PageInfo) -> None:
         self.info = pageInfo
         self.interval = int(Config.get("ProgressInterval"))

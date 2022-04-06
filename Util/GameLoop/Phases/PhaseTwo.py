@@ -1,17 +1,16 @@
-# Class to finish out the second phase.
-
-from Util.GameLoop.Strategies.PhaseThree import PhaseThree
-from Util.Resources.ThreadClicker import ThreadClicker
+from Util.GameLoop.Phases.PhaseThree import PhaseThree
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
-from Util.GameLoop.Strategies.CurrentPhase import CurrentPhase
+from Util.GameLoop.Phases.CurrentPhase import CurrentPhase
 from Util.Listener import Event, Listener
 from Util.Resources.TourneyOrganiser import TourneyOrganiser
-from Util.Resources.ClipSpender import ClipSpender
+from Util.Resources.PhaseTwo.ClipSpender import ClipSpender
 from Util.Resources.TrustSpender import TrustSpender
 
 
 class PhaseTwo():
+    """Class to manage finishing the second phase of the game."""
+
     def __swarmAcquired(self, _: str) -> None:
         self.runners.append(self.trustSpender)
 

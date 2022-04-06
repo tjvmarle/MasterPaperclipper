@@ -1,5 +1,4 @@
-from functools import partial
-from Util.GameLoop.Strategies.CurrentPhase import CurrentPhase, Phase
+from Util.GameLoop.Phases.CurrentPhase import CurrentPhase, Phase
 from Util.Timestamp import Timestamp as TS
 from Util.Files.Config import Config
 from Util.Listener import Event, Listener

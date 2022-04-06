@@ -2,16 +2,17 @@
 # Some priorities are: buying projects from free ops, start gathering yomi, get to 100 trust
 # Trust buying can be delegated to seperate strategy
 
-from Util.GameLoop.Strategies.CurrentPhase import CurrentPhase, Phase
+from Util.GameLoop.Phases.CurrentPhase import CurrentPhase, Phase
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
 from Util.Listener import Event, Listener
-from Util.Resources.ResourceAllocator import ResourceAllocator
-from Util.GameLoop.Strategies.PhaseTwo import PhaseTwo
+from Util.Resources.PhaseOne.ResourceAllocator import ResourceAllocator
+from Util.GameLoop.Phases.PhaseTwo import PhaseTwo
 import time
 
 
 class PhaseOne():
+    """Class to manage finishing the first phase of the game."""
 
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
         """Finishing the first phase takes about 45-60 min."""

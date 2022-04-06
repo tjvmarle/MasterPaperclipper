@@ -1,28 +1,22 @@
 # Class to finish out the second phase.
 
-from Util.Resources.ProbeBalancer import ProbeBalancer
-from Util.Resources.ThreadClicker import ThreadClicker
+from Util.Resources.PhaseThree.ProbeBalancer import ProbeBalancer
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
-from Util.Listener import Event, Listener
-from Util.Resources.ProjectBuyer import ProjectBuyer
 from Util.Resources.TourneyOrganiser import TourneyOrganiser
-from Util.Resources.ClipSpender import ClipSpender
-from Util.Resources.TrustSpender import TrustSpender
 from Util.Timestamp import Timestamp as TS
 from Util.Files.Config import Config
 
 
 class PhaseThree():
+    """Class to manage finishing the third phase of the game."""
+
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions, organiser: TourneyOrganiser, trustSpender) -> None:
-        # TODO: Take over the tourneyorganiser + threadclicker from PhaseTwo
         self.info = pageInfo
         self.actions = pageActions
 
-        # TODO: Add a trustspender
         self.tourneyOrganizer = organiser
         self.balancer = ProbeBalancer(self.info, self.actions)
-
         self.trustSpender = trustSpender
         self.runners = [self.tourneyOrganizer, self.balancer, self.trustSpender]
         self.kill = False

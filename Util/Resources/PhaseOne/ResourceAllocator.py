@@ -1,13 +1,10 @@
 # Keeps track of available resources and updates accordingly when spending/acquiring
 from Util.Listener import Event, Listener
-from Util.Resources.CashSpender import CashSpender
-from Util.Resources.ProjectBuyer import ProjectBuyer
+from Util.Resources.PhaseOne.CashSpender import CashSpender
 from Util.Resources.TrustSpender import TrustSpender
 from Util.Resources.TourneyOrganiser import TourneyOrganiser
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
-
-from Util.Timestamp import Timestamp as TS
 
 
 class ResourceAllocator():

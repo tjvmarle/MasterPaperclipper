@@ -39,7 +39,7 @@ class PageInfo():
         return float(self.get(element).text.replace(",", ""))
 
     def getAttribute(self, element: str, attribute: str):
-        """Retreives an attribute of a webElement."""
+        """Retrieves an attribute of a webElement."""
         return self.get(element).get_attribute(attribute)
 
     def getOptions(self, dropdown: str):

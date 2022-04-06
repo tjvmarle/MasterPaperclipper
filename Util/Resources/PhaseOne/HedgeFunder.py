@@ -9,15 +9,17 @@ from Util.Listener import Event, Listener
 
 
 class HedgeFunder():
-    # TODO: Investing is still a bit wonky
+    """Manages the investment engine. Occasionally takes out money to buy projects."""
 
     def __depositFunds(self) -> None:
-        if not self.actions.isEnabled("BuyWireSpool"):
+        """Deposit funds in the investment machine, but try to ensure you don't run completely dry on wire."""
+        if self.actions.isEnabled("BuyWireSpool"):
             return
 
         # OPT: This is buying a too much wire early on.
-        if self.info.getInt("Wire") < 10_000_000:
+        if TS.delta(self.lastWireMoment) > 1.5 and not self.info.getInt("Wire") < 10_000:
             self.actions.pressButton("BuyWireSpool")
+            self.lastWireMoment = TS.now()
 
         self.actions.pressButton("DepositFunds")
 
@@ -42,6 +44,7 @@ class HedgeFunder():
         self.noMoreInvesting = False
         self.fullMonoAcq = False
         self.yomiAvailable = False
+        self.lastWireMoment = TS.now()
 
         # TODO: Move these buffers to Config
         self.cashProjects = [("Hostile Takeover", 1_500_000), ("Full Monopoly", 11_000_000)]

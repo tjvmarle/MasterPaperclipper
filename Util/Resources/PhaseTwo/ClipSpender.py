@@ -7,7 +7,6 @@ from Util.Timestamp import Timestamp as TS
 from Util.Files.Config import Config
 from enum import Enum, auto
 from multiprocessing import Lock
-import time
 
 
 class Item(Enum):
@@ -19,6 +18,9 @@ class Item(Enum):
 
 
 class _ClipValue():
+    """More or less a wrapper for the ingame values. Makes it easier to convert and work with the extremely large 
+    values."""
+
     magnitudes = {"zero": -1, "million": 0, "billion": 1, "trillion": 2, "quadrillion": 3, "quintillion": 4,
                   "sextillion": 5, "septillion": 6, "octillion": 7, "nonillion": 8, "decillion": 9}
 
@@ -224,6 +226,8 @@ class ClipSpender():
                 highestEnabled = magnitude
                 break
 
+        # FIXME: This will buy a single if not enough power is available
+
         if self.nextItem == Item.Harvester:
             currRatio = lambda: self.droneRatio + 1
 
@@ -311,8 +315,11 @@ class ClipSpender():
 
         # Start buying drones while factories are still converting remaining wire to clips.
         if self.info.get("WireStock").text != '0':
-            self.nextItem = Item.Harvester
-            self.buyLarge()
+            if self.freePower() > 0:
+                self.nextItem = Item.Harvester
+                self.buyLarge()
+            else:
+                self.buySolar()
             return
 
         self.actions.pressButton("DissFactory")
@@ -330,6 +337,7 @@ class ClipSpender():
 
     def closeOutSecondPhase(self) -> None:
         if self.itemCount[Item.Battery] >= 1_000:
+            # FIXME: This breaks the scripts. Factories are unable to be disassembled now.
             return
 
         # If __maximizeSwarm() is running right now we skip this function for the moment.
@@ -403,6 +411,8 @@ class ClipSpender():
         if self.info.get("WireStock").text != '0' and self.itemCount[Item.Factory] < 200:
             self.__buy(Item.Factory)
             return
+
+        # FIXME:
 
         # Nearing the end of second phase
         self.killPlanetaryConsumption = True

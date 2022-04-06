@@ -1,15 +1,13 @@
 # Main loop runner. Contains the active running phase and some other functionality.
 from selenium import webdriver
-from Util.GameLoop.Strategies.PhaseOne import PhaseOne
-from Util.GameLoop.Strategies.CurrentPhase import CurrentPhase, Phase
-from Util.GameLoop.Progresslogger import Progresslogger
+from Util.GameLoop.Phases.PhaseOne import PhaseOne
+from Util.GameLoop.Phases.CurrentPhase import CurrentPhase, Phase
+from Util.Resources.Progresslogger import Progresslogger
 from Util.Resources.ThreadClicker import ThreadClicker
 from Util.Resources.ProjectBuyer import ProjectBuyer
-from Util.Listener import Event, Listener
 
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
-from Util.Timestamp import Timestamp as TS
 
 
 class PhaseRunner():

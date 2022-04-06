@@ -43,10 +43,10 @@ class ThreadClicker():
         Listener.listenTo(Event.BuyProject, self.__nextPhase, lambda project: project == "MegaClippers", True)
 
     def __setThreadButton(self):
-        # FIXME: Temporary disabled for phase three
         altTarget = AutoTarget.MakePaperclips if self.phaseOne else AutoTarget.Off
         # self.phaseThree = True
 
+        # FIXME: Needs to be enabled for Phase Three
         # altTarget = AutoTarget.LaunchProbe
 
         total = -1

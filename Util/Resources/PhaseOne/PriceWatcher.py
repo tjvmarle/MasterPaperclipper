@@ -8,6 +8,8 @@ from Util.Listener import Event, Listener
 
 
 class PriceWatcher():
+    """Manages the pricing of the paperclips."""
+
     def activateRevTracker(self) -> None:
         time.sleep(0.75)
         self.revTracker = True
@@ -80,41 +82,6 @@ class PriceWatcher():
         self.lastPriceAdjustment = TS.now()
 
         return
-
-        if rate < 10:
-            rate = 10
-
-        # FIXME: This doesn't work with low stock
-        # if self.revTracker and lastAdjustment > 5:
-        #     self.actions.pressButton("RaisePrice" if self.info.getInt("ClipsSoldPerSec") > rate else "LowerPrice")
-        #     return
-
-        if self.revTracker:
-            # This is probably slow to react after large changes
-            if unsold > 4 * rate and lastAdjustment > 2:
-                self.actions.pressButton("LowerPrice")
-            elif unsold < 2 * rate and lastAdjustment > 2:
-                self.actions.pressButton("RaisePrice")
-            return
-
-        # FIXME: This is garbage
-        demand = self.info.getInt("Demand")
-        while rate > 0 and demand > 5 * rate:  # Emergency handling for large changes in marketing
-            self.actions.pressButton("RaisePrice")
-            demand = self.info.getInt("Demand")
-
-        if lastAdjustment > 0.25 and unsold < rate:  # Emergency handling for low stock
-            self.lastPriceAdjustment = TS.now()
-            self.actions.pressButton("RaisePrice")
-            return
-
-        if lastAdjustment > 0.25 and unsold > 20 * rate:  # Emergency handling for high stock
-            self.lastPriceAdjustment = TS.now()
-            self.actions.pressButton("LowerPrice")
-            return
-
-        if lastAdjustment < self.priceAdjustmentTime:
-            return
 
     def tick(self):
         if self.Alive:

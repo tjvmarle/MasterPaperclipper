@@ -1,4 +1,4 @@
-from Util.GameLoop.Strategies.CurrentPhase import CurrentPhase, Phase
+from Util.GameLoop.Phases.CurrentPhase import CurrentPhase, Phase
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
 from Util.Listener import Event, Listener
