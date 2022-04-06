@@ -58,7 +58,6 @@ class PageActions():
             self.threadButtons[TargetButton] = self.__get(ButtonName)
 
     # TODO: Implement a cleaner solution, this is ugly
-
     def setThreadClickerActivity(self, active: bool) -> None:
         self.threadClickerActive = active
 

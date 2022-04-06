@@ -51,6 +51,10 @@ class ClipSpender():
         self.consumeAll = True
         TS.print("Triggered planetary consumption!")
 
+    def __resetThreadClicker(self, _: str) -> None:
+        """Quickfix. Turn the threadclicker back on, otherwise no probes will be launched."""
+        self.actions.setThreadClickerActivity(True)
+
     def __init__(self, pageInfo: PageInfo, pageAction: PageActions) -> None:
         self.info = pageInfo
         self.actions = pageAction
@@ -72,11 +76,13 @@ class ClipSpender():
         self.dronesDissed = False
         self.killPlanetaryConsumption = False
         self.phaseTwoFullyInitialized = False
+        self.thirdPhasePrepared = False
 
         Listener.listenTo(Event.BuyProject, self.__momentumAcquired, "Momentum", True)
         Listener.listenTo(Event.BuyProject, self.__swarmAcquired, "Swarm Computing", True)
         Listener.listenTo(Event.BuyProject, self.__supplyChainAcquired, "Supply Chain", True)
         Listener.listenTo(Event.BuyProject, self.__delayedInitialization, "Clip Factories", True)
+        Listener.listenTo(Event.BuyProject, self.__resetThreadClicker, "Space Exploration", True)
 
     def __pressBuy(self, item: Item, amount: int = None) -> None:
         button = ClipSpender.buttons[item]
@@ -196,17 +202,16 @@ class ClipSpender():
     def buySolar(self) -> None:
         # Always buy highest amount possible (?)
         highestEnabled = None
-        solarButton = ClipSpender.buttons[self.nextItem]
+        solarButton = ClipSpender.buttons[Item.Solar]
         for magnitude in [100, 10]:
             if self.actions.isEnabled("".join([solarButton, f"x{magnitude}"])):
                 highestEnabled = magnitude
                 break
 
-        self.__pressBuy(self.nextItem, highestEnabled)
+        self.__pressBuy(Item.Solar, highestEnabled)
 
     def __solarBought(self) -> bool:
         if self.nextItem in ClipSpender.power and not self.freePower() - ClipSpender.power[self.nextItem] > 0:
-            self.nextItem = Item.Solar
             self.buySolar()
             return True
         return False
@@ -280,6 +285,9 @@ class ClipSpender():
                 self.buySolar()
             return
 
+        if self.thirdPhasePrepared:
+            return
+
         self.actions.pressButton("DissFactory")
         self.actions.pressButton("DissSolar")
 
@@ -288,14 +296,18 @@ class ClipSpender():
         self.itemCount[Item.Solar] = 10_000_000  # Ugly, but works for now
 
         TS.setTimer(0, self.__maximizeSwarm)  # No delay required, just run a seperate thread
+        self.thirdPhasePrepared = True
 
     def entertainSwarm(self) -> None:
         if self.actions.isVisible("EntertainSwarm") and self.actions.isEnabled("EntertainSwarm"):
             self.actions.pressButton("EntertainSwarm")
 
     def closeOutSecondPhase(self) -> None:
+        if self.info.get("WireStock").text != '0':
+            # TODO: Temp fix, this entire class needs an overhaul.
+            return
+
         if self.itemCount[Item.Battery] >= 1_000:
-            # FIXME: This breaks the scripts. Factories are unable to be disassembled now.
             return
 
         # If __maximizeSwarm() is running right now we skip this function for the moment.
@@ -311,6 +323,12 @@ class ClipSpender():
         self.actions.pressButton("DissWire")
         self.itemCount[Item.Wire] = 0
 
+        self.actions.pressButton("DissFactory")
+        self.itemCount[Item.Factory] = 0
+
+        self.actions.pressButton("DissSolar")
+        self.itemCount[Item.Solar] = 0
+
         for _ in range(10):
             self.__pressBuy(Item.Battery, 100)
             self.__pressBuy(Item.Solar, 100)
@@ -324,10 +342,8 @@ class ClipSpender():
 
         if self.killPlanetaryConsumption:
             if self.info.getInt("Yomi") > 351_658:  # Yomi cost for 20 Probe Trust in Phase 3.
-                TS.print(" 2: Enough Yomi available at first attempt, closing out the second phase.")
                 self.closeOutSecondPhase()
             else:
-                TS.print(" 2: Not enough Yomi, waiting a little bit before closing out the second phase.")
                 self.__prepareThirdPhase()
 
             return
