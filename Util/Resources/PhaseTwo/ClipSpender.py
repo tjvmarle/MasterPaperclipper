@@ -375,6 +375,7 @@ class ClipSpender():
         TS.print("Triggering planetary consumption.")
 
         # FIXME: This isn't right yet. This will trigger at 200 factories and an unconverted planet. __prepareThirdPhase will only run partially if there's still remaining matter/wire and won't trigger again.
+        # __prepareThirdPhase will never run if enough Yomi is available from the start, which will never disassemble the factories then.
         if self.info.getInt("Yomi") > 351_658:  # Yomi cost for 20 Probe Trust in Phase 3.
             TS.print("Enough Yomi available at first attempt, closing out the second phase.")
             self.closeOutSecondPhase()

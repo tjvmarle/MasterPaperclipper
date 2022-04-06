@@ -14,9 +14,10 @@ class ProjectBuyer():
         self.info = pageInfo
         self.actions = pageActions
 
-        self.highPrioProjects = Config.get("highPriorityProjects")  # Currently only contains phase 1 projects
+        self.highPrioProjects = Config.get("highPriorityProjects")
         self.projects = Config.get("phaseOneProjects")
         self.enoughFunds = False
+        self.lastAcquisitionTime = TS.now()
 
         Listener.listenTo(Event.ButtonPressed, self.__enoughFundsWithdrawn, "WithdrawFunds", False)
         CurrentPhase.addCbToPhaseMove(Phase.One, self.__setNextProjectList)
@@ -27,12 +28,14 @@ class ProjectBuyer():
         self.enoughFunds = (funds > 511_500_000.0)
 
     def __setNextProjectList(self) -> None:
+        """Loads in the projects for the next phase."""
         if CurrentPhase.phase == Phase.Two:
             self.projects = Config.get("phaseTwoProjects")
         else:
             self.projects = Config.get("phaseThreeProjects")
 
     def __isBlockActive(self, block: str) -> bool:
+        """Checks if a block on project acquisition is still relevant. Sometimes these are required before moving on."""
         # TODO: These blocks should be controlled from the phases, not from this class
         if block == "block0":
             return not self.enoughFunds
@@ -43,10 +46,15 @@ class ProjectBuyer():
         return False
 
     def __buyProjects(self):
-        # FIXME: Sometimes projects are still being acquired without them being popped of the list.
+        """Check if any required projects are available and buy them if they are."""
+        # Limit acquisition to once per second. This might give problems with the site's responsiveness otherwise.
+        if TS.delta(self.lastAcquisitionTime) < 1:
+            return
+
         boughtProject = []
         photonicChecked = False
 
+        # High prio projects are bought regardless of their order.
         for project in self.highPrioProjects:
 
             # Optimization
@@ -55,8 +63,9 @@ class ProjectBuyer():
 
             if self.actions.isEnabled(project):
                 if self.actions.pressButton(project):
-                    time.sleep(0.5)
+                    self.lastAcquisitionTime = TS.now()
                     boughtProject.append(project)
+
             # Optimization, check only once when a Photonic Chip is disabled
             elif not photonicChecked and project == "Photonic Chip":
                 photonicChecked = True
@@ -70,6 +79,7 @@ class ProjectBuyer():
                 Listener.notify(Event.BuyProject, project)
             return
 
+        # Regular projects are only bought in their specific order.
         nextProject = self.projects[0]
         blocked = ("block" in nextProject)
         if blocked and not self.__isBlockActive(nextProject):
@@ -80,18 +90,10 @@ class ProjectBuyer():
 
         if not blocked and self.actions.isEnabled(nextProject):
             if self.actions.pressButton(nextProject):
+                self.lastAcquisitionTime = TS.now()
                 self.projects.pop(0)
                 boughtProject.append(nextProject)
                 TS.print(f"Bought {nextProject}.")
-
-                if nextProject == "Another Token of Goodwill":
-                    time.sleep(0.25)
-
-        # FIXME: Buying the tokens fails way to often. Either there's still a token left on the projectList or tokens are being marked as bought while they aren't.
-        if self.projects and self.projects[0] == "Another Token of Goodwill" and self.projects.count(
-                "Another Token of Goodwill") == 1 and not self.actions.isVisible("Another Token of Goodwill"):
-            TS.print("Missed a token of Goodwill, popping it of the list.")
-            self.projects.pop(0)
 
         for project in boughtProject:
             Listener.notify(Event.BuyProject, project)
