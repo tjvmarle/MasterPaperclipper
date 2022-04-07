@@ -58,6 +58,6 @@ class ThreadClicker():
             total = self.__getPhotonicTotal()
         self.actions.setThreadClicker(AutoTarget.CreateOps if total > 0 else altTarget)
 
-    def tick(self) -> bool:
+    def tick(self) -> None:
         self.__setThreadButton()
         return True

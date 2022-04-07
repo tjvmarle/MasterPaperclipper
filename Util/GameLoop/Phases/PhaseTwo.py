@@ -33,7 +33,7 @@ class PhaseTwo():
         # It would also help to have at least 175k creativity to buy Strategic Attachment
         Listener.listenTo(Event.BuyProject, CurrentPhase.moveToNext, "Space Exploration", True)
 
-    def tick(self):
+    def tick(self) -> None:
         for runner in self.runners:
             runner.tick()
 

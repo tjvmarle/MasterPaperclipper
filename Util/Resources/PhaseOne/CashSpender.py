@@ -180,7 +180,7 @@ class CashSpender():
                 wire < 2500 and wireCost / self.highestWireCost <= 0.50):  # Either buy when low or cheap
             self.actions.pressButton("BuyWireSpool")
 
-    def tick(self):
+    def tick(self) -> None:
         self.__updateWire()
         self.__buyNextObjective()
 

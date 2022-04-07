@@ -29,7 +29,7 @@ class PhaseRunner():
         CurrentPhase.addCbToPhaseMove(Phase.One, self.__moveToNextPhase)
         CurrentPhase.addCbToPhaseMove(Phase.Two, self.__moveToNextPhase)
 
-    def tick(self) -> bool:
+    def tick(self) -> None:
         self.logger.tick()
         self.thread.tick()
         self.pb.tick()

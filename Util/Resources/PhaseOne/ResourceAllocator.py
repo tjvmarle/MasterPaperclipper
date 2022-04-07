@@ -28,7 +28,7 @@ class ResourceAllocator():
 
         Listener.listenTo(Event.BuyProject, self.__addTournament, lambda project: project == "Strategic Modeling", True)
 
-    def tick(self):
+    def tick(self) -> None:
         self.__trustActivator()
 
         for runner in self.runners:

@@ -83,6 +83,6 @@ class PriceWatcher():
 
         return
 
-    def tick(self):
+    def tick(self) -> None:
         if self.Alive:
             self.__adjustPrice()

@@ -24,7 +24,7 @@ class Progresslogger():
                  ", ".join(currValStrings), f"{Style.RESET_ALL}")
         # TODO: save values in local file. Perhaps something you can import in a Database or Grafana
 
-    def tick(self):
+    def tick(self) -> None:
         self.ticks += 1
 
         if TS.delta(Config.get("Gamestart")) / self.nrOfIntervals > self.interval:

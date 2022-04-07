@@ -41,9 +41,12 @@ class CurrentPhase():
         if CurrentPhase.phase == Phase.One:
             CurrentPhase.phase = Phase.Two
             TS.print("Moving to second phase.")
-        else:
+        elif CurrentPhase.phase == Phase.Two:
             CurrentPhase.phase = Phase.Three
             TS.print("Moving to third phase.")
+        else:
+            CurrentPhase.phase = Phase.End
+            TS.print("Moving to end phase.")
 
         for cb in CurrentPhase.__cbList:
             cb.run(prevPhase)

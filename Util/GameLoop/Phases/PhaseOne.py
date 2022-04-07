@@ -26,7 +26,7 @@ class PhaseOne():
         Listener.listenTo(Event.BuyProject, CurrentPhase.moveToNext, "Release the HypnoDrones", True)
         CurrentPhase.addCbToPhaseMove(Phase.One, lambda: time.sleep(4))  # The transition takes a few seconds.
 
-    def tick(self):
+    def tick(self) -> None:
         for runner in self.runners:
             runner.tick()
 

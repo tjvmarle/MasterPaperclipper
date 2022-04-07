@@ -152,7 +152,9 @@ class ProbeBalancer():
             # Matter acquisition could be cut short by the next iteration triggering
             return
 
-        if not self.actions.isEnabled("LaunchProbe"):
+        if not self.actions.isEnabled("LaunchProbe") and self.remainingDroneProductionIterations != 0:
+            # TODO: Perhaps trigger this when Matter and Wire are 0 and Unused clips has descreased x% in y seconds.
+            # FIXME: This should not trigger again if a thread is already running.
             TS.print("Acquire Matter!")
             self.__setToMatter()
             TS.setTimer(matterAcquisitionTime, self.__setToCreatingProbes)
@@ -179,10 +181,12 @@ class ProbeBalancer():
     def exploreUniverse(self) -> None:
         # Only execute the setTimer once, change the remainingDrProdIt to something nicer
         if "nonillion" in self.info.get("LaunchedProbes").text and self.remainingDroneProductionIterations != 0:
+            probeSettingMutex.acquire()
             TS.print("Start exploring the universe.")
-            self.remainingDroneProductionIterations = 0
+            self.remainingDroneProductionIterations = 0  # Hacky, but fine for now.
             # Delay a bit to build up more probes
             TS.setTimer(60, self.setTrust, 2, 2, 16, 6, 0, 0, 0, 4)
+            probeSettingMutex.release()
 
     def setTrust(self, speed: int, explore: int, replicate: int, hazard: int, factory: int, harvester: int, wire: int,
                  combat: int = 0) -> bool:

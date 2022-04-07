@@ -184,9 +184,12 @@ trustSpendingStrategy=[
     # OPT: 80k ops are required in 2nd phase, so end with enough memory
     30:70
 
-    # 120 ops are required for space exploration (finishing the 2nd phase)
-    30:95
+    # First add more processors, as creativity is required for early Momentum
+    60:70
+    60:95
     100:95
+
+    # 120 ops are required for space exploration (finishing the 2nd phase)
     100:120
     250:120
 
@@ -267,7 +270,7 @@ phaseOneProjects=[
 
 # Projects in this list will be bought when possible, outside of any other priorities
 # OPT: These might have a decent impact on performance...
-highPriorityProjects=[
+phaseOneHighPriorityProjects=[
     MegaClippers
     Improved MegaClippers
     Even Better MegaClippers
@@ -321,7 +324,6 @@ phaseTwoProjects=[
 ]
 
 phaseThreeProjects=[
-    Strategic Attachment
     Elliptic Hull
     Reboot the Swarm
     Combat
@@ -336,6 +338,10 @@ phaseThreeProjects=[
     Threnody for the Heroes
     Threnody for the Heroes
     Threnody for the Heroes
+]
+
+phaseThreeHighPriorityProjects=[
+    Strategic Attachment
 ]
 
 # Overview of the strat to choose, depending on which ones are available.

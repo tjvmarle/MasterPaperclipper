@@ -16,7 +16,6 @@ class Customrunner():
         # Insert custom proc here
         # self.proc = Phase1Step2(self.info, self.actions)
 
-    def tick(self) -> bool:
+    def tick(self) -> None:
         self.logger.tick()
-
-        return self.proc.tick()
+        self.proc.tick()

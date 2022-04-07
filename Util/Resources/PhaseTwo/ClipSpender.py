@@ -39,7 +39,7 @@ class ClipSpender():
         self.momentum = True
 
     def __swarmAcquired(self, _: str) -> None:
-        self.actions.setSlideValue("SwarmSlider", 170)
+        self.actions.setSlideValue("SwarmSlider", 185)
         # TODO: Probably going to need a seperate swarm balancer
         # Push the slider more to think when wire/s >> clips/s
 
@@ -409,7 +409,7 @@ class ClipSpender():
 
         self.phaseTwoFullyInitialized = True
 
-    def tick(self):
+    def tick(self) -> None:
         if not self.phaseTwoFullyInitialized:
             return
 

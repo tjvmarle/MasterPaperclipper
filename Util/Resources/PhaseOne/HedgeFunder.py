@@ -142,7 +142,7 @@ class HedgeFunder():
         if self.info.getFl("LiquidAssets") > 0:
             self.actions.pressButton("WithdrawFunds")
 
-    def tick(self):
+    def tick(self) -> None:
         if self.noMoreInvesting:
             self.__emptyAccount()
         else:

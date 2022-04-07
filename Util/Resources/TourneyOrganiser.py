@@ -46,5 +46,5 @@ class TourneyOrganiser():
         self.actions.pressButton("RunTournament")
         self.start = TS.now()
 
-    def tick(self):
+    def tick(self) -> None:
         self.__runTourney()

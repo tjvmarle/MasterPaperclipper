@@ -110,5 +110,5 @@ class TrustSpender():
             self.__buyFromRatio()
             availTrust -= 1
 
-    def tick(self):
+    def tick(self) -> None:
         self.__spendTrust()

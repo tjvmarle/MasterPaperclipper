@@ -1,5 +1,4 @@
-# Class to finish out the second phase.
-
+from Util.GameLoop.Phases.CurrentPhase import CurrentPhase, Phase
 from Util.Resources.PhaseThree.ProbeBalancer import ProbeBalancer
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
@@ -25,7 +24,7 @@ class PhaseThree():
         if "100.00" in self.info.get("SpaceExploration").text:
             self.kill = True
 
-    def tick(self):
+    def tick(self) -> None:
         for runner in self.runners:
             runner.tick()
 
@@ -37,6 +36,7 @@ class PhaseThree():
             TS.print(f"In-game timer: {ingameTime}")
 
             self.thread.kill()
+            CurrentPhase.moveToNext()
             return False
 
         return True

@@ -14,7 +14,7 @@ class ProjectBuyer():
         self.info = pageInfo
         self.actions = pageActions
 
-        self.highPrioProjects = Config.get("highPriorityProjects")
+        self.highPrioProjects = Config.get("phaseOneHighPriorityProjects")
         self.projects = Config.get("phaseOneProjects")
         self.enoughFunds = False
         self.lastAcquisitionTime = TS.now()
@@ -32,6 +32,7 @@ class ProjectBuyer():
         if CurrentPhase.phase == Phase.Two:
             self.projects = Config.get("phaseTwoProjects")
         else:
+            self.highPrioProjects = Config.get("phaseThreeHighPriorityProjects")
             self.projects = Config.get("phaseThreeProjects")
 
     def __isBlockActive(self, block: str) -> bool:
@@ -98,5 +99,5 @@ class ProjectBuyer():
         for project in boughtProject:
             Listener.notify(Event.BuyProject, project)
 
-    def tick(self):
+    def tick(self) -> None:
         self.__buyProjects()
