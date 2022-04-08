@@ -1,79 +1,11 @@
+from Util.Resources.PhaseThree.ProbeTrustSettings import SettingType, ProbeTrustSettings
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
 from Util.Timestamp import Timestamp as TS
 from Util.Listener import Event, Listener
-from enum import Enum, auto
+
 from multiprocessing import Lock
 import math
-
-
-class SettingType(Enum):
-    Speed = auto()
-    Explore = auto()
-    Replicate = auto()
-    Hazard = auto()
-    Factory = auto()
-    Harvester = auto()
-    Wire = auto()
-    Combat = auto()
-
-
-class SettingEntry():
-
-    def __init__(self, pageActions: PageActions, buttonDown: str, buttonUp: str) -> None:
-        self.buttonDown = lambda: pageActions.pressButton(buttonDown)
-        self.buttonUp = lambda: pageActions.pressButton(buttonUp)
-        self.currentValue = 0
-
-    def down(self) -> None:
-        if self.currentValue > 0:
-            self.buttonDown()
-            self.currentValue -= 1
-
-    def up(self) -> None:
-        self.buttonUp()
-        self.currentValue += 1
-
-    def val(self) -> int:
-        return self.currentValue
-
-
-class ProbeSettings():
-
-    def __init__(self, pageActions: PageActions) -> None:
-        buttonPairs = [
-            ["LowerSpeed", "RaiseSpeed"],
-            ["LowerExploration", "RaiseExploration"],
-            ["LowerReplication", "RaiseReplication"],
-            ["LowerHazard", "RaiseHazard"],
-            ["LowerFactory", "RaiseFactory"],
-            ["LowerHarvester", "RaiseHarvester"],
-            ["LowerWire", "RaiseWire"],
-            ["LowerCombat", "RaiseCombat"]]
-        settingList = [enum for enum in SettingType]
-        assert len(buttonPairs) == len(settingList)
-
-        self.settings = {settingList[n]: SettingEntry(
-            pageActions, buttonPairs[n][0], buttonPairs[n][1], ) for n in range(len(buttonPairs))}  # Pythonic?
-        TS.print(f"self.settings: {self.settings}")
-
-    def set(self, setting: SettingType, newValue: int) -> None:
-        entry = self.settings[setting]
-        currValue = entry.val()
-
-        if currValue == newValue:
-            return
-
-        delta = currValue - newValue
-        for _ in range(abs(delta)):
-            entry.up() if delta < 0 else entry.down()
-
-    def val(self):
-        """ Returns a dict of {enum: value} """
-
-        valmap = {setting: entry.val()
-                  for setting, entry in self.settings.items()}
-        return valmap
 
 
 # Some added safety since we're working with seperate, timed threads
@@ -215,7 +147,7 @@ class ProbeBalancer():
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
         self.info = pageInfo
         self.actions = pageActions
-        self.settings = ProbeSettings(pageActions)
+        self.settings = ProbeTrustSettings(pageActions)
         self.remainingDroneProductionIterations = 500  # pseudo-infinite
 
         self.fightingForHonor = False
@@ -243,7 +175,7 @@ class ProbeBalancer():
                 break
 
         # We can manage for a long time without much production
-        self.actions.setSlideValue("SwarmSlider", 199)
+        self.actions.setSlideValue("SwarmSlider", 190)
         self.__setToCreatingProbes()  # Creating many probes is the first priority
         # Start iterative cycle to increase drone count
         TS.setTimer(60, self.__droneProductionIterator)
@@ -270,6 +202,7 @@ class ProbeBalancer():
             # Save up the Yomi to buy The OODA loop first
             return
 
+        # TODO: This method can probably be moved to a seperate class
         if not self.trustIncreased and self.actions.isEnabled("IncreaseMaxTrust"):
             self.actions.pressButton("IncreaseMaxTrust")
             self.trustIncreased = True  # We only do this once

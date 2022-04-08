@@ -18,24 +18,16 @@ class PhaseThree():
         self.balancer = ProbeBalancer(self.info, self.actions)
         self.trustSpender = trustSpender
         self.runners = [self.tourneyOrganizer, self.balancer, self.trustSpender]
-        self.kill = False
-
-    def checkExploration(self) -> None:
-        if "100.00" in self.info.get("SpaceExploration").text:
-            self.kill = True
 
     def tick(self) -> None:
         for runner in self.runners:
             runner.tick()
 
-        self.checkExploration()
-
-        if self.kill:
+        if "100.00" in self.info.get("SpaceExploration").text:
             TS.print(f"End goal reached: converted the universe in {TS.deltaStr(Config.get('Gamestart'))}!")
             ingameTime = self.info.get("Message1").text
             TS.print(f"In-game timer: {ingameTime}")
 
-            self.thread.kill()
             CurrentPhase.moveToNext()
             return False
 
