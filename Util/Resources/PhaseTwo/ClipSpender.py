@@ -297,7 +297,7 @@ class ClipSpender():
         self.actions.pressButton("BuySolar")
         self.itemCount[Item.Solar] = 10_000_000  # Ugly, but works for now
 
-        TS.setTimer(0, self.__maximizeSwarm)  # No delay required, just run a seperate thread
+        TS.setTimer(0, "SwarmMaximizer", self.__maximizeSwarm)  # No delay required, just run a seperate thread
         self.thirdPhasePrepared = True
 
     def entertainSwarm(self) -> None:

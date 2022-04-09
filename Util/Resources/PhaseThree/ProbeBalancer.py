@@ -89,7 +89,7 @@ class ProbeBalancer():
             # FIXME: This should not trigger again if a thread is already running.
             TS.print("Acquire Matter!")
             self.__setToMatter()
-            TS.setTimer(matterAcquisitionTime, self.__setToCreatingProbes)
+            TS.setTimer(matterAcquisitionTime, "MatterAcquisition", self.__setToCreatingProbes)
 
     def __droneProductionIterator(self) -> None:
         """Self repeating function to create factories and drones after probe count has been able to increase for a while. It's main purpose is to quickly grow the swarm to create additional gifts."""
@@ -103,8 +103,8 @@ class ProbeBalancer():
             self.__setToCreatingDrones()
         TS.print("Triggering next iteration of Drone Production.")
 
-        TS.setTimer(10, self.__setToCreatingProbes)
-        TS.setTimer(self.nextIteration, self.__droneProductionIterator)
+        TS.setTimer(10, "ProbeCreation", self.__setToCreatingProbes)
+        TS.setTimer(self.nextIteration, "DroneProductionIterator", self.__droneProductionIterator)
 
         self.remainingDroneProductionIterations -= 1
         TS.print(
@@ -117,7 +117,7 @@ class ProbeBalancer():
             TS.print("Start exploring the universe.")
             self.remainingDroneProductionIterations = 0  # Hacky, but fine for now.
             # Delay a bit to build up more probes
-            TS.setTimer(60, self.setTrust, 2, 2, 16, 6, 0, 0, 0, 4)
+            TS.setTimer(60, "SetTrust", self.setTrust, 2, 2, 16, 6, 0, 0, 0, 4)
             probeSettingMutex.release()
 
     def setTrust(self, speed: int, explore: int, replicate: int, hazard: int, factory: int, harvester: int, wire: int,
@@ -178,7 +178,7 @@ class ProbeBalancer():
         self.actions.setSlideValue("SwarmSlider", 190)
         self.__setToCreatingProbes()  # Creating many probes is the first priority
         # Start iterative cycle to increase drone count
-        TS.setTimer(60, self.__droneProductionIterator)
+        TS.setTimer(60, "DroneProductionIterator", self.__droneProductionIterator)
 
         Listener.listenTo(Event.BuyProject, self.__combatBought,
                           lambda project: project == "Combat", True)

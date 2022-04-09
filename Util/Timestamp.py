@@ -57,6 +57,6 @@ class Timestamp():
         time.sleep(delay)
         callback(*cbArgs)
 
-    def setTimer(delay, callback, *cbArgs) -> None:
-        thread = Process(target=Timestamp.__timedCallback, args=(delay, callback, *cbArgs))
+    def setTimer(delay, threadName: str, callback, *cbArgs) -> None:
+        thread = Process(name=threadName, target=Timestamp.__timedCallback, args=(delay, callback, *cbArgs))
         thread.start()
