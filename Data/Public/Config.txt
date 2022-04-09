@@ -179,18 +179,17 @@ trustSpendingStrategy=[
     # Next, 10 memory is required to buy the first quantum upgrades, 15 trust requires 55.000 clips
     5:10
     5:40
-    30:40
+    35:40
     # OPT: Low performance makes it more difficult te reach 20k+ ops over max. Could be 50:50 on decent fps.
     # OPT: 80k ops are required in 2nd phase, so end with enough memory
-    30:70
+    35:65
 
     # First add more processors, as creativity is required for early Momentum
-    60:70
-    60:95
-    100:95
+    50:65
+    50:110
+    100:110
 
     # 120 ops are required for space exploration (finishing the 2nd phase)
-    100:120
     250:120
 
     # Most expensive project is 250k ops, except for the endgame offer

@@ -9,41 +9,39 @@ import re
 
 
 class ThreadClicker():
-    def __nextPhase(self, _: str) -> None:
-        TS.print(f"Killing off autoclicker for making paperclips.")
-        self.phaseOne = False
-
-    def __activatePhotonics(self, _: str) -> None:
-        self.photonicActive = True
-
-    def __runThreadClicker(self, _: str):
-        while self.alive:
-            self.actions.threadClick()
-
-    def __initThread(self):
-        self.thread = Process(target=self.__runThreadClicker, args=["1"], name="ThreadClicker")
-        self.thread.start()
-
-    def __getPhotonicTotal(self) -> float:
-        # Parsing the raw HTML is a lot faster.
-        rawHTML = self.info.get("QuantumComputing").get_attribute('innerHTML')
-        total = [float(val) for val in re.findall('(?<=opacity: ).+(?=;)', rawHTML)]
-        total.pop()  # Opacity of last ops value
-        return sum(total)
+    """A semi-independent autoclicker. Main purpose is to maximize the usage of the ~73 clicks we have each second."""
 
     def __init__(self, pageInfo: PageInfo, pageAction: PageActions) -> None:
         self.info = pageInfo
         self.actions = pageAction
-        self.alive = True
+
         self.photonicActive = False
         self.__initThread()
-        self.phaseOne = True
 
-        # Dis- and enabled for phase two
-        Listener.listenTo(Event.BuyProject, self.__activatePhotonics, lambda project: project == "Photonic Chip", True)
-        Listener.listenTo(Event.BuyProject, self.__nextPhase, lambda project: project == "MegaClippers", True)
+        Listener.listenTo(Event.BuyProject, self.__activatePhotonics, "Photonic Chip", True)
 
-    def __setThreadButton(self):
+    def __initThread(self) -> None:
+        """Starts the autoclicker in a seperate thread."""
+        self.thread = Process(target=self.__runThreadClicker, args=["1"], name="ThreadClicker")
+        self.thread.start()
+
+    def __runThreadClicker(self, _: str):
+        """The main loop of the autoclicker thread."""
+        while CurrentPhase.phase != Phase.End:
+            self.actions.threadClick()
+
+    def __activatePhotonics(self, _: str) -> None:
+        self.photonicActive = True
+
+    def tick(self) -> None:
+        """Although the autoclicker runs mostly autonomously, the main loop uses this handle to change it's current 
+        target."""
+        self.__setThreadButton()
+
+    def __setThreadButton(self) -> None:
+        """Determines the target for the autoclicker. This is mostly getting free quantum ops or some phase-dependent 
+        alternative target."""
+
         if CurrentPhase.phase == Phase.One:
             altTarget = AutoTarget.MakePaperclips
 
@@ -58,6 +56,9 @@ class ThreadClicker():
             total = self.__getPhotonicTotal()
         self.actions.setThreadClicker(AutoTarget.CreateOps if total > 0 else altTarget)
 
-    def tick(self) -> None:
-        self.__setThreadButton()
-        return True
+    def __getPhotonicTotal(self) -> float:
+        """Parses the raw HTML to find out if the net quantum value is positive or not."""
+        rawHTML = self.info.get("QuantumComputing").get_attribute('innerHTML')
+        total = [float(val) for val in re.findall('(?<=opacity: ).+(?=;)', rawHTML)]
+        total.pop()  # Opacity of last ops value
+        return sum(total)

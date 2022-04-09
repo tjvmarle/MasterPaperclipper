@@ -395,11 +395,12 @@ class ClipSpender():
         # FIXME: This isn't right yet. This will trigger at 200 factories and an unconverted planet. __prepareThirdPhase
         # will only run partially if there's still remaining matter/wire and won't trigger again.
         # __prepareThirdPhase will never run if enough Yomi is available from the start, which will never disassemble the factories then.
-        if self.info.getInt("Yomi") > 351_658:  # Yomi cost for 20 Probe Trust in Phase 3.
-            TS.print("Enough Yomi available at first attempt, closing out the second phase.")
+
+        # Yomi cost for 20 Probe Trust in Phase 3.
+        if self.info.getInt("Yomi") > 351_658 and self.info.getInt("Processors") > 110:
             self.closeOutSecondPhase()
         else:
-            TS.print("Not enough Yomi, waiting a little bit before closing out the second phase.")
+            # TODO: This can take up to 13 min. Check if that's worth the investment or stop a bit sooner at ~18 trust?
             self.__prepareThirdPhase()
 
     def __delayedInitialization(self, _: str):

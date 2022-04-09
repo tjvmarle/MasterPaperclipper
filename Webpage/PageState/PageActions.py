@@ -64,7 +64,7 @@ class PageActions():
     def threadClick(self) -> None:
         """Seperate function for the threadclicker greatly improves performance over pressButton() 
         Clips: ~75 clips/sec
-        Ops: 10-35k over max depending on amount of Photonic Chips"""
+        Ops: 10-35k over max depending on amount of Photonic Chips."""
         if self.threadTarget == AutoTarget.Off or not self.threadClickerActive:
             time.sleep(0.1)
             return

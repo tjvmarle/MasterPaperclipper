@@ -2,6 +2,7 @@
 from selenium import webdriver
 from Util.GameLoop.Phases.PhaseOne import PhaseOne
 from Util.GameLoop.Phases.CurrentPhase import CurrentPhase, Phase
+from Util.Resources.PhaseThree.SwarmWatcher import SwarmWatcher
 from Util.Resources.Progresslogger import Progresslogger
 from Util.Resources.ThreadClicker import ThreadClicker
 from Util.Resources.ProjectBuyer import ProjectBuyer
@@ -23,6 +24,7 @@ class PhaseRunner():
         self.logger = Progresslogger(self.info)  # Optional, but provides some stats while running the game.
         self.pb = ProjectBuyer(self.info, self.actions)
         self.activePhase = PhaseOne(self.info, self.actions)
+        self.runners = [self.logger, self.thread, self.pb, self.activePhase]
 
         # TODO: Trustspender en TourneyOrganiser can be put here.
 
@@ -30,10 +32,11 @@ class PhaseRunner():
         CurrentPhase.addCbToPhaseMove(Phase.Two, self.__moveToNextPhase)
 
     def tick(self) -> None:
-        self.logger.tick()
-        self.thread.tick()
-        self.pb.tick()
-        self.activePhase.tick()
+        for runnable in self.runners:
+            runnable.tick()
 
     def __moveToNextPhase(self):
         self.activePhase = self.activePhase.getNextPhase()
+
+        if CurrentPhase.phase == Phase.Two:
+            self.runners.append(SwarmWatcher(self.info, self.actions))
