@@ -41,9 +41,6 @@ class ProjectBuyer():
         if block == "block0":
             return not self.enoughFunds
 
-        if block == "block1":
-            return (self.info.getInt("Processors") + self.info.getInt("Memory")) < 100
-
         return False
 
     def __buyProjects(self):

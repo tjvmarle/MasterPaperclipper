@@ -12,6 +12,9 @@ class TrustSpender():
     def __acquiredDonkeySpace(self, _: str):
         self.unBlock = True
 
+    def __acquiredSwarmComputing(self, _: str) -> None:
+        self.swarmComputingAcquired = True
+
     def __init__(self, pageInfo: PageInfo, pageAction: PageActions) -> None:
         self.info = pageInfo
         self.actions = pageAction
@@ -22,12 +25,14 @@ class TrustSpender():
         self.nextStrat = None
         self.unBlock = False
         self.finalStratActive = False
+        self.swarmComputingAcquired = False
 
         # Optimization, tracking internally is (a lot) faster than reading from the page.
         self.Processors = 1
         self.Memory = 1
 
         Listener.listenTo(Event.BuyProject, self.__acquiredDonkeySpace, "Donkey Space", True)
+        Listener.listenTo(Event.BuyProject, self.__acquiredSwarmComputing, "Swarm Computing", True)
         self.__getNextStrat()
 
     def __getNextStrat(self) -> None:
@@ -83,8 +88,10 @@ class TrustSpender():
 
         if CurrentPhase.phase == Phase.One:
             availTrust = self.info.getInt("Trust") - (self.Processors + self.Memory)
-        else:
+        elif self.swarmComputingAcquired:
             availTrust = self.info.getInt("Gifts")
+        else:
+            return
 
         while availTrust > 0:
             if self.nextStrat[0] <= self.Processors and self.nextStrat[1] <= self.Memory:

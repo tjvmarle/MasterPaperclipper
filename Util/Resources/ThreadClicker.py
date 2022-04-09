@@ -21,7 +21,7 @@ class ThreadClicker():
             self.actions.threadClick()
 
     def __initThread(self):
-        self.thread = Process(target=self.__runThreadClicker, args=["1"])
+        self.thread = Process(target=self.__runThreadClicker, args=["1"], name="ThreadClicker")
         self.thread.start()
 
     def __getPhotonicTotal(self) -> float:

@@ -32,7 +32,8 @@ class PageInfo():
 
     def getInt(self, element: str) -> int:
         """Same as get(), but converts the value to integer."""
-        return int(self.get(element).text.replace(",", "").replace(".", ""))
+        val = self.get(element).text.replace(",", "").replace(".", "")
+        return int(val)
 
     def getFl(self, element: str) -> float:
         """Same as get(), but converts the value to float."""

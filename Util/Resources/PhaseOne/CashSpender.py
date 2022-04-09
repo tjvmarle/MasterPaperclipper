@@ -27,6 +27,7 @@ class CashSpender():
 
     def __moneyWithdrawn(self, _: str) -> None:
         """Checks if enough money is withdrawn to buy out all Tokens of Goodwill. This will temporarily block all clipper acquisitions."""
+        # OPT: If for some reason we reach 91 trust through clipper production, we need 256M less to finish the phase.
         self.flags[Flag.BuyingOutGoodwill] = self.tokensOfGoodwill > 0 and (self.info.getFl("Funds") > 511_500_000.0)
 
     def __tokensBought(self, _: str) -> None:
@@ -99,8 +100,6 @@ class CashSpender():
             self.runners.append(HedgeFunder(self.info, self.actions))
 
     def __revTrackerAcquired(self, _: str) -> None:
-        thread = Process(target=self.pricer.activateRevTracker)
-        thread.start()
         self.hedgeInits -= 1
         self.__checkHedgeInits()
 

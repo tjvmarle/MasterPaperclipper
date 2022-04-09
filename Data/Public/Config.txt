@@ -252,6 +252,9 @@ phaseOneProjects=[
     block0
 
     A Token of Goodwill
+
+    # TODO: Verify these are bought correctly. Sometimes one fails to register in the ProjectBuyer, even though it is 
+    # still bought
     Another Token of Goodwill
     Another Token of Goodwill
     Another Token of Goodwill
@@ -263,9 +266,6 @@ phaseOneProjects=[
     Another Token of Goodwill
     Another Token of Goodwill
     Another Token of Goodwill
-
-    block1
-    Release the HypnoDrones
 ]
 
 # Projects in this list will be bought when possible, outside of any other priorities
@@ -302,6 +302,10 @@ phaseOneHighPriorityProjects=[
 
     Theory of Mind
     Hypnodrones
+
+    # Temp fix. Prevents the game for hanging in the first phase because the acquisition of Tokens of Goodwill sometimes
+    # fails.
+    Release the HypnoDrones
 ]
 
 phaseTwoProjects=[
