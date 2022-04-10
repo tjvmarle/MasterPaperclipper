@@ -7,11 +7,19 @@ from Util.Listener import Event, Listener
 
 class PriceWatcher():
     """Manages the pricing of the paperclips."""
-    __DEFAULT_ADJUST_INTERVAL = 2
+    __DEFAULT_ADJUST_INTERVAL = 1.5
 
     def __revTrackerAcquired(self, _: str) -> None:
         """Callback for when the RevTracker project is bought."""
         self.revTrackerOnline = True
+
+    def __fullMonopolyAcquired(self, _: str) -> None:
+        """Pre-emptively increases the price after large increase of public demand when acquiring Full Monopoly."""
+        if self.currPrice >= 51:
+            # $0.51 cent seems a stable starting point.
+            return
+
+        self.__up(51 - self.currPrice)
 
     def __up(self, amount: int = 1):
         """Increases the price of paperclips."""
@@ -54,6 +62,7 @@ class PriceWatcher():
             self.__down()
 
         Listener.listenTo(Event.BuyProject, self.__revTrackerAcquired, "RevTracker", True)
+        Listener.listenTo(Event.BuyProject, self.__fullMonopolyAcquired, "Full Monopoly", True)
 
     def __adjustPrice(self) -> None:
         """Calculates price adjustment based on production vs sales."""
