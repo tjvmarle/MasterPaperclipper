@@ -1,4 +1,5 @@
 from Util.Resources.PhaseThree.ProbeTrustSettings import SettingType, ProbeTrustSettings
+from Util.Resources.ThreadClicker import ThreadClicker
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
 from Util.Timestamp import Timestamp as TS
@@ -35,7 +36,7 @@ class ProbeBalancer():
         self.threnodyCounter += 1
         if self.threnodyCounter == 4:
             self.actions.setSlideValue("SwarmSlider", 10)
-            self.actions.setThreadClickerActivity(False)  # Don't need this anymore
+            ThreadClicker.disable()  # Don't need this anymore
 
     def __setToCreatingDrones(self) -> None:
         """Change probe settings to produce a large amount of drones. Usually done intermittently to quickly increase 

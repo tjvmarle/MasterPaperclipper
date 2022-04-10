@@ -35,50 +35,35 @@ class PageActions():
 
         self.cache = {}
         self.paperclip = True
-        self.threadButtons = {}
-        self.threadTarget = AutoTarget.MakePaperclips
-        self.__initThreadTargets()
-        self.threadClickerActive = True
 
     def __get(self, button: str) -> WebElement:
+        """Translates an interactable element to its webelement. Keeps a cache of retrieved elements to increase 
+        performance."""
         page_button = self.cache.get(button, False)
         if page_button:
             return page_button
 
         try:
+            # These calls take about 13-14 ms each and take up over 99.9% of the script's execution time.
             page_button = self.driver.find_element(By.ID, self.buttons[button])
             self.cache[button] = page_button
         except NoSuchElementException:
             return None
         return page_button
 
-    def __initThreadTargets(self) -> None:
-        for TargetButton, ButtonName in {
-                AutoTarget.MakePaperclips: "MakePaperclip", AutoTarget.CreateOps: "QuantumCompute", AutoTarget.LaunchProbe: "LaunchProbe"}.items():
-            self.threadButtons[TargetButton] = self.__get(ButtonName)
-
-    # TODO: Implement a cleaner solution, this is ugly
-    def setThreadClickerActivity(self, active: bool) -> None:
-        self.threadClickerActive = active
-
-    def threadClick(self) -> None:
+    def threadClick(self, targetButton: str) -> None:
         """Seperate function for the threadclicker greatly improves performance over pressButton() 
         Clips: ~75 clips/sec
         Ops: 10-35k over max depending on amount of Photonic Chips."""
-        if self.threadTarget == AutoTarget.Off or not self.threadClickerActive:
-            time.sleep(0.1)
-            return
-
         try:
-            self.threadButtons[self.threadTarget].click()
+            self.__get(targetButton).click()
         except:
             # Not a problem as long as it isn's excessive
-            TS.print(f"Threadclick failed on target {self.threadTarget}.")
-
-    def setThreadClicker(self, newTarget: AutoTarget) -> None:
-        self.threadTarget = newTarget
+            TS.print(f"Threadclick failed on target {targetButton}.")
 
     def pressButton(self, button: str) -> bool:
+        """Tries to click on a button. Will attempt a second time if the reference has gone stale. Assumes the button is 
+        clickable."""
         page_button = self.__get(button)
         try:
             if not page_button:
@@ -107,6 +92,7 @@ class PageActions():
         return True
 
     def isVisible(self, button) -> bool:
+        """Checks if an interactable element is visible on the webpage."""
         page_button = self.__get(button)
         try:
             return page_button and page_button.is_displayed()
@@ -128,6 +114,7 @@ class PageActions():
         # return page_button and self.__trySafe(button, page_button.is_displayed)
 
     def isEnabled(self, button: str) -> bool:
+        """Checks if an interactable element is enabled on the webpage. Will also check if it is visible first."""
         page_button = self.__get(button)
         try:
             return page_button and self.isVisible(button) and page_button.is_enabled()
@@ -146,12 +133,14 @@ class PageActions():
             return False
 
     def selectFromDropdown(self, dropdown: str, selection: str) -> None:
+        """Selects an option from a dropdown list."""
         Select(self.__get(dropdown)).select_by_visible_text(selection)
 
     def setSlideValue(self, sliderName: str, value: int) -> None:
+        """Sets a slider to a specified value. This is done directly in javascript on the webpage instead of using the
+        Selenium, because this isn't supported."""
         slider = self.buttons.get(sliderName, False)
         if not slider:
             return
 
-        # Using direct js, because Selenium support for these is absent
         self.driver.execute_script(f'document.getElementById("{slider}").value = {value}')

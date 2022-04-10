@@ -24,7 +24,7 @@ class PhaseRunner():
         self.logger = Progresslogger(self.info)  # Optional, but provides some stats while running the game.
         self.pb = ProjectBuyer(self.info, self.actions)
         self.activePhase = PhaseOne(self.info, self.actions)
-        self.runners = [self.logger, self.thread, self.pb, self.activePhase]
+        self.runners = [self.logger, self.thread, self.pb]
 
         # TODO: Trustspender en TourneyOrganiser can be put here.
 
@@ -34,6 +34,8 @@ class PhaseRunner():
     def tick(self) -> None:
         for runnable in self.runners:
             runnable.tick()
+
+        self.activePhase.tick()
 
     def __moveToNextPhase(self):
         self.activePhase = self.activePhase.getNextPhase()

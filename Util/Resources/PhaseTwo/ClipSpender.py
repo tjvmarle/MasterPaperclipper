@@ -1,5 +1,5 @@
-
 from Util.Resources.PhaseTwo.ClipValue import ClipValue
+from Util.Resources.ThreadClicker import ThreadClicker
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
 from Util.Listener import Event, Listener
@@ -53,7 +53,7 @@ class ClipSpender():
 
     def __resetThreadClicker(self, _: str) -> None:
         """Quickfix. Turn the threadclicker back on, otherwise no probes will be launched."""
-        self.actions.setThreadClickerActivity(True)
+        ThreadClicker.enable()
 
     def __init__(self, pageInfo: PageInfo, pageAction: PageActions) -> None:
         self.info = pageInfo
@@ -256,8 +256,7 @@ class ClipSpender():
             self.lastValueMoment = TS.now()
 
     def __maximizeSwarm(self):
-        with closeOutMutex:
-            self.actions.setThreadClickerActivity(False)
+        with closeOutMutex and ThreadClicker.Disabled():
 
             highestDroneCount = max(self.info.getInt("HarvesterCount"), self.info.getInt("WireCount"))
 
@@ -271,12 +270,10 @@ class ClipSpender():
                 self.nextItem = Item.Harvester
                 self.buyLarge()
 
-            self.actions.setThreadClickerActivity(True)
-
     def __prepareThirdPhase(self):
         """Gathers additional yomi and Swarm Gifts before starting the third phase."""
         self.droneRatio = 1
-        self.actions.setThreadClickerActivity(False)  # Don't need these for now.
+        ThreadClicker.disable()
 
         # Start buying drones while factories are still converting remaining wire to clips.
         if self.info.get("WireStock").text != '0':
@@ -299,10 +296,6 @@ class ClipSpender():
 
         TS.setTimer(0, "SwarmMaximizer", self.__maximizeSwarm)  # No delay required, just run a seperate thread
         self.thirdPhasePrepared = True
-
-    def entertainSwarm(self) -> None:
-        if self.actions.isVisible("EntertainSwarm") and self.actions.isEnabled("EntertainSwarm"):
-            self.actions.pressButton("EntertainSwarm")
 
     def closeOutSecondPhase(self) -> None:
         if self.info.get("WireStock").text != '0':
@@ -420,7 +413,6 @@ class ClipSpender():
         # TODO: refactor this entire class. It's too big and has too many flags/states.
         if not self.consumeAll:
             # Regular course of second phase
-            self.entertainSwarm()
             self.__checkProductionStability()
             self.__buyNext()
         else:
