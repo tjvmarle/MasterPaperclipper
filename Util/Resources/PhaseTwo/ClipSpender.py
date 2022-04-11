@@ -303,7 +303,8 @@ class ClipSpender():
             return
 
         if self.itemCount[Item.Battery] >= 1_000:
-            return
+            if self.itemCount[Item.Harvester] == 0:
+                return
 
         # If __maximizeSwarm() is running right now we skip this function for the moment.
         if not closeOutMutex.acquire(False):
@@ -333,7 +334,7 @@ class ClipSpender():
             self.__pressBuy(Item.Solar, 100)
 
     def __consumePlanet(self):
-        self.entertainSwarm()
+        # FIXME: This locks up the script right now
 
         if self.killPlanetaryConsumption:
             if self.info.getInt("Yomi") > 351_658:  # Yomi cost for 20 Probe Trust in Phase 3.

@@ -22,7 +22,7 @@ class ThreadClicker():
         def __enter__(self) -> None:
             ThreadClicker.__enabled = False
 
-        def __exit__(self) -> None:
+        def __exit__(self, exc_type, exc_value, tb) -> None:
             ThreadClicker.__enabled = True
 
     def __init__(self, pageInfo: PageInfo, pageAction: PageActions) -> None:
@@ -90,7 +90,7 @@ class ThreadClicker():
         total.pop()  # Opacity of last ops value
         return sum(total)
 
-    def disable(self) -> None:
+    def disable() -> None:
         """Deactivates the clicker for a longer time. Temporary solution until I find something cleaner."""
         ThreadClicker.__enabled = False
 
