@@ -126,7 +126,12 @@ class CashSpender():
 
             # Only save up for marketing if the cost can be achieved within the timeframe before investing starts.
             availSavingTime = 60 - Config.getInt('InvestPercentage') * 0.6
-            maxCash = availSavingTime * self.info.getFl("RevPerSec")
+            # FIXME: This code can be reached before acquiring the RevTracker.
+            maxCash = 0
+            try:
+                maxCash = availSavingTime * self.info.getFl("RevPerSec")
+            except:
+                pass
 
             if maxCash > self.marketingCost():
                 return ("LevelUpMarketing", self.marketingCost())

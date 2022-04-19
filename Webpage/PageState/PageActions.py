@@ -104,7 +104,8 @@ class PageActions():
             if page_button:
                 return page_button.is_displayed()
             else:
-                TS.print(f"Could not retrieve [{button}], executing isVisible() failed.")
+                # FIXME: This seems to trigger all the time.
+                # TS.print(f"Could not retrieve [{button}], executing isVisible() failed.")
                 return False
 
         except Exception as e:
