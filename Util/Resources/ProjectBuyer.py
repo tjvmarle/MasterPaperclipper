@@ -45,11 +45,8 @@ class ProjectBuyer():
 
     def __buyProjects(self):
         """Check if any required projects are available and buy them if they are."""
-        # Limit acquisition to once per second. This might give problems with the site's responsiveness otherwise.
-        if TS.delta(self.lastAcquisitionTime) < 1:
-            return
 
-        boughtProject = []
+        boughtProjects = []
         photonicChecked = False
 
         # High prio projects are bought regardless of their order.
@@ -62,18 +59,18 @@ class ProjectBuyer():
             if self.actions.isEnabled(project):
                 if self.actions.pressButton(project):
                     self.lastAcquisitionTime = TS.now()
-                    boughtProject.append(project)
+                    boughtProjects.append(project)
 
             # Optimization, check only once when a Photonic Chip is disabled
             elif not photonicChecked and project == "Photonic Chip":
                 photonicChecked = True
 
-        for project in boughtProject:
+        for project in boughtProjects:
             TS.print(f"Bought high prio: {project}.")
             self.highPrioProjects.remove(project)
 
         if not self.projects:
-            for project in boughtProject:
+            for project in boughtProjects:
                 Listener.notify(Event.BuyProject, project)
             return
 
@@ -88,12 +85,24 @@ class ProjectBuyer():
 
         if not blocked and self.actions.isEnabled(nextProject):
             if self.actions.pressButton(nextProject):
+                time.sleep(0.2)
                 self.lastAcquisitionTime = TS.now()
                 self.projects.pop(0)
-                boughtProject.append(nextProject)
-                TS.print(f"Bought {nextProject}.")
 
-        for project in boughtProject:
+                if nextProject not in self.projects and self.actions.isVisible(nextProject):
+                    TS.print(f"Acquisition of {nextProject} failed, trying again.")
+                    self.actions.pressButton(nextProject)
+                    time.sleep(0.2)
+
+                if nextProject not in self.projects and nextProject != "Photonic Chip" and self.actions.isVisible(nextProject):
+                    TS.print(f"Acquisition of {nextProject} failed again, putting it back on the list.")
+                    self.projects.insert(0, nextProject)
+                else:
+                    boughtProjects.append(nextProject)
+                    TS.print(f"Bought {nextProject}.")
+                    time.sleep(0.3)
+
+        for project in boughtProjects:
             Listener.notify(Event.BuyProject, project)
 
     def tick(self) -> None:

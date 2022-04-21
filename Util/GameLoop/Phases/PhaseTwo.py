@@ -21,9 +21,9 @@ class PhaseTwo():
 
         self.tourneyOrganizer = organiser
         self.trustSpender = trustSpender
-        self.pm = ClipSpender(self.info, self.actions)
+        self.clipsSpender = ClipSpender(self.info, self.actions)
 
-        self.runners = [self.tourneyOrganizer, self.pm]
+        self.runners = [self.tourneyOrganizer, self.clipsSpender]
 
         Listener.listenTo(Event.BuyProject, self.__swarmAcquired, "Swarm Computing", True)
 

@@ -20,9 +20,11 @@ class ThreadClicker():
             pass
 
         def __enter__(self) -> None:
+            TS.print("Temporarily disabling ThreadClicker.")
             ThreadClicker.__enabled = False
 
         def __exit__(self, exc_type, exc_value, tb) -> None:
+            TS.print("Enabling ThreadClicker again.")
             ThreadClicker.__enabled = True
 
     def __init__(self, pageInfo: PageInfo, pageAction: PageActions) -> None:

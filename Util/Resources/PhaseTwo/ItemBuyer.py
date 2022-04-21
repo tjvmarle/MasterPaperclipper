@@ -67,7 +67,7 @@ class ItemBuyer():
             return [ItemBuyer.__ButtonAmount(factoryButtonString, 1) for _ in range(amount)]
 
         thousands: list[int] = []
-        if item == Item.Harvester or item == Item.Harvester:
+        if item == Item.Harvester or item == Item.Wire:
             rangeVal, amount = divmod(amount, 1000)
             thousands = [1000 for _ in range(rangeVal)]
 

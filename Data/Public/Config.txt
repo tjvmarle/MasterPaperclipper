@@ -307,6 +307,7 @@ phaseOneHighPriorityProjects=[
     Release the HypnoDrones
 ]
 
+# TODO: Move some of these to a High prio list
 phaseTwoProjects=[
     Toth Tubule Enfolding
     Power Grid
@@ -318,8 +319,8 @@ phaseTwoProjects=[
     Momentum
     Drone flocking
     Upgraded Factories
-    Drone alignment
     Hyperspeed Factories
+    Drone alignment
     Supply Chain
     Adversarial Cohesion
     block2

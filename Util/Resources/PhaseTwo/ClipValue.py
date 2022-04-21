@@ -14,7 +14,7 @@ class ClipValue():
         value = value.text
 
         if " " not in value:
-            number = value
+            number = value if value else 0
             magnitude = "zero"
         else:
             number, magnitude = value.split(" ")
