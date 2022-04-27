@@ -22,7 +22,7 @@ class CombatWatcher():
 
         self.prevHonor = 0
         self.resetTime = 0.5  # Semi-random nonzero initial value
-        self.trustSetter = ProbeTrustSettings(pageActions)
+        self.probeTrustSetter = ProbeTrustSettings(pageActions, trust)
         self.availTrust = trust
         self.__enabled = True
 
@@ -39,12 +39,12 @@ class CombatWatcher():
             honor = self.info.getInt("honorDisplay")
 
             if honor != self.prevHonor:
-                self.setPeaceTrust()
+                self.__setPeaceTrust()
                 self.prevHonor = honor
 
             time.sleep(0.1)
 
-    def setPeaceTrust(self) -> None:
+    def __setPeaceTrust(self) -> None:
         """Swap trust settings around to optimize for non-noncombat for a short time."""
 
         funcTimestamp = TS.now()
@@ -53,7 +53,7 @@ class CombatWatcher():
         replicate = self.availTrust - 2 * matterAcq - 9
 
         with ThreadClicker.Disabled():  # Maximize clicking efficiency
-            self.setTrust(matterAcq, matterAcq, replicate, 6, 1, 1, 1, 0)  # No use for combat now
+            self.probeTrustSetter.setTrust(matterAcq, matterAcq, replicate, 6, 1, 1, 1, 0)  # No use for combat now
 
         setTime = TS.delta(funcTimestamp)
         sleepTime = CombatWatcher.BATTLE_PEACE_TIME - setTime - self.resetTime
@@ -62,39 +62,14 @@ class CombatWatcher():
 
         funcTimestamp = TS.now()
         with ThreadClicker.Disabled():
-            self.setWarTrust()
+            self.__setWarTrust()
 
         self.resetTime = CombatWatcher.BATTLE_PEACE_TIME - TS.delta(funcTimestamp)
 
-    def setWarTrust(self) -> None:
+    def __setWarTrust(self) -> None:
         """Default trust settings to maximize probe production while engaging in combat with the drifters."""
 
-        self.setTrust(2, 0, self.availTrust - 13, 6, 0, 0, 0, 5)
-
-    def setTrust(self, speed: int, explore: int, replicate: int, hazard: int, factory: int, harvester: int, wire: int,
-                 combat: int = 0) -> bool:
-        """Set the new trust values. The values will first be decreased so enough trust is available for the remaining 
-        increases. Returns False if not enough trust is available."""
-
-        mappedValues = {SettingType.Speed: speed, SettingType.Explore: explore, SettingType.Replicate: replicate,
-                        SettingType.Hazard: hazard, SettingType.Factory: factory, SettingType.Harvester: harvester,
-                        SettingType.Wire: wire, SettingType.Combat: combat}
-        total = sum(mappedValues.values())
-
-        if total > self.availTrust:
-            return False
-
-        currValues = self.trustSetter.val()
-        assert len(currValues) == len(mappedValues)
-
-        # List together the type, newvalue and delta, sorted with most negative delta first
-        deltaSets = [(type, newValue, newValue - currValues[type])
-                     for type, newValue in mappedValues.items()]
-
-        deltaSets.sort(key=lambda tuple: tuple[2])
-
-        for type, newValue, _ in deltaSets:
-            self.trustSetter.set(type, newValue)
+        self.probeTrustSetter.setTrust(2, 0, self.availTrust - 13, 6, 0, 0, 0, 5)
 
     def kill(self) -> None:
         """This kills the thread."""

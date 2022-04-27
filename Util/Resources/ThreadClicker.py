@@ -39,13 +39,12 @@ class ThreadClicker():
         self.currentTarget = AutoTarget.MakePaperclips
 
         # Start the clicker
-        self.thread = Process(target=self.__runThreadClicker, args=["1"], name="ThreadClicker")
-        self.thread.start()
+        Process(target=self.__runThreadClicker, args=[], name="ThreadClicker").start()
 
         Listener.listenTo(Event.BuyProject, self.__activatePhotonics, "Photonic Chip", True)
         Listener.listenTo(Event.ButtonPressed, self.__kill, "IncreaseMaxTrust", True)
 
-    def __runThreadClicker(self, _: str):
+    def __runThreadClicker(self):
         """The main loop of the autoclicker thread."""
         while CurrentPhase.phase != Phase.End:
             if ThreadClicker.__enabled and self.currentTarget != AutoTarget.Off:

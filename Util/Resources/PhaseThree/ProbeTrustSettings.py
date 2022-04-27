@@ -1,5 +1,6 @@
+from Util.Listener import Event, Listener
 from Webpage.PageState.PageActions import PageActions
-from Webpage.PageState.PageInfo import PageInfo
+
 from enum import Enum, auto
 
 
@@ -41,7 +42,7 @@ class TrustSettingEntry():
 class ProbeTrustSettings():
     """Keeps track of the trust settings of the probes."""
 
-    def __init__(self, pageActions: PageActions) -> None:
+    def __init__(self, pageActions: PageActions, currentTrust: int) -> None:
         buttonPairs = [
             ["LowerSpeed", "RaiseSpeed"],
             ["LowerExploration", "RaiseExploration"],
@@ -53,12 +54,43 @@ class ProbeTrustSettings():
             ["LowerCombat", "RaiseCombat"]]
         settingList = [enum for enum in SettingType]
         assert len(buttonPairs) == len(settingList)
+        self.availTrust = currentTrust
 
         # Map each enum against their entry.
         self.settings = {settingList[n]: TrustSettingEntry(
             pageActions, buttonPairs[n][0], buttonPairs[n][1], ) for n in range(len(buttonPairs))}
 
-    def set(self, setting: SettingType, newValue: int) -> None:
+        Listener.listenTo(Event.ButtonPressed, self.__increaseTrust, "BuyProbeTrust", False)
+
+    def __increaseTrust(self, _: str) -> None:
+        self.availTrust += 1
+
+    def setTrust(self, speed: int, explore: int, replicate: int, hazard: int, factory: int, harvester: int, wire: int,
+                 combat: int = 0) -> bool:
+        """Set the new trust values. The values will first be decreased so enough trust is available for the remaining 
+        increases. Returns False if not enough trust is available."""
+
+        mappedValues = {SettingType.Speed: speed, SettingType.Explore: explore, SettingType.Replicate: replicate,
+                        SettingType.Hazard: hazard, SettingType.Factory: factory, SettingType.Harvester: harvester,
+                        SettingType.Wire: wire, SettingType.Combat: combat}
+        total = sum(mappedValues.values())
+
+        if total > self.availTrust:
+            return False
+
+        currValues = self.__val()
+        assert len(currValues) == len(mappedValues)
+
+        # List together the type, newvalue and delta, sorted with most negative delta first.
+        deltaSets = [(type, newValue, newValue - currValues[type])
+                     for type, newValue in mappedValues.items()]
+
+        deltaSets.sort(key=lambda tuple: tuple[2])
+
+        for type, newValue, _ in deltaSets:
+            self.__set(type, newValue)
+
+    def __set(self, setting: SettingType, newValue: int) -> None:
         """Change a single setting to a new value."""
         # TODO: Perhaps this should do all settings at once, since this class tracks their values too.
 
@@ -72,7 +104,7 @@ class ProbeTrustSettings():
         for _ in range(abs(delta)):
             entry.up() if delta < 0 else entry.down()
 
-    def val(self):
+    def __val(self):
         """Returns a dict of {enum: value} with all available settings."""
         valmap = {setting: entry.val()
                   for setting, entry in self.settings.items()}

@@ -15,7 +15,7 @@ class StateTracker():
             self.transitionCallback = cb  # Can either be a trigger to transition or a callback reacting to a one.
             self.transitionOnce = transitionOnce
 
-    def __init__(self, states: Tuple[Enum], startingState: Enum = None) -> None:
+    def __init__(self, states: List[Enum], startingState: Enum = None) -> None:
         self._states = states
         self._state = states[0] if not startingState else startingState
         self._transitionChecks: List[StateTracker._Transition] = []
