@@ -222,6 +222,7 @@ class ClipSpender():
         if self.itemCount[Item.Solar] != 1:
             # We only need a single solar farm to allow Gifts to be generated.
             self.actions.pressButton("DissSolar")
+            self.itemCount[Item.Solar] = 0
             self.__buy(Item.Solar, 1)
 
         if self.swarmMaximizer != ClipSpender.ThreadState.Required:
