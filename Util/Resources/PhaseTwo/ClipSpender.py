@@ -1,4 +1,5 @@
 import math
+from Util.Resources.OrderedEnum import OrderedEnum
 from Util.Resources.PhaseTwo.ClipValue import ClipValue
 from Util.Resources.PhaseTwo.ItemBuyer import Item, ItemBuyer
 from Util.Resources.ThreadClicker import ThreadClicker
@@ -15,10 +16,9 @@ from typing import Tuple
 class ClipSpender():
     """Manages acquisition of drones, factories, solar farms and batteries"""
 
-    # TODO: the buy() functions could probably use quite a bit of refactoring
-
-    class States(Enum):
+    class States(OrderedEnum):
         """Describes the different states this class goes through while progressing through phase 2."""
+
         PreStartup = 0              # Buying projects to be able to actually start the phase
         Startup = 1                 # Just building up production
         MomentumBought = 2          # Acquired Momentum project
@@ -26,27 +26,6 @@ class ClipSpender():
         PlanetaryConsumption = 4    # Working towards consuming all planetary mass
         PrepareThirdPhase = 5       # Optional state to gather some more Yomi/Gifts before moving to phase three
         FinishSecondPhase = 6       # Switching resources around to acquire Space Exploration
-
-        # TODO: Implement a superclass OrderedEnums with these already implemented and derive from that.
-        def __ge__(self, other):
-            if self.__class__ is other.__class__:
-                return self.value >= other.value
-            return NotImplemented
-
-        def __gt__(self, other):
-            if self.__class__ is other.__class__:
-                return self.value > other.value
-            return NotImplemented
-
-        def __le__(self, other):
-            if self.__class__ is other.__class__:
-                return self.value <= other.value
-            return NotImplemented
-
-        def __lt__(self, other):
-            if self.__class__ is other.__class__:
-                return self.value < other.value
-            return NotImplemented
 
     buttons = {
         Item.Factory: "BuyFactory",
@@ -63,6 +42,7 @@ class ClipSpender():
     def __swarmAcquired(self, _: str) -> None:
         """Sets the slider to a specific value. Production is mostly bottlenecked by factories anyway and increasing 
         Processors and Memory is often more important than higher production."""
+
         self.actions.setSlideValue("SwarmSlider", 150)
         # TODO: Probably going to need a seperate swarm balancer. Push the slider more to think when wire/s >> clips/s
         # Perhaps try to reach certain drone counts on high production, then switch to Think for a boost in Gifts.
@@ -73,6 +53,7 @@ class ClipSpender():
     def __delayedInitialization(self, _: str):
         """All the items first need to be acquired through projects. The initialization is needed because clip 
         production otherwise won't start up naturally. This requires dropping performance below 100%."""
+
         self.__buy(Item.Solar, 1)
         self.__buy(Item.Harvester, 1)
         self.__buy(Item.Wire, 1)
@@ -107,6 +88,7 @@ class ClipSpender():
     def __buy(self, item: Item, amount: int) -> None:
         """Buys a specific amount of an item. Keeps track internally of how many items we have acquired so far. Returns
         actual quantity of items bought."""
+
         bought = self.buyer.buyAmount(item, amount)
         self.itemCount[item] += bought
         return bought
@@ -142,6 +124,7 @@ class ClipSpender():
 
     def __buyNextItem(self) -> None:
         """Buys the next objective. Could be a factory, drone or solar farm. Batteries not included."""
+
         if self.currentState.before(self.states.SupplyChainBought) and self.itemCount[Item.Factory] >= 50:
             # Saving up clips to acquire self-correcting Supply Chain
             return
@@ -197,6 +180,7 @@ class ClipSpender():
     def __checkProductionStability(self):
         """As long as momentum isn't acquired, checks if production has been stable for a couple of seconds. This allows
          production to stabilize for a bit after buying an additional factory and prevents overbuying them."""
+
         if self.currentState.atLeast(self.states.MomentumBought):
             # No use in checking stability if momentum is acquired, because it will increase constantly.
             return
@@ -210,6 +194,7 @@ class ClipSpender():
 
     class ThreadState(Enum):
         """Just a bit of between-threads-communication. Allows the maximizer to break off early."""
+
         Required = auto()
         Running = auto()
         NotRequired = auto()
@@ -301,7 +286,7 @@ class ClipSpender():
         self.actions.pressButton("DissFactory")
 
         # Minimum requirements to start third phase. Required Yomi is good for 18 Trust.
-        if self.info.getInt("Yomi") > 272_373 and self.info.getInt("Processors") >= 110 \
+        if self.info.getInt("Yomi") > 351_158 and self.info.getInt("Processors") >= 110 \
                 and self.info.getInt("Memory") >= 110:
             self.currentState.goTo(self.states.FinishSecondPhase)
         else:
@@ -333,7 +318,7 @@ class ClipSpender():
         elif self.currentState.get() == self.states.PrepareThirdPhase:
             # Acquire more Gifts/Yomi before moving to Phase 3.
             self.__prepareThirdPhase()
-            if self.info.getInt("Yomi") > 272_373 and self.info.getInt("Processors") >= 110 \
+            if self.info.getInt("Yomi") > 351_158 and self.info.getInt("Processors") >= 110 \
                     and self.info.getInt("Memory") >= 110:
                 self.currentState.goTo(self.states.FinishSecondPhase)
 
