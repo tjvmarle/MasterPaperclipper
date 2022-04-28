@@ -36,6 +36,7 @@ class HedgeFunder():
         self.info = pageInfo
         self.actions = pageActions
 
+        # TODO: Change to internal state
         self.investmentsActive = False
         self.myFinalForm = False
         self.currLevel = 0
@@ -51,9 +52,9 @@ class HedgeFunder():
         self.currMinute = TS.now().minute
         self.InvestUpgradeCosts = [int(cost) for cost in Config.get("InvestUpgradeCosts")]
 
-        Listener.listenTo(Event.BuyProject, self.__fullMonoAcquired, lambda project: project == "Full Monopoly", True)
-        Listener.listenTo(Event.BuyProject, self.__limitBreak, lambda project: project == "Theory of Mind", True)
-        Listener.listenTo(Event.BuyProject, self.__yomiEnabled, lambda project: project == "Strategic Modeling", True)
+        Listener.listenTo(Event.BuyProject, self.__fullMonoAcquired, "Full Monopoly", True)
+        Listener.listenTo(Event.BuyProject, self.__limitBreak, "Theory of Mind", True)
+        Listener.listenTo(Event.BuyProject, self.__yomiEnabled, "Strategic Modeling", True)
 
     def invest(self):
         # TODO: stop investing when all tokens off goodwill have been bought. Drain remaining cash for buying clippers.
