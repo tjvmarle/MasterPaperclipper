@@ -129,6 +129,8 @@ actionFields=[
     LaunchProbe:btnMakeProbe
     BuyProbeTrust:btnIncreaseProbeTrust
 
+    Honor:honorDisplay
+
     LowerSpeed:btnLowerProbeSpeed
     RaiseSpeed:btnRaiseProbeSpeed
     LowerExploration:btnLowerProbeNav
@@ -283,7 +285,8 @@ phaseOneHighPriorityProjects=[
     Global Warming
     Male Pattern Baldness
     
-    # Slightly higher prio than Photonic Chips. Running longer tournaments allows for longer generation of ops through Quantum Computing
+    # Slightly higher prio than Photonic Chips. Running longer tournaments allows for longer generation of ops through 
+    # Quantum Computing
     A100
 
     # Same, just buy when you can. Each entry is good for one acquisition. Requires one duplicate with phaseOneProjects
@@ -302,8 +305,6 @@ phaseOneHighPriorityProjects=[
     Theory of Mind
     Hypnodrones
 
-    # Temp fix. Prevents the game for hanging in the first phase because the acquisition of Tokens of Goodwill sometimes
-    # fails.
     Release the HypnoDrones
 ]
 
@@ -327,9 +328,13 @@ phaseTwoProjects=[
     Space Exploration
 ]
 
+# Currently unused
+phaseTwoHighPriorityProjects=[
+]
+
 phaseThreeProjects=[
-    Elliptic Hull
     Reboot the Swarm
+    Elliptic Hull
     Combat
     The OODA Loop
     Name the battles
@@ -362,9 +367,10 @@ ProgressInterval=60
 
 # Percentage of time used for investing, runs at start of every minute. Very low percentages are affected by fps. 
 InvestPercentage=25
-MaxInvestLevel=8
+MaxInvestLevel=6
 
-# If leveling up marketing is cheaper than MarketingRatio*Clippercost, marketing will be leveled up. Lower values will result in less Marketing levels being bought.
+# If leveling up marketing is cheaper than MarketingRatio*Clippercost, marketing will be leveled up. Lower values will 
+# result in fewer Marketing levels being bought.
 MarketingRatio=2
 
 InvestUpgradeCosts=[
@@ -385,5 +391,6 @@ InvestUpgradeCosts=[
 # Seconds a factory's production value needs to be stable before new one is considered for acquisition
 FactoryStableTime=2.0
 
+# FIXME: Check if this description is accurate.
 # Nr of factories required before acquisition switches to drones only until entire planet is converted
 ConsumePlanetFactoryThreshold=60
