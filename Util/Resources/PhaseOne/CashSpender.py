@@ -10,11 +10,10 @@ from Webpage.PageState.PageInfo import PageInfo
 from Util.Timestamp import Timestamp as TS
 from Util.Flagbearer import FlagBearer
 from enum import Enum, auto
-from functools import partial
 
 
 class Flag(Enum):
-    # TODO: Change these to states
+    # TODO: Clean up the last flag
     BuyingOutGoodwill = auto()
 
 

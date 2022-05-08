@@ -50,7 +50,7 @@ class ProjectBuyer():
         boughtProjects = []
         photonicChecked = False
 
-        # High prio projects are bought regardless of their order.
+        # High prio projects are bought whenever they become available.
         for project in self.highPrioProjects:
 
             # Optimization

@@ -89,6 +89,7 @@ class ThreadClicker():
         total.pop()  # Opacity of last ops value
         return sum(total)
 
+    # TODO: Cleanup
     def disable() -> None:
         """Deactivates the clicker for a longer time. Temporary solution until I find something cleaner."""
         ThreadClicker.enabled = False
