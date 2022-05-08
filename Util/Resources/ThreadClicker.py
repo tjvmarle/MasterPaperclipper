@@ -11,7 +11,7 @@ import re
 
 class ThreadClicker():
     """A semi-independent autoclicker. Main purpose is to maximize the usage of the ~73 clicks we have each second."""
-    __enabled = True
+    enabled = True
 
     class Disabled():
         """Helper class to temporarily disable the threadclicker. This allows other actions to perform better."""
@@ -20,12 +20,10 @@ class ThreadClicker():
             pass
 
         def __enter__(self) -> None:
-            TS.print("Temporarily disabling ThreadClicker.")
-            ThreadClicker.__enabled = False
+            ThreadClicker.enabled = False
 
-        def __exit__(self, exc_type, exc_value, tb) -> None:
-            TS.print("Enabling ThreadClicker again.")
-            ThreadClicker.__enabled = True
+        def __exit__(self, *_) -> None:
+            ThreadClicker.enabled = True
 
     def __init__(self, pageInfo: PageInfo, pageAction: PageActions) -> None:
         self.info = pageInfo
@@ -47,7 +45,7 @@ class ThreadClicker():
     def __runThreadClicker(self):
         """The main loop of the autoclicker thread."""
         while CurrentPhase.phase != Phase.End:
-            if ThreadClicker.__enabled and self.currentTarget != AutoTarget.Off:
+            if ThreadClicker.enabled and self.currentTarget != AutoTarget.Off:
                 self.actions.threadClick(self.threadButtons[self.currentTarget])
             else:
                 sleep(0.1)  # Prevents busywaiting
@@ -58,7 +56,7 @@ class ThreadClicker():
 
     def __kill(self, _: str) -> None:
         """Not really a kill, but at least stops the thread more or less for now."""
-        ThreadClicker.__enabled = False
+        ThreadClicker.enabled = False
 
     def tick(self) -> None:
         """Although the autoclicker runs mostly autonomously, the main loop uses this handle to change it's current 
@@ -93,8 +91,8 @@ class ThreadClicker():
 
     def disable() -> None:
         """Deactivates the clicker for a longer time. Temporary solution until I find something cleaner."""
-        ThreadClicker.__enabled = False
+        ThreadClicker.enabled = False
 
     def enable() -> None:
         """Re-enables the clicker again."""
-        ThreadClicker.__enabled = True
+        ThreadClicker.enabled = True
