@@ -1,7 +1,8 @@
+from functools import partial
+from Util.Resources.StatefulRunner import StatefulRunner
 from Util.Resources.OrderedEnum import OrderedEnum
 from Util.Resources.PhaseThree.CombatWatcher import CombatWatcher
-from Util.Resources.PhaseThree.ProbeTrustSettings import SettingType, ProbeTrustSettings
-from Util.Resources.State import StateTracker
+from Util.Resources.PhaseThree.ProbeTrustSettings import ProbeTrustSettings
 from Util.Resources.ThreadClicker import ThreadClicker
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
@@ -12,7 +13,7 @@ from multiprocessing.dummy import Process
 import math
 
 
-class ProbeBalancer():
+class ProbeBalancer(StatefulRunner):
     """Balances the trust settings for the probes. Also acquires new trust when possible."""
 
     class States(OrderedEnum):
@@ -24,24 +25,15 @@ class ProbeBalancer():
         ExploringTheUniverse = 4
 
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
-        # TODO: Write base class with pageInfo, action, runnerlist and tick method.
+        super().__init__(pageInfo, pageActions, ProbeBalancer.States)
+        self.states: ProbeBalancer.States
 
-        self.info = pageInfo
-        self.actions = pageActions
         self.probeTrustSetter = ProbeTrustSettings(pageActions, 0)
-
-        self.trustIncreased = False
-
         self.threnodyCounter = 0
         self.currTrust = 0
+        self.lastResourceAcquisition = TS.now()
 
-        self.lastIterationTime = TS.now()
-
-        # TODO: Maybe put this in a Stateful base class
-        self.currentState = StateTracker([enum for enum in ProbeBalancer.States])
-        self.states = ProbeBalancer.States
-
-        self.runners = [self.__increaseTrust, self.__checkAvailableMatter, self.__exploreUniverse]
+        self.runners = [self.__increaseTrust, self.__acquireAdditionalResources]
 
         while self.actions.isEnabled("BuyProbeTrust"):
             self.actions.pressButton("BuyProbeTrust")
@@ -53,7 +45,7 @@ class ProbeBalancer():
 
         Listener.listenTo(Event.BuyProject, self.__combatBought, "Combat", True)
         Listener.listenTo(Event.BuyProject, self.__oodaLoopBought, "The OODA Loop", True)
-        Listener.listenTo(Event.BuyProject, self.__namingTheBattles, "Name the battles", True)
+        Listener.listenTo(Event.BuyProject, self.__nameTheBattlesBought, "Name the battles", True)
         Listener.listenTo(Event.BuyProject, self.__threnodyBought, "Threnody for the Heroes", False)
 
     def __increaseTrust(self) -> None:
@@ -63,32 +55,39 @@ class ProbeBalancer():
             # Save up the Yomi to buy The OODA loop first
             return
 
-        # TODO: This method can probably be moved to a seperate class
-        if not self.trustIncreased and self.actions.isEnabled("IncreaseMaxTrust"):
+        # We only do this once, the game should be finished before another upgrade would become available.
+        if self.actions.isEnabled("IncreaseMaxTrust"):
             self.actions.pressButton("IncreaseMaxTrust")
-            self.trustIncreased = True  # We only do this once
+            self.runners.remove(self.__increaseTrust)
 
         if self.currTrust < 30 and self.actions.isEnabled("BuyProbeTrust"):
             self.actions.pressButton("BuyProbeTrust")
             self.currTrust += 1
-            self.actions.pressButton("RaiseReplication")
+            self.actions.pressButton("RaiseReplication")  # This might mess a little bit with the multithreading
 
-    def __checkAvailableMatter(self) -> None:
-        """Checks if Probe Trust settings needs to be changed to explore for additional matter."""
+    def __acquireAdditionalResources(self) -> None:
+        """Checks if we can increase drone or factory count and/or acquire more matter for a short while. This will 
+        later be replaced by the CombatWatcher."""
 
-        # TODO: Trigger this when Matter and Wire are 0 and Unused clips has descreased x% in y seconds.
-        if TS.delta(self.lastIterationTime) < 10.0 or self.info.get("AvailMatter").text != 0:
+        if TS.delta(self.lastResourceAcquisition) < 120.0:
             return
 
-        TS.print("Acquire Matter!")
+        TS.print("Acquire additional resources.")
+        replicationTrust = self.currTrust - 7
+        trustRunners = [partial(self.probeTrustSetter.setTrust, 0, 0, replicationTrust, 6, 1, 0, 0)]
+        trustRunners.append(partial(self.probeTrustSetter.setTrust, 0, 0, replicationTrust, 6, 0, 1, 0))
+        trustRunners.append(partial(self.probeTrustSetter.setTrust, 0, 0, replicationTrust, 6, 0, 0, 1))
 
-        availableTrust = self.currTrust - 7
-        speedTrust = math.ceil(availableTrust / 2)
-        exploreTrust = math.floor(availableTrust / 2)
+        if self.info.get("AvailMatter").text != "0":
+            trustRunners.append(partial(self.probeTrustSetter.setTrust, 1, 1, replicationTrust - 1, 6, 0, 0, 0))
 
-        self.probeTrustSetter.setTrust(speedTrust, exploreTrust, 4, 2, 1, 0, 0)
-        TS.setTimer(5, "MatterAcquisition", self.__setToCreatingProbes)
-        self.lastIterationTime = TS.now()
+        trustRunners.append(self.__setToCreatingProbes)
+
+        # Run each trust setting for the same amount of time
+        for count, runner in enumerate(trustRunners):
+            TS.setTimer(5 * count, "DroneAcquisition", runner)
+
+        self.lastResourceAcquisition = TS.now()
 
     def __exploreUniverse(self) -> None:
         """Checks if enough Probes have been generated and triggers exploration of the entire universe."""
@@ -110,24 +109,24 @@ class ProbeBalancer():
         else:
             self.probeTrustSetter.setTrust(0, 0, self.currTrust - 6, 6, 0, 0, 0)
 
-    def __namingTheBattles(self, _: str) -> None:
-        self.combatWatcher = CombatWatcher(self.info, self.actions, self.currTrust)
-        Process(target=self.combatWatcher.run, args=[], name="CombatWatcher").start()
-        self.runners.remove(self.__checkAvailableMatter)  # Will now be handled by the CombatWatcher
-
     def __combatBought(self, _: str) -> None:
         self.currentState.goTo(self.states.CombatEnabled)
+        self.runners.remove(self.__acquireAdditionalResources)  # Will later be handled by the CombatWatcher
 
     def __oodaLoopBought(self, _: str) -> None:
         self.currentState.goTo(self.states.SpeedyCombat)
+
+    def __nameTheBattlesBought(self, _: str) -> None:
+        self.runners.append(self.__exploreUniverse)
+        self.currentState.goTo(self.states.FightingForHonor)
+
+        # Manage the trust settings from a seperate thread now. This will optimize trust settings in between the
+        # battles by swapping the combat/speed points around.
+        self.combatWatcher = CombatWatcher(self.info, self.actions, self.currTrust)
+        Process(target=self.combatWatcher.run, args=[], name="CombatWatcher").start()
 
     def __threnodyBought(self, _: str) -> None:
         self.threnodyCounter += 1
         if self.threnodyCounter == 4:
             self.actions.setSlideValue("SwarmSlider", 10)
             ThreadClicker.disable()  # Don't need this anymore
-
-    def tick(self) -> None:
-
-        for func in self.runners:
-            func()
