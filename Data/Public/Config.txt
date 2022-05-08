@@ -64,6 +64,12 @@ infoFields=[
     WireCount:wireDroneLevelDisplay
 
     # Phase 3
+    Factories:factoryLevelDisplaySpace
+    Harvesters:harvesterLevelSpace
+    WireDrones:wireDroneLevelSpace
+    UnusedClips:unusedClipsDisplay
+    Honor:honorDisplay
+
     MaxTrust:maxTrustDisplay
     TrustCost:probeTrustCostDisplay
     AvailMatter:availableMatterDisplay
@@ -126,10 +132,9 @@ actionFields=[
     SynchronizeSwarm:btnSynchSwarm
 
     # 3rd phase
+    
     LaunchProbe:btnMakeProbe
     BuyProbeTrust:btnIncreaseProbeTrust
-
-    Honor:honorDisplay
 
     LowerSpeed:btnLowerProbeSpeed
     RaiseSpeed:btnRaiseProbeSpeed
@@ -167,6 +172,12 @@ progressFields=[
     Creativity
     Yomi
     TotalInvested
+    UnusedClips
+    LaunchedProbes
+    Factories
+    Harvesters
+    WireDrones
+    AvailMatter
 ]
 
 # Prioritizes the order in which Processors and Memory need to be bought
@@ -204,6 +215,8 @@ trustSpendingStrategy=[
 ]
 
 # Priority of buying the projects
+# NOTE: Changing the order of non-high-priority projects could mess up the state progression of scripts listening for 
+#       their acquisition.
 phaseOneProjects=[
     
     # First Exhaust the creativity projects
@@ -241,6 +254,7 @@ phaseOneProjects=[
     Hypno Harmonics
 
     Strategic Modeling
+    A100
 
     B100
     GREEDY
@@ -248,14 +262,17 @@ phaseOneProjects=[
     MINIMAX
     TIT FOR TAT
     BEAT LAST
+    
+    World Peace
+    Quantum Foam Annealment
+    Hypnodrones
+    Theory of Mind
 
     # Block further acquisition untill enough funds are available to immediately finish the first phase
     block0
 
     A Token of Goodwill
 
-    # TODO: Verify these are bought correctly. Sometimes one fails to register in the ProjectBuyer, even though it is 
-    # still bought
     Another Token of Goodwill
     Another Token of Goodwill
     Another Token of Goodwill
@@ -270,24 +287,23 @@ phaseOneProjects=[
 ]
 
 # Projects in this list will be bought when possible, outside of any other priorities
-# OPT: These might have a decent impact on performance...
+# TODO: log their acquisition order and move as many as possible to the ordered list
+
 phaseOneHighPriorityProjects=[
     MegaClippers
     Improved MegaClippers
     Even Better MegaClippers
     Optimized MegaClippers
-    Quantum Foam Annealment
     
     # Not really important, but it's exact priority doesn't really matter. Some also raise investment returns a bit.
     Coherent Extrapolated Volition
     Cure for Cancer
-    World Peace
     Global Warming
     Male Pattern Baldness
     
     # Slightly higher prio than Photonic Chips. Running longer tournaments allows for longer generation of ops through 
     # Quantum Computing
-    A100
+    
 
     # Same, just buy when you can. Each entry is good for one acquisition. Requires one duplicate with phaseOneProjects
     Photonic Chip
@@ -301,9 +317,6 @@ phaseOneHighPriorityProjects=[
     Photonic Chip
     Photonic Chip
     Photonic Chip
-
-    Theory of Mind
-    Hypnodrones
 
     Release the HypnoDrones
 ]
@@ -322,14 +335,14 @@ phaseTwoProjects=[
     Upgraded Factories
     Hyperspeed Factories
     Drone alignment
-    Supply Chain
-    Adversarial Cohesion
     block2
     Space Exploration
 ]
 
 # Currently unused
 phaseTwoHighPriorityProjects=[
+    Supply Chain
+    Adversarial Cohesion
 ]
 
 phaseThreeProjects=[
@@ -367,7 +380,7 @@ ProgressInterval=60
 
 # Percentage of time used for investing, runs at start of every minute. Very low percentages are affected by fps. 
 InvestPercentage=25
-MaxInvestLevel=6
+MaxInvestLevel=7
 
 # If leveling up marketing is cheaper than MarketingRatio*Clippercost, marketing will be leveled up. Lower values will 
 # result in fewer Marketing levels being bought.
@@ -391,6 +404,30 @@ InvestUpgradeCosts=[
 # Seconds a factory's production value needs to be stable before new one is considered for acquisition
 FactoryStableTime=2.0
 
-# FIXME: Check if this description is accurate.
-# Nr of factories required before acquisition switches to drones only until entire planet is converted
-ConsumePlanetFactoryThreshold=60
+# Allows for collecting information about the progress of a game. Syntax is InfoField:CollectionIntervalInSeconds
+ReportingMetrics=[
+    
+    # All game
+    Yomi:15
+    TotalInvested:15
+
+    # Phase one
+    MarketingLevel:15
+    ClipsPerSec:15
+    AutoCount:15
+    MegaCount:15
+    Trust:15
+    Processors:15
+    Memory:15
+    Creativity:15
+
+    # Phase two
+    HarvesterCount:15
+    WireCount:15
+    
+    # Phase three
+    LaunchedProbes:5
+    Factories:15
+    Harvesters:15
+    WireDrones:15
+]

@@ -24,3 +24,6 @@ class BaseRunner():
 
         for runner in self.runners:
             runner()
+
+    # TODO: wire an addTicker() so derivatives can add tickable objects themselves and have them managed from here.
+    # This should track the object and add their tick() to the runners.

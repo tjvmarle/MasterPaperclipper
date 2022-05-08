@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import Callable
+from typing import Callable, List
 from Util.Timestamp import Timestamp as TS
 
 
@@ -33,11 +33,11 @@ class Listener():
 
     def listenTo(event: Event, callback: Callable, filter, oneTimeOnly: bool = False) -> None:
         """Add a callback to track a specific event."""
-        entry = Listener.__eventCollection.get(event, False)
+        entry: List[Callable] = Listener.__eventCollection.get(event, False)
 
         if isinstance(filter, str):
             # Works for both Project- and Button names
-            Cbfilter = lambda strInput: strInput == filter
+            def Cbfilter(strInput): return strInput == filter
         else:
             Cbfilter = filter
 
@@ -57,6 +57,7 @@ class Listener():
 
         removeCbs = []
         for filteredCb in entry:
+            # TODO: Check if the CB accepts strings, omit the tag if they don't
             if filteredCb(tag):  # Mark filteredCallback for removal
                 removeCbs.append(filteredCb)
 

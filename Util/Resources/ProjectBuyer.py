@@ -30,6 +30,7 @@ class ProjectBuyer():
     def __setNextProjectList(self) -> None:
         """Loads in the projects for the next phase."""
         if CurrentPhase.phase == Phase.Two:
+            self.highPrioProjects = Config.get("phaseTwoHighPriorityProjects")
             self.projects = Config.get("phaseTwoProjects")
         else:
             self.highPrioProjects = Config.get("phaseThreeHighPriorityProjects")

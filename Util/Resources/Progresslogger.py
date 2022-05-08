@@ -10,14 +10,14 @@ class Progresslogger():
 
     def __init__(self, pageInfo: PageInfo) -> None:
         self.info = pageInfo
-        self.interval = int(Config.get("ProgressInterval"))
+        self.loggerInterval = int(Config.get("ProgressInterval"))
         self.nrOfIntervals = 1
         self.ticks = 0
 
     def logProgress(self):
         currVals = [[field, self.info.get(field).text] for field in Config.get("progressFields")]
         currValStrings = [f"{name}={value}" for name, value in currVals if value]
-        currValStrings.append(f"fps={(self.ticks / self.interval):.2f}")  # Average fps over interval
+        currValStrings.append(f"fps={(self.ticks / self.loggerInterval):.2f}")  # Average fps over interval
         self.ticks = 0
 
         TS.print(f"{Fore.LIGHTBLACK_EX}Progress({self.nrOfIntervals}): ",
@@ -27,6 +27,6 @@ class Progresslogger():
     def tick(self) -> None:
         self.ticks += 1
 
-        if TS.delta(Config.get("Gamestart")) / self.nrOfIntervals > self.interval:
+        if TS.delta(Config.get("Gamestart")) / self.nrOfIntervals > self.loggerInterval:
             self.logProgress()
             self.nrOfIntervals += 1

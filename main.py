@@ -29,12 +29,35 @@ TS.print("\n" * 10)
 TS.print("Start!")
 
 
+# Getting to 2nd phase a bit quicker
+# for _ in range(200):
+#     webPage.getDriver().execute_script("cheatMoney()")
+
+# for _ in range(50):
+#     webPage.getDriver().execute_script("cheatClips();")
+# time.sleep(0.5)
+
+# for _ in range(50):
+#     webPage.getDriver().execute_script("cheatCreat();")
+#     webPage.getDriver().execute_script("cheatYomi();")
+
+# for _ in range(15):
+#     runner.actions.pressButton("BuyWireSpool")
+
+
 def loop():
+
     global totalFrames
     global totalTicks
     global frames
     global frameStamp
     while CurrentPhase.phase != Phase.End:
+
+        # Temp
+        # if CurrentPhase.phase == Phase.One:
+        # webPage.getDriver().execute_script("cheatOps();")
+        # webPage.getDriver().execute_script("cheatYomi();")
+
         runner.tick()
 
         frames += 1
