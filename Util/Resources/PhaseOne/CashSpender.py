@@ -1,10 +1,10 @@
 # Responsible for spending money on wire, clippers and marketing
-from selenium.webdriver.common.by import By
-from multiprocessing.dummy import Process
 from Util.Files.Config import Config
 from Util.Listener import Event, Listener
+from Util.Resources.OrderedEnum import OrderedEnum
 from Util.Resources.PhaseOne.HedgeFunder import HedgeFunder
 from Util.Resources.PhaseOne.PriceWatcher import PriceWatcher
+from Util.Resources.StatefulRunner import StatefulRunner
 from Webpage.PageState.PageActions import PageActions
 from Webpage.PageState.PageInfo import PageInfo
 from Util.Timestamp import Timestamp as TS
@@ -14,51 +14,58 @@ from functools import partial
 
 
 class Flag(Enum):
-    WireProductionKilled = auto()
-    ClippersForSale = auto()
-    BuyingNextObjectiveKilled = auto()
-    EnoughClippers = auto()
+    # TODO: Change these to states
     BuyingOutGoodwill = auto()
-    MegaClippersAvailable = auto()
 
 
-class CashSpender():
+class CashSpender(StatefulRunner):
     """Manages the spending of our disposable income."""
 
+    class States(OrderedEnum):
+        NoClippersAvailable = 0    # Game start, can't buy clippers yet
+        ClippersAvailable = 1      # Autoclippers for sale
+        WireBuyerAcquired = 4      # Wirebuyer acquired, no additional actions required anymore
+        MegaClippersAvailable = 5  # Start taking megaclippers into consideration when determining next item to buy
+
     def __moneyWithdrawn(self, _: str) -> None:
-        """Checks if enough money is withdrawn to buy out all Tokens of Goodwill. This will temporarily block all clipper acquisitions."""
-        # OPT: If for some reason we reach 91 trust through clipper production, we need 256M less to finish the phase.
-        self.flags[Flag.BuyingOutGoodwill] = self.tokensOfGoodwill > 0 and (self.info.getFl("Funds") > 511_500_000.0)
+        """Checks if enough money is withdrawn to buy out all Tokens of Goodwill. This will temporarily block all 
+        clipper acquisitions. Regular games should buy 10 tokens. Slower ones will buy 9, since an additional trust is 
+        gained through clip production."""
+
+        total_cost: int = 0
+        for power in range(100 - self.info.getInt("Trust")):
+            total_cost += 500_000 * 2 ** power
+
+        self.flags[Flag.BuyingOutGoodwill] = self.tokensOfGoodwill > 0 and (
+            self.info.getFl("Funds") > float(total_cost))
 
     def __tokensBought(self, _: str) -> None:
-        """Keeps track of the amount of Tokens of Goodwill being acquired. Once they're all bought, clipper acquisition can resume."""
+        """Keeps track of the amount of Tokens of Goodwill being acquired. Once they're all bought, clipper acquisition 
+        can resume."""
+
         self.tokensOfGoodwill -= 1
         if self.tokensOfGoodwill <= 0:
             self.flags[Flag.BuyingOutGoodwill] = False
 
     def __init__(self, pageInfo: PageInfo, pageActions: PageActions) -> None:
-        self.info = pageInfo
-        self.actions = pageActions
+        super().__init__(pageInfo, pageActions, CashSpender.States)
+        self.states: CashSpender.States
 
         self.highestWireCost = 27
         self.clipperSpeed = 2.5
         self.megaPerformance = 1
         self.nextObjective = None
-        self.pricer = PriceWatcher(self.info, self.actions)
-        self.runners = [self.pricer]
-        self.hedgeInits = 2
 
-        self.flags = FlagBearer(
-            true=(),
-            false=(Flag.WireProductionKilled, Flag.ClippersForSale, Flag.BuyingNextObjectiveKilled,
-                   Flag.EnoughClippers, Flag.BuyingOutGoodwill, Flag.MegaClippersAvailable))
+        self.delegates = [pricer := PriceWatcher(self.info, self.actions)]
+        self.runners = [self.__updateWire, self.__buyNextObjective, pricer.tick]
+
+        self.flags = FlagBearer(true=(), false=(Flag.BuyingOutGoodwill, ))
         self.marketingCost = lambda: 100 * (2 ** (self.marketingLevel - 1))
 
         self.marketingLevel = 1
         self.tokensOfGoodwill = Config.get("phaseOneProjects").count("Another Token of Goodwill")
 
         # UGLY: this class probably needs some splitting up
-        Listener.listenTo(Event.BuyProject, self.__revTrackerAcquired, "RevTracker", True)
         Listener.listenTo(Event.BuyProject, self.__algoTradingAcquired, "Algorithmic Trading", True)
         def filter(project): return project in ("Hadwiger Clip Diagrams", "Improved MegaClippers",
                                                 "Even Better MegaClippers", "Optimized MegaClippers")
@@ -66,15 +73,6 @@ class CashSpender():
         Listener.listenTo(Event.BuyProject, self.__megaClippersAcquired, "MegaClippers", True)
         Listener.listenTo(Event.BuyProject, self.__tokensBought, "Another Token of Goodwill", False)
         Listener.listenTo(Event.ButtonPressed, self.__moneyWithdrawn, "WithdrawFunds", False)
-
-        # Technically we don't need this one, but it's cheap and makes life a little bit easier.
-        Listener.listenTo(Event.BuyProject, partial(self.flags.set, Flag.WireProductionKilled, True), "WireBuyer", True)
-
-        # The exact project doesn't really matter, but this takes the pressure off the driver for the first part
-        Listener.listenTo(Event.BuyProject, self.__killOfClipperAcquisition, "Hypnodrones", True)
-
-    def __killOfClipperAcquisition(self, _: str):
-        self.flags[Flag.EnoughClippers] = True
 
     def __clipperImprovementAcquired(self, project: str) -> None:
         TS.print(f"Clipper improvement acquired: {project}.")
@@ -91,25 +89,17 @@ class CashSpender():
 
     def __megaClippersAcquired(self, _: str) -> None:
         TS.print("Enabled Megaclippers for sale")
-        self.flags[Flag.MegaClippersAvailable] = True
+        self.currentState.goTo(self.states.MegaClippersAvailable)
         self.nextObjective = None
 
-    def __checkHedgeInits(self) -> None:
-        # UGLY: but saves a bunch of additional code
-        if self.hedgeInits == 0:
-            self.runners.append(HedgeFunder(self.info, self.actions))
-
-    def __revTrackerAcquired(self, _: str) -> None:
-        self.hedgeInits -= 1
-        self.__checkHedgeInits()
-
     def __algoTradingAcquired(self, _: str) -> None:
-        self.hedgeInits -= 1
-        self.__checkHedgeInits()
+        self.delegates.append(hedger := HedgeFunder(self.info, self.actions))
+        self.runners.append(hedger.tick)
 
     def __determineNextClipper(self):
-        # Check which clipper to buy next
-        if not self.flags[Flag.MegaClippersAvailable]:
+        """Checks which clipper to buy next. Basically calculates production speed per dollar spent and returns the most
+        optimal item."""
+        if self.currentState.before(self.states.MegaClippersAvailable):
             return ("BuyAutoclipper", self.info.getFl("AutoCost"))
 
         # OPT: These prizes can probably be calculated as long as you track their count
@@ -126,7 +116,6 @@ class CashSpender():
 
             # Only save up for marketing if the cost can be achieved within the timeframe before investing starts.
             availSavingTime = 60 - Config.getInt('InvestPercentage') * 0.6
-            # FIXME: This code can be reached before acquiring the RevTracker.
             maxCash = 0
             try:
                 maxCash = availSavingTime * self.info.getFl("RevPerSec")
@@ -140,17 +129,19 @@ class CashSpender():
 
     def __buyNextObjective(self):
         """Buys the next objective if possible. Keeps a buffer to always allow buying wire."""
-        if not self.flags[Flag.ClippersForSale]:
-            # You can't buy clippers untill you've made $5
-            self.flags[Flag.ClippersForSale] = self.actions.isVisible("BuyAutoclipper")
+
+        if self.currentState.before(self.states.ClippersAvailable):
+            if self.actions.isVisible("BuyAutoclipper"):
+                self.currentState.goTo(self.states.ClippersAvailable)
+            else:
+                return
+
+        if self.flags[Flag.BuyingOutGoodwill]:
             return
 
-        if self.flags[Flag.BuyingNextObjectiveKilled] or self.flags[Flag.BuyingOutGoodwill]:
-            return
-
-        if self.flags[Flag.EnoughClippers] and self.info.getInt("TotalClips") > 122_000_000:
+        if self.info.getInt("TotalClips") > 122_000_000:
             TS.print(f"Reached 122M clips in {TS.deltaStr(Config.get('Gamestart'))}, killing of Clipper acquisition.")
-            self.flags[Flag.BuyingNextObjectiveKilled] = True  # Kills of this method
+            self.runners.remove(self.__buyNextObjective)  # Kills of this method
             return
 
         if not self.nextObjective:
@@ -169,7 +160,8 @@ class CashSpender():
 
     def __updateWire(self):
         """Buys wire if possible and required. Tries to buy cheap."""
-        if self.flags[Flag.WireProductionKilled]:
+
+        if self.currentState.atLeast(self.states.WireBuyerAcquired):
             return
 
         wireCost = self.info.getInt("WireCost")
@@ -183,10 +175,3 @@ class CashSpender():
                 wire < 1500 and wireCost / self.highestWireCost <= 0.65) or (
                 wire < 2500 and wireCost / self.highestWireCost <= 0.50):  # Either buy when low or cheap
             self.actions.pressButton("BuyWireSpool")
-
-    def tick(self) -> None:
-        self.__updateWire()
-        self.__buyNextObjective()
-
-        for runner in self.runners:
-            runner.tick()
