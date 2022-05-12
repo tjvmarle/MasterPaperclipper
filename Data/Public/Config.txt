@@ -203,7 +203,9 @@ trustSpendingStrategy=[
     100:110
 
     # 120 ops are required for space exploration (finishing the 2nd phase)
-    250:120
+    # 150 ops are required to buy Combat and prevent heavy probe losses in third phase
+    100:140
+    150:170
 
     # Most expensive project is 250k ops, except for the endgame offer
     # Until then, a lot of creativity is required for the Threnody projects
@@ -346,7 +348,6 @@ phaseTwoHighPriorityProjects=[
 ]
 
 phaseThreeProjects=[
-    Reboot the Swarm
     Elliptic Hull
     Combat
     The OODA Loop
@@ -360,10 +361,14 @@ phaseThreeProjects=[
     Threnody for the Heroes
     Threnody for the Heroes
     Threnody for the Heroes
+    
+    # TODO: This cannot be under high prio unless Name the Battles has been bought first. Check if we actually need this
+    # project at all. If we do need it, check what position is optimal.
+    Strategic Attachment
 ]
 
 phaseThreeHighPriorityProjects=[
-    Strategic Attachment
+    Reboot the Swarm
 ]
 
 # Overview of the strat to choose, depending on which ones are available.
@@ -385,6 +390,7 @@ MaxInvestLevel=7
 # If leveling up marketing is cheaper than MarketingRatio*Clippercost, marketing will be leveled up. Lower values will 
 # result in fewer Marketing levels being bought.
 MarketingRatio=2
+MaxMarketingLevel=10
 
 InvestUpgradeCosts=[
        100
@@ -412,13 +418,12 @@ ReportingMetrics=[
     TotalInvested:15
 
     # Phase one
-    MarketingLevel:15
+    MarketingLevel:30
     ClipsPerSec:15
     AutoCount:15
     MegaCount:15
-    Trust:15
-    Processors:15
-    Memory:15
+    Processors:30
+    Memory:30
     Creativity:15
 
     # Phase two
@@ -426,8 +431,8 @@ ReportingMetrics=[
     WireCount:15
     
     # Phase three
-    LaunchedProbes:5
-    Factories:15
-    Harvesters:15
-    WireDrones:15
+    LaunchedProbes:10
+    Factories:30
+    Harvesters:30
+    WireDrones:30
 ]

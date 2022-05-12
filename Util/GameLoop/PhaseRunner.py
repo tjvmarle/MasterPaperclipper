@@ -2,6 +2,7 @@
 from selenium import webdriver
 from Util.GameLoop.Phases.PhaseOne import PhaseOne
 from Util.GameLoop.Phases.CurrentPhase import CurrentPhase, Phase
+from Util.GameLoop.RunReporter import RunReporter
 from Util.Resources.PhaseThree.SwarmWatcher import SwarmWatcher
 from Util.Resources.Progresslogger import Progresslogger
 from Util.Resources.ThreadClicker import ThreadClicker
@@ -17,14 +18,15 @@ class PhaseRunner():
     def __init__(self, driver: webdriver.Chrome) -> None:
         self.info = PageInfo(driver)
         self.actions = PageActions(driver)
+        self.logger = Progresslogger(self.info)  # Optional, but provides some stats while running the game.
 
         # This one runs outside the game loop.
         self.thread = ThreadClicker(self.info, self.actions)
 
-        self.logger = Progresslogger(self.info)  # Optional, but provides some stats while running the game.
         self.pb = ProjectBuyer(self.info, self.actions)
         self.activePhase = PhaseOne(self.info, self.actions)
         self.runners = [self.logger, self.thread, self.pb]
+        self.reporter = RunReporter(self.info, self.actions)
 
         # TODO: Trustspender en TourneyOrganiser can be put here.
 
@@ -42,3 +44,7 @@ class PhaseRunner():
 
         if CurrentPhase.phase == Phase.Two:
             self.runners.append(SwarmWatcher(self.info, self.actions))
+
+    def writeOut(self) -> None:
+        """Write out collected data to a file"""
+        self.reporter.writeOut()

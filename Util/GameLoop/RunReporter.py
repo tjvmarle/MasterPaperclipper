@@ -60,6 +60,7 @@ class InfoTracker():
             self.track()
 
     def getName(self) -> str:
+        """Returns the trackername. Mostly used to name the relevant thread."""
         return f"{self.field}Tracker"
 
     def getData(self) -> List[Tuple[datetime, str]]:
@@ -98,19 +99,20 @@ class RunReporter(BaseRunner):
         filename = today.strftime("%Y-%m-%dT%H-%M - RunStats")
 
         with open(f"Data\\Private\\RunStats\\{filename}.txt", "w") as file:
-            file.write(f'Date: {today.strftime("%Y-%m-%d")}')
+            file.write(f'Date: {today.strftime("%Y-%m-%d")}\n')
+            file.write(f'Start: {today.strftime("%H-%M-%S.%f")[:-5]}\n')
 
             for tracker in self.trackers:
-                file.writelines([tracker.getField(), "\n"])
 
-                for timestamp, datapoint in tracker.getData():
-                    file.writelines(f"{timestamp},{datapoint}\n")
+                if trackedData := tracker.getData():
+                    file.writelines([tracker.getField(), "\n"])
+                else:
+                    continue
+
+                for timestamp, datapoint in trackedData:
+                    timeString = timestamp.strftime("%Y-%m-%dT%H-%M-%S.%f")[:-5]
+                    file.writelines(f"{timeString}, {datapoint}\n")
 
         RunReporter.tracking = False  # Kills of all threads
 
-        # TODO: Collect, format and write out all data here.
-        # TODO: Perhaps let the trackers format the data instead.
-
-    # TODO: Implement collecting the data. Writing it to a csv and/or HTML. The HTML could show some nice graphs. Could
-    # be combined with some nice js. You could also write a seperate html/css/js page that can import the csv's.
-    # TODO: Write out the data in the destructor. <-- Ensure this doesn't throw any errors.
+    # TODO: Set up a html file to load/visualize the data. Use some JS to import the results and configure the graphs.

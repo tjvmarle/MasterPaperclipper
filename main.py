@@ -25,8 +25,9 @@ frames = 0
 totalFrames = 0
 totalTicks = 0
 
-TS.print("\n" * 10)
-TS.print("Start!")
+TS.print("\n" * 3)
+TS.print("*" * 5, " ", "Start!", " ", "*" * 5)
+TS.print("\n" * 3)
 
 
 # Getting to 2nd phase a bit quicker
@@ -58,7 +59,13 @@ def loop():
         # webPage.getDriver().execute_script("cheatOps();")
         # webPage.getDriver().execute_script("cheatYomi();")
 
-        runner.tick()
+        try:
+            runner.tick()
+        except Exception as e:
+            # TODO: Write out the RunReporter
+            print("Exception caught, printing out data.")
+            runner.writeOut()
+            raise e
 
         frames += 1
         runtime = TS.delta(frameStamp)
@@ -75,6 +82,8 @@ def loop():
 
 
 loop()
+runner.writeOut()
+
 # cProfile.run('loop()')
 # OPT: Almost 100% of the time spent in webdriver.py:404(execute). On a per-call basis, all calls to the driver take about 13-14 ms, ~74 calls/s. Fewer calls == higher fps!
 
