@@ -3,7 +3,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import Select
 from Util.Files.Config import Config
-from Util.Timestamp import Timestamp as TS
 
 
 # Class to acquire data from the webpage

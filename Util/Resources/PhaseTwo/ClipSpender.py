@@ -46,6 +46,7 @@ class ClipSpender():
         self.actions.setSlideValue("SwarmSlider", 150)
         # TODO: Probably going to need a seperate swarm balancer. Push the slider more to think when wire/s >> clips/s
         # Perhaps try to reach certain drone counts on high production, then switch to Think for a boost in Gifts.
+        # We also need this in Phase 3: Availmatter == 0 --> 100% think.
 
     def __supplyChainAcquired(self, _: str) -> None:
         self.currentState.goTo(self.states.SupplyChainBought)
@@ -246,6 +247,10 @@ class ClipSpender():
 
         TS.print("Closing out second phase.")
 
+        # Kill the Swarm Maximizer if it is still running
+        if self.swarmMaximizer == ClipSpender.ThreadState.Running:
+            self.swarmMaximizer = ClipSpender.ThreadState.NotRequired
+
         self.actions.pressButton("DissHarvester")
         self.itemCount[Item.Harvester] = 0
 
@@ -264,7 +269,7 @@ class ClipSpender():
                 self.__buy(Item.Solar, 100)
 
             # Because charing the batteries is relatively slow.
-            for _ in range(390):  # Might be a bit on the high side.
+            for _ in range(400):
                 self.__buy(Item.Solar, 100)
 
     def __consumePlanet(self):

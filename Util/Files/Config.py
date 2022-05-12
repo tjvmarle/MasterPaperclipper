@@ -1,4 +1,5 @@
 import csv
+from typing import Union, List
 
 
 class Config():
@@ -10,7 +11,7 @@ class Config():
         raise NotImplementedError("We don't do that here.")
 
     def load(path: str) -> None:
-        """Loads in the Config file and saves it's content as dict. Line starting with # are ignored."""
+        """Loads in the Config file and saves it's content as a dict. Lines starting with # are ignored."""
         with open(path) as file:
             lines = file.readlines()
 
@@ -56,8 +57,8 @@ class Config():
 
         Config.__config["AllProjects"] = projectList
 
-    def get(param: str) -> str:
-        """Retrieve a configuration value as text."""
+    def get(param: str) -> Union[str, List[str]]:
+        """Retrieve a configuration value as either a string or a list of strings."""
         return Config.__config.get(param, "")
 
     def getInt(param: str) -> str:

@@ -111,7 +111,8 @@ class CashSpender(StatefulRunner):
         """Determines next objective to buy, either a specific autoclipper or upgrading Marketing level."""
         clipper, clipperCost = self.__determineNextClipper()
 
-        if self.marketingCost() < int(Config.get('MarketingRatio')) * clipperCost:
+        if self.marketingLevel < Config.getInt('MaxMarketingLevel') and \
+                self.marketingCost() < Config.getInt('MarketingRatio') * clipperCost:
 
             # Only save up for marketing if the cost can be achieved within the timeframe before investing starts.
             availSavingTime = 60 - Config.getInt('InvestPercentage') * 0.6

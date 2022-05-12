@@ -47,7 +47,7 @@ class HedgeFunder():
         self.lastWireMoment = TS.now()
 
         # TODO: Move these buffers to Config
-        self.cashProjects = [("Hostile Takeover", 1_500_000), ("Full Monopoly", 11_000_000)]
+        self.cashProjects = [("Hostile Takeover", 1_100_000), ("Full Monopoly", 11_000_000)]
         self.investTime = float(Config.get("InvestPercentage")) * 0.6
         self.currMinute = TS.now().minute
         self.InvestUpgradeCosts = [int(cost) for cost in Config.get("InvestUpgradeCosts")]

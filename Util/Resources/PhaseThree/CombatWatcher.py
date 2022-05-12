@@ -49,6 +49,9 @@ class CombatWatcher():
 
         funcTimestamp = TS.now()
 
+        # OPT: Base matter acquisition on Unused clips going down, not on available matter.
+        # OPT: At a certain probe count there's no need anymore for additional Drones/Factories. Focus more on
+        # replication from that point.
         matterAcq = 1 if self.info.get("AvailMatter").text == "0" else 0
         replicate = self.availTrust - 2 * matterAcq - 9
 
