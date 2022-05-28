@@ -20,12 +20,18 @@ class ProjectBuyer():
         self.lastAcquisitionTime = TS.now()
 
         Listener.listenTo(Event.ButtonPressed, self.__enoughFundsWithdrawn, "WithdrawFunds", False)
+        Listener.listenTo(Event.ButtonPressed, self.__enoughThrenodyBought, "IncreaseMaxTrust", True)
         CurrentPhase.addCbToPhaseMove(Phase.One, self.__setNextProjectList)
         CurrentPhase.addCbToPhaseMove(Phase.Two, self.__setNextProjectList)
 
     def __enoughFundsWithdrawn(self, _: str) -> None:
         funds = self.info.getFl("Funds")
         self.enoughFunds = (funds > 511_500_000.0)
+
+    def __enoughThrenodyBought(self, _: str) -> None:
+        """Deletes all remaining Threnody projects. """
+        while "Threnody for the Heroes" in self.projects:
+            self.projects.remove("Threnody for the Heroes")
 
     def __setNextProjectList(self) -> None:
         """Loads in the projects for the next phase."""
