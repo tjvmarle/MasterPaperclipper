@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 import time
 from typing import Callable, List, Tuple
 from Util.Files.Config import Config
+from Util.GameLoop.Phases.CurrentPhase import CurrentPhase, Phase
+from Util.Listener import Event, Listener
 from Util.Resources.BaseRunner import BaseRunner
 from Util.Timestamp import Timestamp as TS
 from Webpage.PageState.PageActions import PageActions
@@ -48,7 +50,7 @@ class InfoTracker():
                 del self.data[-1]  # Delete the dummy entry.
                 self.track = lambda: time.sleep(5)
 
-            self.data.append(TS.now(), -1)  # Record a dummy value in case it is a fluke.
+            self.data.append((TS.now(), -1))  # Record a dummy value in case it is a fluke.
             return
 
         self.missedTracks = 0
@@ -79,6 +81,13 @@ class RunReporter(BaseRunner):
         super().__init__(pageInfo, pageActions)
         self.metrics: List[List[str:str]] = [entry.split(":") for entry in Config.get("ReportingMetrics")]
         self.trackers: List[InfoTracker] = []
+        self.phaseDurations: List[str] = []
+        self.phaseStart = TS.now()
+        self.projectAcquisition: List[Tuple[str, str]] = []
+        self.runStart = TS.now()
+
+        self.trackPhaseChanges()
+        self.trackProjects()
         self.startTrackers()
 
     def startTrackers(self) -> None:
@@ -100,12 +109,27 @@ class RunReporter(BaseRunner):
 
         with open(f"Data\\Private\\RunStats\\{filename}.txt", "w") as file:
             file.write(f'Date: {today.strftime("%Y-%m-%d")}\n')
-            file.write(f'Start: {today.strftime("%H-%M-%S.%f")[:-5]}\n')
+            file.write(f'Start: {today.strftime("%H:%M:%S.%f")[:-5]}\n\n')
 
+            # Write out duration of each phase.
+            for line in self.phaseDurations:
+                file.write(line + "\n")
+
+            if self.phaseDurations:
+                file.write(f"Total duration: {TS.deltaStr(self.runStart)}\n")
+                file.write("\n")
+
+            # Write out acquired projects.
+            if self.projectAcquisition:
+                file.write("Project\n")
+
+            for timestamp, project in self.projectAcquisition:
+                file.write(f"{timestamp}, {project}\n")
+
+            # Write out all tracked info-fields.
             for tracker in self.trackers:
-
                 if trackedData := tracker.getData():
-                    file.writelines([tracker.getField(), "\n"])
+                    file.writelines(["\n", tracker.getField(), "\n"])
                 else:
                     continue
 
@@ -115,4 +139,30 @@ class RunReporter(BaseRunner):
 
         RunReporter.tracking = False  # Kills of all threads
 
-    # TODO: Set up a html file to load/visualize the data. Use some JS to import the results and configure the graphs.
+    def trackPhaseChanges(self) -> None:
+        """Tracks duration of each phase."""
+        CurrentPhase.addCbToPhaseMove(Phase.One, self.__phaseChanged)
+        CurrentPhase.addCbToPhaseMove(Phase.Two, self.__phaseChanged)
+        CurrentPhase.addCbToPhaseMove(Phase.Three, self.__phaseChanged)
+
+    def __phaseChanged(self) -> None:
+        """Saves the duration of each phase."""
+        if CurrentPhase.phase == Phase.Two:
+            self.phaseDurations.append(f"1st Phase duration: {TS.deltaStr(self.phaseStart)}")
+        elif CurrentPhase.phase == Phase.Three:
+            self.phaseDurations.append(f"2nd Phase duration: {TS.deltaStr(self.phaseStart)}")
+        elif CurrentPhase.phase == Phase.End:
+            self.phaseDurations.append(f"3rd Phase duration: {TS.deltaStr(self.phaseStart)}")
+
+        self.phaseStart = TS.now()
+
+    def trackProjects(self) -> None:
+        """Tracks Acquisition time of every project."""
+        Listener.listenTo(Event.BuyProject, self.__appendProject, lambda _: True, False)
+
+    def __appendProject(self, project: str) -> None:
+        """Saves the bought project with the timestamp."""
+        self.projectAcquisition.append((TS.now().strftime("%Y-%m-%dT%H-%M-%S.%f")[:-5], project))
+
+
+# TODO: Set up a html file to load/visualize the data. Use some JS to import the results and configure the graphs.
