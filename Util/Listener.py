@@ -1,6 +1,7 @@
 from enum import Enum, auto
 from typing import Callable, List
 from Util.Timestamp import Timestamp as TS
+import inspect
 
 
 class Event(Enum):
@@ -15,6 +16,7 @@ class Listener():
         """Wrapper class for the event triggers."""
 
         def __init__(self, callback, filter: Callable = None, oneTimer: bool = False) -> None:
+            # TODO: Change oneTime into a decrementing counter. Take -1 for 'infinite'.
             self.cb = callback
             self.filter = filter
             self.once = oneTimer
@@ -57,8 +59,12 @@ class Listener():
 
         removeCbs = []
         for filteredCb in entry:
-            # TODO: Check if the CB accepts strings, omit the tag if they don't
-            if filteredCb(tag):  # Mark filteredCallback for removal
+            # Check if the CB accepts a single string, omit the tag if they don't.
+            argList = inspect.signature(filteredCb).parameters.values()
+
+            if len(argList) == 1 and argList[0] == str and filteredCb(tag):
+                removeCbs.append(filteredCb)
+            elif filteredCb():
                 removeCbs.append(filteredCb)
 
         if not removeCbs:
