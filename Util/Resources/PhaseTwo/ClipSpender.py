@@ -43,10 +43,17 @@ class ClipSpender():
         """Sets the slider to a specific value. Production is mostly bottlenecked by factories anyway and increasing 
         Processors and Memory is often more important than higher production."""
 
-        self.actions.setSlideValue("SwarmSlider", 150)
+        self.actions.setSlideValue("SwarmSlider", 75)
         # TODO: Probably going to need a seperate swarm balancer. Push the slider more to think when wire/s >> clips/s
         # Perhaps try to reach certain drone counts on high production, then switch to Think for a boost in Gifts.
         # We also need this in Phase 3: Availmatter == 0 --> 100% think.
+
+        # OPT: Keep the slider maximized towards work and rush towards the end of the phase. Here we can spend time
+        # thinking and gathering a bunch of Trust (and Yomi).
+
+        # OPT: Try to get some hard numbers on drone and factory production rates, combined with the different project
+        # upgrades. If you would be able to accurately determine production rates, it should be easier to optimize the
+        # Swarm slider.
 
     def __supplyChainAcquired(self, _: str) -> None:
         self.currentState.goTo(self.states.SupplyChainBought)
@@ -312,7 +319,7 @@ class ClipSpender():
 
             # We run this phase untill a certain amount of factories has been bought or all matter is acquired.
             if self.itemCount[Item.Factory] >= 200:
-                self.actions.setSlideValue("SwarmSlider", 150)
+                self.actions.setSlideValue("SwarmSlider", 50)
                 self.currentState.goTo(self.states.PlanetaryConsumption)
                 self.droneRatio = 2  # Moves drone acquisition to a 1:1 ratio.
                 TS.print("Moving to phase PlanetaryConsumption.")
@@ -324,8 +331,7 @@ class ClipSpender():
         elif self.currentState.get() == self.states.PrepareThirdPhase:
             # Acquire more Gifts/Yomi before moving to Phase 3.
             self.__prepareThirdPhase()
-            if self.info.getInt("Yomi") > 351_158 and self.info.getInt("Processors") >= 110 \
-                    and self.info.getInt("Memory") >= 110:
+            if self.info.getInt("Yomi") > 351_158 and self.info.getInt("Memory") >= 110:
                 self.currentState.goTo(self.states.FinishSecondPhase)
 
         elif self.currentState.get() == self.states.FinishSecondPhase:

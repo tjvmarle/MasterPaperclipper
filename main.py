@@ -25,9 +25,10 @@ frames = 0
 totalFrames = 0
 totalTicks = 0
 
-TS.print("\n" * 3)
+startString = f" {'*' * 5} Start! {'*' * 5}"
+TS.print("*" * len(startString))
 TS.print("*" * 5, " ", "Start!", " ", "*" * 5)
-TS.print("\n" * 3)
+TS.print("*" * len(startString), "\n" * 3)
 
 
 # Getting to 2nd phase a bit quicker

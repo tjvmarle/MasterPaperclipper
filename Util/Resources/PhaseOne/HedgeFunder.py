@@ -23,9 +23,11 @@ class HedgeFunder():
         self.actions.pressButton("DepositFunds")
 
     def __yomiEnabled(self, _: str) -> None:
+        TS.print("Yomi now available!")
         self.yomiAvailable = True
 
     def __limitBreak(self, _: str) -> None:
+        # FIXME: This doesn't really seem to do anything anymore.
         TS.print(f"Limit break enabled. Stonks only go up!")
         self.myFinalForm = True
 
@@ -43,7 +45,7 @@ class HedgeFunder():
         self.highRisk = False
         self.noMoreInvesting = False
         self.fullMonoAcq = False
-        self.yomiAvailable = False
+        self.yomiAvailable = True
         self.lastWireMoment = TS.now()
 
         # TODO: Move these buffers to Config
@@ -54,6 +56,9 @@ class HedgeFunder():
 
         Listener.listenTo(Event.BuyProject, self.__fullMonoAcquired, "Full Monopoly", True)
         Listener.listenTo(Event.BuyProject, self.__limitBreak, "Theory of Mind", True)
+
+        # TODO: Make this one conditional: only append the callback if Yomi is unavailable. This is dependent if either
+        # Strategic Modeling or Algorithmic Trading has been bought first.
         Listener.listenTo(Event.BuyProject, self.__yomiEnabled, "Strategic Modeling", True)
 
     def invest(self):
@@ -97,7 +102,8 @@ class HedgeFunder():
             self.InvestUpgradeCosts.pop(0)
 
     def takeOut(self):
-        """Manages acquisition of two specific projects requiring cash. This doesn't mix well otherwise with the clipper acquisitions or ProjectBuyer."""
+        """Manages acquisition of two specific projects requiring cash. This doesn't mix well otherwise with the clipper
+        acquisitions or ProjectBuyer."""
         if not self.cashProjects:
             return
 
@@ -116,6 +122,7 @@ class HedgeFunder():
             # Some safety to check if acquisition was actually successful.
             if not self.actions.isVisible(project):
                 TS.print(f"Buying {project} was successful.")
+                Listener.notify(Event.BuyProject, project)
                 self.cashProjects.pop(0)
             else:
                 TS.print(f"Buying {project} failed.")

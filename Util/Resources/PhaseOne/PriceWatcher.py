@@ -15,8 +15,10 @@ class PriceWatcher():
 
     def __fullMonopolyAcquired(self, _: str) -> None:
         """Pre-emptively increases the price after large increase of public demand when acquiring Full Monopoly."""
+
+        # $0.51 cent seems a stable starting point.
+        TS.print(f"Full monopoly acquired. Increasing current price from [{self.currPrice}] to [51] cent.")
         if self.currPrice >= 51:
-            # $0.51 cent seems a stable starting point.
             return
 
         self.__up(51 - self.currPrice)

@@ -63,6 +63,7 @@ class ProbeTrustSettings():
         Listener.listenTo(Event.ButtonPressed, self.__increaseTrust, "BuyProbeTrust", False)
 
     def __increaseTrust(self, _: str) -> None:
+        # FIXME: Maybe use this trigger to check if board settings are still in sync with the internal state.
         self.availTrust += 1
 
     def setTrust(self, speed: int, explore: int, replicate: int, hazard: int, factory: int, harvester: int, wire: int,

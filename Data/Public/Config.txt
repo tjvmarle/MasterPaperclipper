@@ -183,32 +183,46 @@ progressFields=[
 # Prioritizes the order in which Processors and Memory need to be bought
 # Syntax = Processors : Memory
 trustSpendingStrategy=[
-    # Early processors are required for some quick creativity generation
+    # Early processors are required for some quick creativity generation and buy the relevant project.
     5:1
 
-    # Temporarily block spending trust until Donkey Space is acquired
+    # Temporarily block spending trust until Donkey Space is acquired.
     block1
 
-    # Next, 10 memory is required to buy the first quantum upgrades, 15 trust requires 55.000 clips
+    # Next, 10 memory is required to buy the first quantum upgrades, 15 trust requires 55k clips.
     5:10
-    5:40
-    35:40
-    # OPT: Low performance makes it more difficult te reach 20k+ ops over max. Could be 50:50 on decent fps.
-    # OPT: 80k ops are required in 2nd phase, so end with enough memory
-    35:65
 
-    # First add more processors, as creativity is required for early Momentum
-    50:65
+    # With ops basically being free now, increase memory to quickly buy most projects.
+    5:40
+
+    # With ops maximized most of the time, increase processors to start banking up creativity.
+    33:40
+
+    # OPT: Phase one should end on 33:67. This might need a bit more balancing. You want the minimum amount of memory, 
+    #      while still being ably to buy the 80k projects in Phase Two without much problems. The more processors you 
+    #      have, the faster you'll be ably to buy Momentum.
+
+    # We should be at phase two here.
+    # First add more memory, so most projects can be bought
+    33:89
+
+    # After that, some more processors to speed up creativity.
+    50:89
+
+    # 120k ops are required to finish out phase two, 110 memory should be enough for this.
     50:110
+
+    # Dump the rest in processors for more creativity.
     100:110
 
-    # 120 ops are required for space exploration (finishing the 2nd phase)
-    # 150 ops are required to buy Combat and prevent heavy probe losses in third phase
+    # We should be at phase three here.
+    # 150k ops are required to buy Combat and prevent heavy probe losses.
     100:140
+
+    # After Combat, a bit more memory and a ton of creativity (for the Threnody projects) is required to move forward.
     150:170
 
     # Most expensive project is 250k ops, except for the endgame offer
-    # Until then, a lot of creativity is required for the Threnody projects
     250:230
     250:240
     600:240
@@ -229,16 +243,12 @@ phaseOneProjects=[
     The Hadwiger Problem
     The Toth Sausage Conjecture
     Donkey Space
-    
-    # Experimental. Slightly delays Quantum Computing, but gives a nice boost in the meantime
-    Improved AutoClippers
 
-    # Next go for the photonic chips
     Quantum Computing
-
     # Having one entry here will allow to 'save up' for this project. The rest will be handled by highPriorityProjects
     Photonic Chip
-
+    
+    Improved AutoClippers
     RevTracker
     Hadwiger Clip Diagrams
     Improved Wire Extrusion
@@ -250,12 +260,12 @@ phaseOneProjects=[
     # Creativity should be less of a problem with ops pushed over max
     New Slogan
     Spectral Froth Annealment
-    Algorithmic Trading
+    Strategic Modeling
     WireBuyer
     Catchy Jingle
     Hypno Harmonics
 
-    Strategic Modeling
+    Algorithmic Trading
     A100
 
     B100
@@ -332,7 +342,6 @@ phaseTwoProjects=[
     Wire Drones
     Clip Factories
     Swarm Computing
-    Momentum
     Drone flocking
     Upgraded Factories
     Hyperspeed Factories
@@ -341,10 +350,10 @@ phaseTwoProjects=[
     Space Exploration
 ]
 
-# Currently unused
 phaseTwoHighPriorityProjects=[
     Supply Chain
     Adversarial Cohesion
+    Momentum
 ]
 
 phaseThreeProjects=[
@@ -357,6 +366,7 @@ phaseThreeProjects=[
     Monument to the Fallen
 
     # Same button gets reused. 10k Honor each. 4 should be enough.
+    # TODO: Remove any remaining Threnody entries when Trust increase is bought
     Threnody for the Heroes
     Threnody for the Heroes
     Threnody for the Heroes
@@ -384,12 +394,12 @@ YomiStrategies=[
 ProgressInterval=60
 
 # Percentage of time used for investing, runs at start of every minute. Very low percentages are affected by fps. 
-InvestPercentage=25
-MaxInvestLevel=7
+InvestPercentage=33
+MaxInvestLevel=8
 
 # If leveling up marketing is cheaper than MarketingRatio*Clippercost, marketing will be leveled up. Lower values will 
 # result in fewer Marketing levels being bought.
-MarketingRatio=2
+MarketingRatio=4
 MaxMarketingLevel=10
 
 InvestUpgradeCosts=[
