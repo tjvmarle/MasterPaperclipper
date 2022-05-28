@@ -54,7 +54,7 @@ class ProbeBalancer(StatefulRunner):
         # We only do this once, the game should be finished before another upgrade would become available.
         if self.actions.isEnabled("IncreaseMaxTrust"):
             self.actions.pressButton("IncreaseMaxTrust")
-            self.runners.remove(self.__buyTrust)
+            self.runners.remove(self.__increaseMaxTrust)
 
     def __buyTrust(self) -> None:
         """Check if we can buy additional trust and do so."""
@@ -69,13 +69,12 @@ class ProbeBalancer(StatefulRunner):
             self.actions.pressButton("RaiseReplication")  # This might mess a little bit with the multithreading
 
             if self.currTrust == 30:
-                self.runners.remove(self.__buyTrust) # We should never be able to work towards 40 trust
+                self.runners.remove(self.__buyTrust)  # We should never be able to work towards 40 trust
 
     def __acquireAdditionalResources(self) -> None:
         """Checks if we can increase drone or factory count and/or acquire more matter for a short while. This will 
         later be replaced by the CombatWatcher."""
 
-        # FIXME: This needs to gather more matter early game or we run out and halt probe replication.
         if TS.delta(self.lastResourceAcquisition) < 60.0 and self.currentState.before(self.states.FightingForHonor):
             return
 
@@ -86,12 +85,13 @@ class ProbeBalancer(StatefulRunner):
         trustRunners.append(partial(self.probeTrustSetter.setTrust, 0, 0, replicationTrust, 6, 0, 1, 0, combatVal))
         trustRunners.append(partial(self.probeTrustSetter.setTrust, 0, 0, replicationTrust, 6, 0, 0, 1, combatVal))
 
-        if self.info.get("AvailMatter").text == "0":
+        if matter := self.info.get("AvailMatter").text == "0":
             # Add twice to double time gathering matter, as we run out quickly.
-            trustRunners.append(partial(self.probeTrustSetter.setTrust, 2, 2,
-                                        replicationTrust - 2, 6, 0, 0, 0, combatVal))
-            trustRunners.append(partial(self.probeTrustSetter.setTrust, 2, 2,
-                                        replicationTrust - 2, 6, 0, 0, 0, combatVal))
+            TS.print("Also acquiring matter.")
+            trustRunners.append(partial(self.probeTrustSetter.setTrust, 1, 1,
+                                        replicationTrust - 1, 6, 0, 0, 0, combatVal))
+            trustRunners.append(partial(self.probeTrustSetter.setTrust, 1, 1,
+                                        replicationTrust - 1, 6, 0, 0, 0, combatVal))
 
         trustRunners.append(self.__setToCreatingProbes)
 
@@ -105,7 +105,7 @@ class ProbeBalancer(StatefulRunner):
         """Checks if enough Probes have been generated and triggers exploration of the entire universe."""
 
         # FIXME: Somehow this didn't trigger.
-        if self.currentState == self.states.FightingForHonor and "nonillion" in self.info.get("LaunchedProbes").text:
+        if self.currentState == self.states.FightingForHonor and "octillion" in self.info.get("LaunchedProbes").text:
             TS.print("Trigger exploring the universe.")
             self.currentState.goTo(self.states.ExploringTheUniverse)
             self.combatWatcher.kill()
