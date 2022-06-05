@@ -28,7 +28,7 @@ class ProbeBalancer(StatefulRunner):
         super().__init__(pageInfo, pageActions, ProbeBalancer.States)
         self.states: ProbeBalancer.States
 
-        self.probeTrustSetter = ProbeTrustSettings(pageActions, 0)
+        self.probeTrustSetter = ProbeTrustSettings(pageInfo, pageActions, 0)
         self.threnodyCounter = 0
         self.currTrust = 0
 
@@ -66,10 +66,6 @@ class ProbeBalancer(StatefulRunner):
         if self.currTrust < 30 and self.actions.isEnabled("BuyProbeTrust"):
             self.actions.pressButton("BuyProbeTrust")
             self.currTrust += 1
-            self.actions.pressButton("RaiseReplication")  # This might mess a little bit with the multithreading
-
-            if self.currTrust == 30:
-                self.runners.remove(self.__buyTrust)  # We should never be able to work towards 40 trust
 
     def __acquireAdditionalResources(self) -> None:
         """Checks if we can increase drone or factory count and/or acquire more matter for a short while. This will 
@@ -78,16 +74,15 @@ class ProbeBalancer(StatefulRunner):
         if TS.delta(self.lastResourceAcquisition) < 60.0 and self.currentState.before(self.states.FightingForHonor):
             return
 
-        TS.print("Acquire additional resources.")
         combatVal = 0 if self.currentState.before(self.states.CombatEnabled) else 5
         replicationTrust = self.currTrust - 7 - combatVal
+        # FIXME: If OODA loop has been bought, speed should remain at 2
         trustRunners = [partial(self.probeTrustSetter.setTrust, 0, 0, replicationTrust, 6, 1, 0, 0, combatVal)]
         trustRunners.append(partial(self.probeTrustSetter.setTrust, 0, 0, replicationTrust, 6, 0, 1, 0, combatVal))
         trustRunners.append(partial(self.probeTrustSetter.setTrust, 0, 0, replicationTrust, 6, 0, 0, 1, combatVal))
 
-        if matter := self.info.get("AvailMatter").text == "0":
+        if self.info.get("AvailMatter").text == "0":
             # Add twice to double time gathering matter, as we run out quickly.
-            TS.print("Also acquiring matter.")
             trustRunners.append(partial(self.probeTrustSetter.setTrust, 1, 1,
                                         replicationTrust - 1, 6, 0, 0, 0, combatVal))
             trustRunners.append(partial(self.probeTrustSetter.setTrust, 1, 1,
@@ -105,13 +100,15 @@ class ProbeBalancer(StatefulRunner):
         """Checks if enough Probes have been generated and triggers exploration of the entire universe."""
 
         # FIXME: Somehow this didn't trigger.
-        if self.currentState == self.states.FightingForHonor and "octillion" in self.info.get("LaunchedProbes").text:
+        text = self.info.get("LaunchedProbes").text
+        sizeNonillion = ("nonillion" in text)
+        if self.currentState == self.states.FightingForHonor and sizeNonillion:
             TS.print("Trigger exploring the universe.")
             self.currentState.goTo(self.states.ExploringTheUniverse)
             self.combatWatcher.kill()
 
             # Delay a bit to build up more probes
-            TS.setTimer(60, "SetTrust", self.probeTrustSetter.setTrust, 4, 4, 12, 6, 0, 0, 0, 4)
+            TS.setTimer(60, "SetTrust", self.probeTrustSetter.setTrust, 4, 4, self.currTrust - 18, 6, 0, 0, 0, 4)
             self.runners.remove(self.__exploreUniverse)
 
     def __setToCreatingProbes(self) -> None:
@@ -124,9 +121,6 @@ class ProbeBalancer(StatefulRunner):
             self.probeTrustSetter.setTrust(0, 0, self.currTrust - 6, 6, 0, 0, 0)
 
     def __combatBought(self, _: str) -> None:
-        # FIXME: This state goes on longer than expected. We need to acquire additional matter during this phase and
-        # increase drone count. Probably need to keep the __acquireAdditionalResources-loop running until name the
-        # battles is acquired.
         self.currentState.goTo(self.states.CombatEnabled)
         self.__setToCreatingProbes()  # Updates Trust points allocated to Combat
 
@@ -136,6 +130,7 @@ class ProbeBalancer(StatefulRunner):
 
     def __nameTheBattlesBought(self, _: str) -> None:
         self.runners.remove(self.__acquireAdditionalResources)  # Will now be handled by the CombatWatcher
+        self.runners.remove(self.__buyTrust)                    # Same
         self.runners.append(self.__exploreUniverse)
         self.currentState.goTo(self.states.FightingForHonor)
 

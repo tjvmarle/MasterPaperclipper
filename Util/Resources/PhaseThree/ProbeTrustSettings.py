@@ -1,5 +1,6 @@
 from Util.Listener import Event, Listener
 from Webpage.PageState.PageActions import PageActions
+from Webpage.PageState.PageInfo import PageInfo
 
 from enum import Enum, auto
 
@@ -18,10 +19,10 @@ class SettingType(Enum):
 class TrustSettingEntry():
     """Helper class to track the trust setting of a single entry."""
 
-    def __init__(self, pageActions: PageActions, buttonDown: str, buttonUp: str) -> None:
+    def __init__(self, pageActions: PageActions, buttonDown: str, buttonUp: str, currVal: int) -> None:
         self.buttonDown = lambda: pageActions.pressButton(buttonDown)
         self.buttonUp = lambda: pageActions.pressButton(buttonUp)
-        self.currentValue = 0
+        self.currentValue = currVal
 
     def down(self) -> None:
         """If possible, lower the trust value with one point."""
@@ -38,32 +39,38 @@ class TrustSettingEntry():
         """Return the current value of the trust setting."""
         return self.currentValue
 
+    def set(self, field: int) -> None:
+        """Resets its current value with the given one."""
+        self.currentValue = field
+
 
 class ProbeTrustSettings():
     """Keeps track of the trust settings of the probes."""
 
-    def __init__(self, pageActions: PageActions, currentTrust: int) -> None:
-        buttonPairs = [
-            ["LowerSpeed", "RaiseSpeed"],
-            ["LowerExploration", "RaiseExploration"],
-            ["LowerReplication", "RaiseReplication"],
-            ["LowerHazard", "RaiseHazard"],
-            ["LowerFactory", "RaiseFactory"],
-            ["LowerHarvester", "RaiseHarvester"],
-            ["LowerWire", "RaiseWire"],
-            ["LowerCombat", "RaiseCombat"]]
+    def __init__(self, pageInfo: PageInfo, pageActions: PageActions, currentTrust: int) -> None:
+        self.info = pageInfo
+
+        buttonSets = [
+            ["LowerSpeed", "RaiseSpeed", "SpeedVal"],
+            ["LowerExploration", "RaiseExploration", "ExploreVal"],
+            ["LowerReplication", "RaiseReplication", "ReplicationVal"],
+            ["LowerHazard", "RaiseHazard", "HazardVal"],
+            ["LowerFactory", "RaiseFactory", "FactoryVal"],
+            ["LowerHarvester", "RaiseHarvester", "HarvesterVal"],
+            ["LowerWire", "RaiseWire", "WireVal"],
+            ["LowerCombat", "RaiseCombat", "CombatVal"]]
         settingList = [enum for enum in SettingType]
-        assert len(buttonPairs) == len(settingList)
-        self.availTrust = currentTrust
+        assert len(buttonSets) == len(settingList)
+        self.availTrust = currentTrust  # TODO: Just read this one from the website.
 
         # Map each enum against their entry.
+        # TODO: Make this readable.
         self.settings = {settingList[n]: TrustSettingEntry(
-            pageActions, buttonPairs[n][0], buttonPairs[n][1], ) for n in range(len(buttonPairs))}
+            pageActions, buttonSets[n][0], buttonSets[n][1], self.info.getInt(buttonSets[n][2]) if self.info.isVisible(buttonSets[n][2]) else 0) for n in range(len(buttonSets))}
 
         Listener.listenTo(Event.ButtonPressed, self.__increaseTrust, "BuyProbeTrust", False)
 
     def __increaseTrust(self, _: str) -> None:
-        # FIXME: Maybe use this trigger to check if board settings are still in sync with the internal state.
         self.availTrust += 1
 
     def setTrust(self, speed: int, explore: int, replicate: int, hazard: int, factory: int, harvester: int, wire: int,
@@ -105,8 +112,23 @@ class ProbeTrustSettings():
         for _ in range(abs(delta)):
             entry.up() if delta < 0 else entry.down()
 
-    def __val(self):
+    def __val(self) -> None:
         """Returns a dict of {enum: value} with all available settings."""
         valmap = {setting: entry.val()
                   for setting, entry in self.settings.items()}
         return valmap
+
+    def sync(self) -> None:
+        """Resets all the Trust settings."""
+        buttonMap = {SettingType.Speed: "SpeedVal",
+                     SettingType.Explore: "ExploreVal",
+                     SettingType.Replicate: "ReplicationVal",
+                     SettingType.Hazard: "HazardVal",
+                     SettingType.Factory: "FactoryVal",
+                     SettingType.Harvester: "HarvesterVal",
+                     SettingType.Wire: "WireVal",
+                     SettingType.Combat: "CombatVal"}
+
+        for settingEnum, infoField in buttonMap.items():
+            settingEntry = self.settings[settingEnum]
+            settingEntry.set(self.info.getInt(infoField))
