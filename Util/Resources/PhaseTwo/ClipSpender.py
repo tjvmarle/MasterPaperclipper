@@ -43,7 +43,7 @@ class ClipSpender():
         """Sets the slider to a specific value. Production is mostly bottlenecked by factories anyway and increasing 
         Processors and Memory is often more important than higher production."""
 
-        self.actions.setSlideValue("SwarmSlider", 75)
+        self.actions.setSlideValue("SwarmSlider", 80)
         # TODO: Probably going to need a seperate swarm balancer. Push the slider more to think when wire/s >> clips/s
         # Perhaps try to reach certain drone counts on high production, then switch to Think for a boost in Gifts.
         # We also need this in Phase 3: Availmatter == 0 --> 100% think.
@@ -299,8 +299,7 @@ class ClipSpender():
         self.actions.pressButton("DissFactory")
 
         # Minimum requirements to start third phase. Required Yomi is good for 18 Trust.
-        if self.info.getInt("Yomi") > 351_158 and self.info.getInt("Processors") >= 110 \
-                and self.info.getInt("Memory") >= 110:
+        if self.info.getInt("Yomi") > 351_158 and self.info.getInt("Memory") >= 115:
             self.currentState.goTo(self.states.FinishSecondPhase)
         else:
             # Collect some more Yomi and Swarm gifts.
@@ -331,7 +330,7 @@ class ClipSpender():
         elif self.currentState.get() == self.states.PrepareThirdPhase:
             # Acquire more Gifts/Yomi before moving to Phase 3.
             self.__prepareThirdPhase()
-            if self.info.getInt("Yomi") > 351_158 and self.info.getInt("Memory") >= 110:
+            if self.info.getInt("Yomi") > 351_158 and self.info.getInt("Memory") >= 115:
                 self.currentState.goTo(self.states.FinishSecondPhase)
 
         elif self.currentState.get() == self.states.FinishSecondPhase:

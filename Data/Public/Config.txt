@@ -75,6 +75,15 @@ infoFields=[
     AvailMatter:availableMatterDisplay
     LaunchedProbes:probesTotalDisplay
     SpaceExploration:colonizedDisplay
+
+    SpeedVal:probeSpeedDisplay
+    ExploreVal:probeNavDisplay
+    ReplicationVal:probeRepDisplay
+    HazardVal:probeHazDisplay
+    FactoryVal:probeFacDisplay
+    HarvesterVal:probeHarvDisplay
+    WireVal:probeWireDisplay
+    CombatVal:probeCombatDisplay
 ]
 
 # Fields used on the webpage containing actionable elements
@@ -138,18 +147,25 @@ actionFields=[
 
     LowerSpeed:btnLowerProbeSpeed
     RaiseSpeed:btnRaiseProbeSpeed
+
     LowerExploration:btnLowerProbeNav
     RaiseExploration:btnRaiseProbeNav
+
     LowerReplication:btnLowerProbeRep
     RaiseReplication:btnRaiseProbeRep
+
     LowerHazard:btnLowerProbeHaz
     RaiseHazard:btnRaiseProbeHaz
+
     LowerFactory:btnLowerProbeFac
     RaiseFactory:btnRaiseProbeFac
+
     LowerHarvester:btnLowerProbeHarv
     RaiseHarvester:btnRaiseProbeHarv
+
     LowerWire:btnLowerProbeWire
     RaiseWire:btnRaiseProbeWire
+
     LowerCombat:btnLowerProbeCombat
     RaiseCombat:btnRaiseProbeCombat
 
@@ -209,21 +225,17 @@ trustSpendingStrategy=[
     # After that, some more processors to speed up creativity.
     50:89
 
-    # 120k ops are required to finish out phase two, 110 memory should be enough for this.
-    50:110
-
-    # Dump the rest in processors for more creativity.
-    100:110
+    # 120k ops are required to finish out phase two.
 
     # We should be at phase three here.
     # 150k ops are required to buy Combat and prevent heavy probe losses.
-    100:140
+    # 175k ops are required to buy The OODA Loop.
+    50:165
 
-    # After Combat, a bit more memory and a ton of creativity (for the Threnody projects) is required to move forward.
-    150:170
+    # After that a ton of creativity (for the Threnody projects) is required to move forward.
+    450:165
 
     # Most expensive project is 250k ops, except for the endgame offer
-    250:230
     250:240
     600:240
     600:290
@@ -362,18 +374,18 @@ phaseThreeProjects=[
     The OODA Loop
     Name the battles
 
+    # Same button gets reused. 10k Honor each. 4 should be enough.
+    Threnody for the Heroes
+    Threnody for the Heroes
+    Threnody for the Heroes
+
     # 50k honor
     Monument to the Fallen
 
-    # Same button gets reused. 10k Honor each. 4 should be enough.
-    # TODO: Remove any remaining Threnody entries when Trust increase is bought
-    Threnody for the Heroes
-    Threnody for the Heroes
-    Threnody for the Heroes
+    # Depending on how well we did in combat we might need one more.
     Threnody for the Heroes
     
-    # TODO: This cannot be under high prio unless Name the Battles has been bought first. Check if we actually need this
-    # project at all. If we do need it, check what position is optimal.
+    # TODO: We might not need this one at all.
     Strategic Attachment
 ]
 
@@ -399,8 +411,8 @@ MaxInvestLevel=8
 
 # If leveling up marketing is cheaper than MarketingRatio*Clippercost, marketing will be leveled up. Lower values will 
 # result in fewer Marketing levels being bought.
-MarketingRatio=4
-MaxMarketingLevel=10
+MarketingRatio=3
+MaxMarketingLevel=14
 
 InvestUpgradeCosts=[
        100
