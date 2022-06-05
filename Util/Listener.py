@@ -22,8 +22,18 @@ class Listener():
             self.once = oneTimer
 
         def __call__(self, tag: str) -> bool:
-            if not self.filter or self.filter(tag):
-                self.cb(tag)
+            """Checks if the tag is relevant and executes the callback if it is."""
+
+            if self.filter(tag):
+                # Check if the callback accepts a string and only pass the tag if it does.
+                argList = inspect.signature(self.cb).parameters.values()
+                lenCheck = len(argList) == 1
+                listCheck = ([entry.annotation == str for entry in argList] == [True])  # Bit ugly ¯\_(ツ)_/¯
+                if lenCheck and listCheck:
+                    self.cb(tag)
+                else:
+                    self.cb()
+
                 return self.once
             return False
 
@@ -59,17 +69,11 @@ class Listener():
 
         removeCbs = []
         for filteredCb in entry:
-            # Check if the CB accepts a single string, omit the tag if they don't.
-            argList = inspect.signature(filteredCb).parameters.values()
-
-            if len(argList) == 1 and argList[0] == str and filteredCb(tag):
-                removeCbs.append(filteredCb)
-            elif filteredCb():
+            if filteredCb(tag):
                 removeCbs.append(filteredCb)
 
         if not removeCbs:
             return
 
-        # TODO: Check if/how you can remove entries from a list while iterating
         for cb in removeCbs:
             entry.remove(cb)
