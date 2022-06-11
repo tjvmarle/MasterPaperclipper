@@ -1,7 +1,12 @@
 import math
+from enum import Enum, auto
+from typing import Tuple
+from multiprocessing.dummy import Process
+
 from Util.Resources.OrderedEnum import OrderedEnum
 from Util.Resources.PhaseTwo.ClipValue import ClipValue
 from Util.Resources.PhaseTwo.ItemBuyer import Item, ItemBuyer
+from Util.Resources.SwarmBalancer import SwarmBalancer
 from Util.Resources.ThreadClicker import ThreadClicker
 from Util.Resources.State import StateTracker
 from Webpage.PageState.PageActions import PageActions
@@ -9,8 +14,6 @@ from Webpage.PageState.PageInfo import PageInfo
 from Util.Listener import Event, Listener
 from Util.Timestamp import Timestamp as TS
 from Util.Files.Config import Config
-from enum import Enum, auto
-from typing import Tuple
 
 
 class ClipSpender():
@@ -40,20 +43,11 @@ class ClipSpender():
         self.currentState.goTo(self.states.MomentumBought)
 
     def __swarmAcquired(self, _: str) -> None:
-        """Sets the slider to a specific value. Production is mostly bottlenecked by factories anyway and increasing 
-        Processors and Memory is often more important than higher production."""
+        """Initializes the Swarm Balancer which will keep track of the Swarm Computing slider."""
+        self.swarmBalancer = SwarmBalancer(self.info, self.actions)
+        Process(target=self.swarmBalancer.run, args=[], name="SwarmBalancer").start()
 
         self.actions.setSlideValue("SwarmSlider", 80)
-        # TODO: Probably going to need a seperate swarm balancer. Push the slider more to think when wire/s >> clips/s
-        # Perhaps try to reach certain drone counts on high production, then switch to Think for a boost in Gifts.
-        # We also need this in Phase 3: Availmatter == 0 --> 100% think.
-
-        # OPT: Keep the slider maximized towards work and rush towards the end of the phase. Here we can spend time
-        # thinking and gathering a bunch of Trust (and Yomi).
-
-        # OPT: Try to get some hard numbers on drone and factory production rates, combined with the different project
-        # upgrades. If you would be able to accurately determine production rates, it should be easier to optimize the
-        # Swarm slider.
 
     def __supplyChainAcquired(self, _: str) -> None:
         self.currentState.goTo(self.states.SupplyChainBought)
@@ -72,6 +66,7 @@ class ClipSpender():
     def __init__(self, pageInfo: PageInfo, pageAction: PageActions) -> None:
         self.info = pageInfo
         self.actions = pageAction
+        self.swarmBalancer = None
 
         # For some stupid reason this doesn't work in-class
         ClipValue.inverse_magnitudes = {value: key for (key, value) in ClipValue.magnitudes.items()}
@@ -126,7 +121,7 @@ class ClipSpender():
         wirePersec = ClipValue(self.info.get("WirePerSec"))
 
         # Because production keeps increasing after Momentum we use a bit of leeway to determine 'stability'
-        buffer = 1 if self.currentState.before(self.states.MomentumBought) else 1.15
+        buffer = 1 if self.currentState.before(self.states.MomentumBought) else 1.025
         return clipsPerSec * buffer < wirePersec or clipsPerSec > ClipValue(self.info.get("FactoryCost")) \
             or self.itemCount[Item.Factory] > 60
 
@@ -303,6 +298,7 @@ class ClipSpender():
             self.currentState.goTo(self.states.FinishSecondPhase)
         else:
             # Collect some more Yomi and Swarm gifts.
+            self.swarmBalancer.kill()
             self.actions.setSlideValue("SwarmSlider", 200)
             self.currentState.goTo(self.states.PrepareThirdPhase)
 
@@ -317,7 +313,7 @@ class ClipSpender():
             self.__buyNextItem()
 
             # We run this phase untill a certain amount of factories has been bought or all matter is acquired.
-            if self.itemCount[Item.Factory] >= 200:
+            if self.itemCount[Item.Factory] >= 210:
                 self.actions.setSlideValue("SwarmSlider", 50)
                 self.currentState.goTo(self.states.PlanetaryConsumption)
                 self.droneRatio = 2  # Moves drone acquisition to a 1:1 ratio.

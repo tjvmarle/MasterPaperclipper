@@ -62,12 +62,16 @@ infoFields=[
     StoredPower:storedPower
     HarvesterCount:harvesterLevelDisplay
     WireCount:wireDroneLevelDisplay
+    Performance:performance
+    
+    # Same in Phase 3
+    UnusedClips:unusedClipsDisplay
+    Factories:factoryLevelDisplaySpace
+    SwarmTimer:giftCountdown
 
     # Phase 3
-    Factories:factoryLevelDisplaySpace
     Harvesters:harvesterLevelSpace
     WireDrones:wireDroneLevelSpace
-    UnusedClips:unusedClipsDisplay
     Honor:honorDisplay
 
     MaxTrust:maxTrustDisplay
@@ -212,18 +216,18 @@ trustSpendingStrategy=[
     5:40
 
     # With ops maximized most of the time, increase processors to start banking up creativity.
-    33:40
+    31:40
 
-    # OPT: Phase one should end on 33:67. This might need a bit more balancing. You want the minimum amount of memory, 
+    # OPT: Phase one should end on 31:69 (nice). This might need a bit more balancing. You want the minimum amount of memory, 
     #      while still being ably to buy the 80k projects in Phase Two without much problems. The more processors you 
     #      have, the faster you'll be ably to buy Momentum.
 
     # We should be at phase two here.
-    # First add more memory, so most projects can be bought
-    33:89
+    # First add more memory, so most projects can be bought. Drone flocking requires 100k.
+    31:90
 
-    # After that, some more processors to speed up creativity.
-    50:89
+    # After that, some more processors to speed up creativity. We need 20k for Momentum.
+    50:90
 
     # 120k ops are required to finish out phase two.
 
@@ -236,7 +240,7 @@ trustSpendingStrategy=[
     450:165
 
     # Most expensive project is 250k ops, except for the endgame offer
-    250:240
+    450:240
     600:240
     600:290
     100_000:290
@@ -260,22 +264,22 @@ phaseOneProjects=[
     # Having one entry here will allow to 'save up' for this project. The rest will be handled by highPriorityProjects
     Photonic Chip
     
-    Improved AutoClippers
-    RevTracker
-    Hadwiger Clip Diagrams
-    Improved Wire Extrusion
-    Optimized Wire Extrusion
-    Even Better AutoClippers
-    Microlattice Shapecasting
-    Optimized AutoClippers
+     Improved AutoClippers
+     RevTracker
+     Hadwiger Clip Diagrams
+     Improved Wire Extrusion
+     Optimized Wire Extrusion
+     Even Better AutoClippers
+     Microlattice Shapecasting
+     Optimized AutoClippers
 
     # Creativity should be less of a problem with ops pushed over max
-    New Slogan
-    Spectral Froth Annealment
-    Strategic Modeling
-    WireBuyer
-    Catchy Jingle
-    Hypno Harmonics
+     New Slogan
+     Spectral Froth Annealment
+     Strategic Modeling
+     WireBuyer
+     Catchy Jingle
+     Hypno Harmonics
 
     Algorithmic Trading
     A100
@@ -311,7 +315,7 @@ phaseOneProjects=[
 ]
 
 # Projects in this list will be bought when possible, outside of any other priorities
-# TODO: log their acquisition order and move as many as possible to the ordered list
+# TODO: Move as many as possible to the ordered list
 
 phaseOneHighPriorityProjects=[
     MegaClippers
@@ -325,10 +329,6 @@ phaseOneHighPriorityProjects=[
     Global Warming
     Male Pattern Baldness
     
-    # Slightly higher prio than Photonic Chips. Running longer tournaments allows for longer generation of ops through 
-    # Quantum Computing
-    
-
     # Same, just buy when you can. Each entry is good for one acquisition. Requires one duplicate with phaseOneProjects
     Photonic Chip
     Photonic Chip
@@ -345,7 +345,6 @@ phaseOneHighPriorityProjects=[
     Release the HypnoDrones
 ]
 
-# TODO: Move some of these to a High prio list
 phaseTwoProjects=[
     Toth Tubule Enfolding
     Power Grid
