@@ -104,6 +104,7 @@ class SwarmBalancer(StatefulRunner):
         else:
             # Phase Three
             #TODO: implement
+            # Should probably be 200 except when some matter has been explored.
             pass
 
     def __changeDirection(self) -> int:

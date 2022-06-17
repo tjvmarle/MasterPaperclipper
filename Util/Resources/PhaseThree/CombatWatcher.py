@@ -48,7 +48,7 @@ class CombatWatcher(StatefulRunner):
 
     def __increaseTrust(self, _: str) -> None:
         self.availTrust += 1
-        # self.probeTrustSetter.sync()  # TODO: Probably still not enough as long as ProbeBalancer keeps buying Trust.
+        self.probeTrustSetter.sync()  # TODO: Probably still not enough as long as ProbeBalancer keeps buying Trust.
 
     def run(self):
         """Main loop. This is supposed to run on a seperate thread. Checks if the honor amount changes. If so, produce 
@@ -89,8 +89,8 @@ class CombatWatcher(StatefulRunner):
         # OPT: Base matter acquisition on Unused clips going down, not on available matter.
         # OPT: At a certain probe count there's no need anymore for additional Drones/Factories. Focus more on
         # replication from that point.
-        # matterAcq = 1 if self.info.get("AvailMatter").text == "0" else 0
-        # replicate = self.availTrust - 2 * matterAcq - 9
+        # Most of the Trust should be focused on replication, even drone production can be way more limited.
+        # OPT: We need fewer factories.
 
         trustList = self.__getPeaceTrustList()
 

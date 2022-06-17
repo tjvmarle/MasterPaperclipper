@@ -77,6 +77,7 @@ class ProbeTrustSettings():
                  combat: int = 0) -> bool:
         """Set the new trust values. The values will first be decreased so enough trust is available for the remaining 
         increases. Returns False if not enough trust is available."""
+        # TODO: Maybe run this one also from a different thread and just work from a queue instead.
 
         mappedValues = {SettingType.Speed: speed, SettingType.Explore: explore, SettingType.Replicate: replicate,
                         SettingType.Hazard: hazard, SettingType.Factory: factory, SettingType.Harvester: harvester,
