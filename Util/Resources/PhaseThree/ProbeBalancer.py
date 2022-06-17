@@ -1,4 +1,5 @@
 from functools import partial
+from typing import Callable, List
 from Util.Resources.StatefulRunner import StatefulRunner
 from Util.Resources.OrderedEnum import OrderedEnum
 from Util.Resources.PhaseThree.CombatWatcher import CombatWatcher
@@ -32,7 +33,8 @@ class ProbeBalancer(StatefulRunner):
         self.threnodyCounter = 0
         self.currTrust = 0
 
-        self.lastResourceAcquisition = TS.now() + timedelta(seconds=1_000)  # One-time artificial inflation
+        self.lastResourceAcquisition = TS.now()
+        self.loopCounter = 10
 
         self.runners = [self.__increaseMaxTrust, self.__buyTrust, self.__acquireAdditionalResources]
 
@@ -71,20 +73,23 @@ class ProbeBalancer(StatefulRunner):
         """Checks if we can increase drone or factory count and/or acquire more matter for a short while. This will 
         later be replaced by the CombatWatcher."""
 
-        if TS.delta(self.lastResourceAcquisition) < 60.0 and self.currentState.before(self.states.FightingForHonor):
+        if TS.delta(self.lastResourceAcquisition) < 15.0 and self.currentState.before(self.states.FightingForHonor):
             return
 
         combatVal = 0 if self.currentState.before(self.states.CombatEnabled) else 5
         replicationTrust = self.currTrust - 7 - combatVal
         # FIXME: If OODA loop has been bought, speed should remain at 2
-        trustRunners = [partial(self.probeTrustSetter.setTrust, 0, 0, replicationTrust, 6, 1, 0, 0, combatVal)]
+        trustRunners: List[Callable] = []
+        if self.loopCounter == 20:
+            # Only produce factories from time to time
+            trustRunners.append(partial(self.probeTrustSetter.setTrust, 0, 0, replicationTrust, 6, 1, 0, 0, combatVal))
+            self.loopCounter = 0
+        self.loopCounter += 1
+
         trustRunners.append(partial(self.probeTrustSetter.setTrust, 0, 0, replicationTrust, 6, 0, 1, 0, combatVal))
         trustRunners.append(partial(self.probeTrustSetter.setTrust, 0, 0, replicationTrust, 6, 0, 0, 1, combatVal))
 
         if self.info.get("AvailMatter").text == "0":
-            # Add twice to double time gathering matter, as we run out quickly.
-            trustRunners.append(partial(self.probeTrustSetter.setTrust, 1, 1,
-                                        replicationTrust - 1, 6, 0, 0, 0, combatVal))
             trustRunners.append(partial(self.probeTrustSetter.setTrust, 1, 1,
                                         replicationTrust - 1, 6, 0, 0, 0, combatVal))
 
@@ -92,7 +97,7 @@ class ProbeBalancer(StatefulRunner):
 
         # Run each trust setting for the same amount of time
         for count, runner in enumerate(trustRunners):
-            TS.setTimer(5 * count, "DroneAcquisition", runner)
+            TS.setTimer(count, "DroneAcquisition", runner)
 
         self.lastResourceAcquisition = TS.now()
 
